@@ -1,4 +1,4 @@
-Test_Task_Project for RAIDs.
+Observer_Project for RAIDs.
 
 IDEA IDE Plugin. 
 

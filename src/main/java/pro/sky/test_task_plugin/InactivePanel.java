@@ -13,7 +13,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 
 public class InactivePanel {
     private JTextField urlField;
@@ -26,9 +25,9 @@ public class InactivePanel {
     private JLabel titleLabel;
     private JPanel inactivePanel;
 
-    private final String URL_FIELD_DEFAULT_TEXT  = "Enter url to connect to";
-    private final String ROOM_ID_FIELD_DEFAULT_TEXT  = "Enter room id";
-    private final String NAME_FIELD_DEFAULT_TEXT  = "Enter name to display in chat";
+    private final String URL_FIELD_DEFAULT_TEXT = "Enter url to connect to";
+    private final String ROOM_ID_FIELD_DEFAULT_TEXT = "Enter room id";
+    private final String NAME_FIELD_DEFAULT_TEXT = "Enter name to display in chat";
     private final String CONNECTED_STATUS_TEXT_FORMAT = "Connected to %s as %s";
     Project openProject;
 
@@ -40,7 +39,7 @@ public class InactivePanel {
         connectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                 createSocketWithListenersAndConnect(SOCKET_URL);
+                createSocketWithListenersAndConnect(SOCKET_URL);
             }
         });
 
@@ -48,24 +47,24 @@ public class InactivePanel {
         urlField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-               if(urlField.getText().equals(URL_FIELD_DEFAULT_TEXT)) {
-                   urlField.setText("");
-               }
+                if (urlField.getText().equals(URL_FIELD_DEFAULT_TEXT)) {
+                    urlField.setText("");
+                }
             }
         });
 
         urlField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-               if(urlField.getText().equals("")){
-                   urlField.setText(URL_FIELD_DEFAULT_TEXT);
-               }
+                if (urlField.getText().equals("")) {
+                    urlField.setText(URL_FIELD_DEFAULT_TEXT);
+                }
             }
         });
         roomIdField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                if(roomIdField.getText().equals(ROOM_ID_FIELD_DEFAULT_TEXT)) {
+                if (roomIdField.getText().equals(ROOM_ID_FIELD_DEFAULT_TEXT)) {
                     roomIdField.setText("");
                 }
             }
@@ -73,7 +72,7 @@ public class InactivePanel {
         roomIdField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                if(roomIdField.getText().equals("")){
+                if (roomIdField.getText().equals("")) {
                     roomIdField.setText(ROOM_ID_FIELD_DEFAULT_TEXT);
                 }
             }
@@ -81,7 +80,7 @@ public class InactivePanel {
         nameField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                if(nameField.getText().equals(NAME_FIELD_DEFAULT_TEXT)) {
+                if (nameField.getText().equals(NAME_FIELD_DEFAULT_TEXT)) {
                     nameField.setText("");
                 }
             }
@@ -90,20 +89,21 @@ public class InactivePanel {
         nameField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                if(nameField.getText().equals("")){
+                if (nameField.getText().equals("")) {
                     nameField.setText(NAME_FIELD_DEFAULT_TEXT);
                 }
             }
         });
     }
 
-    private void createSocketWithListenersAndConnect(URI uri){
+    private void createSocketWithListenersAndConnect(URI uri) {
         Resources.mSocket = IO.socket(uri, options);
         socketConnectionEventsWithBubbles();
         socketMessageEvents();
+        socketProjectRequestEvents();
     }
 
-    private void socketMessageEvents(){
+    private void socketMessageEvents() {
         Resources.mSocket.on(io.socket.engineio.client.Socket.EVENT_MESSAGE, args -> {
             Message message = new Message(
                     1L,
@@ -118,8 +118,8 @@ public class InactivePanel {
     }
 
 
-    private void socketConnectionEventsWithBubbles(){
-        openProject =   Resources.toolWindow.getProject();
+    private void socketConnectionEventsWithBubbles() {
+        openProject = Resources.toolWindow.getProject();
         String id = "pro.sky.observer";
 
         Notification balloonNotificationConnected =
@@ -142,9 +142,14 @@ public class InactivePanel {
             Resources.userName = nameField.getText();
 
             Resources.connectedPanel.setConnectionStatusLabelText(
-                    String.format(CONNECTED_STATUS_TEXT_FORMAT, Resources.roomId , Resources.userName)
+                    String.format(CONNECTED_STATUS_TEXT_FORMAT, Resources.roomId, Resources.userName)
             );
+
+            Resources.connectedPanel.setMentorStatusLabelText();
             Resources.connectedPanel.getConnectedPanel().setVisible(true);
+
+
+            socketProjectRequestEvents(); //TODO TMP!!!
 
         });
         Resources.mSocket.on(Socket.EVENT_DISCONNECT, args -> {
@@ -155,7 +160,14 @@ public class InactivePanel {
         Resources.mSocket.on(Socket.EVENT_CONNECT_ERROR, args ->
                 balloonNotificationError.notify(openProject));
     }
-    private void socketProjectRequest(){
+
+    private void socketProjectRequestEvents() {
+        Resources.mSocket.on("initial_file_transfer", args -> {
+            Resources.watchingStatus = true;
+            Resources.connectedPanel.setMentorStatusLabelText();
+            FileStructureStringer fileStructureStringer = new FileStructureStringer();
+            Resources.mSocket.emit("project_json", fileStructureStringer.getProjectFilesList(openProject));
+        });
 
     }
 

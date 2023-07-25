@@ -1,50 +1,66 @@
 package pro.sky.test_task_plugin;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
+
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 public class FileStructureStringer {
 
+    List<File> files = new ArrayList<>();
+    List<ProjectFile> projectFiles = new ArrayList<>();
 
-    public static String printDirectoryTree(String project, File folder) {
-        if (!folder.isDirectory()) {
-            throw new IllegalArgumentException("folder is not a Directory");
-        }
-        int indent = 0;
-        StringBuilder sb = new StringBuilder();
-        sb.append(project);
-        sb.append("\n");
+    public void listFiles(String directoryName, List<File> files) {
+        File directory = new File(directoryName);
 
-        printDirectoryTree(folder, indent, sb);
-        return sb.toString();
+        File[] fList = directory.listFiles();
+        if (fList != null)
+            for (File file : fList) {
+                if (file.getPath().contains(".idea")) {
+                    continue;
+                }
+                if (file.isFile()) {
+                    files.add(file);
+                } else if (file.isDirectory()) {
+                    listFiles(file.getAbsolutePath(), files);
+                }
+            }
     }
 
-    private static void printDirectoryTree(File folder, int indent,
-                                           StringBuilder sb) {
-        if (!folder.isDirectory()) {
-            throw new IllegalArgumentException("folder is not a Directory");
-        }
-        sb.append(getIndentString(indent));
-        sb.append("- ");
-        sb.append(folder.getName());
-       // sb.append("/");
-        sb.append("\n");
-        for (File file : folder.listFiles()) {
-            if (file.isDirectory()) {
-                printDirectoryTree(file, indent + 1, sb);
-            } else {
-                printFile(file, indent + 1, sb);
+    public String getProjectFilesList(Project project) {
+
+        File dir = new File(Objects.requireNonNull(project.getBasePath()));
+        listFiles(project.getBasePath(), files);
+
+
+        ProjectFileMapper projectFileMapper = new ProjectFileMapper();
+        for (File file : files) {
+            try {
+                projectFiles.add(projectFileMapper.filetoProjectFile(file, dir.getAbsolutePath()+"\\"));
+            }catch (IOException e){
+                System.out.println("oops");
             }
         }
-
+        String json;
+                ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            json = objectMapper.writeValueAsString(projectFiles);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return json;
     }
 
-    private static void printFile(File file, int indent, StringBuilder sb) {
-        sb.append(getIndentString(indent));
-        sb.append("-- ");
-        sb.append(file.getName());
-        sb.append("\n");
-    }
 
-    private static String getIndentString(int indent) {
-        return "  ".repeat(Math.max(0, indent));
-    }
+
 }

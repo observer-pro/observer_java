@@ -40,6 +40,12 @@ public class ConnectedPanel {
                 }
             }
         });
+        stopSharingButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Resources.mSocket.disconnect();
+            }
+        });
     }
 
     private void sendMessage(){
@@ -69,5 +75,13 @@ public class ConnectedPanel {
             sb.append(String.format(MESSAGE_STRING_FORMAT, m.getSender(), m.getMessageText()));
         }
         chatArea.setText(sb.toString());
+    }
+
+    public void setMentorStatusLabelText() {
+        if(Resources.watchingStatus){
+            mentorStatusLabel.setText("Mentor is watching");
+            return;
+        }
+        mentorStatusLabel.setText("Mentor in not watching");
     }
 }

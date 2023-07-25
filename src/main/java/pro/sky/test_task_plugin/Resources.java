@@ -28,4 +28,6 @@ public class Resources {
     static volatile Socket mSocket;
 
     static List<Message> messageList = new ArrayList<>();
+
+    static volatile boolean watchingStatus = false;
 }

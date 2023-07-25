@@ -10,6 +10,9 @@ public class ConnectedPanel {
     private JLabel mentorStatusLabel;
     private JTextArea chatArea;
     private JPanel connectedPanel;
+    private JLabel connectionStatusLabel;
+    private JScrollPane scroll;
+    private JSeparator separator;
 
     public JPanel getConnectedPanel() {
        return connectedPanel;
@@ -17,5 +20,9 @@ public class ConnectedPanel {
 
     public void setVisible(boolean toggle){
         connectedPanel.setVisible(toggle);
+    }
+
+    public void setConnectionStatusLabelText(String text) {
+        this.connectionStatusLabel.setText(text);
     }
 }

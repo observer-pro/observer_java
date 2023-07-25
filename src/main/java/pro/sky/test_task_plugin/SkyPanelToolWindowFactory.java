@@ -9,58 +9,44 @@ import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class SkyPanelToolWindowFactory implements ToolWindowFactory, DumbAware {
     SkyPanelToolWindowContent toolWindowContent;
     Content content;
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        InactivePanel inactivePanel = new InactivePanel();
-        inactivePanel.setToolWindow(toolWindow);
-        inactivePanel.setSkyPanelToolWindowFactory(this);
+
+        Resources.connectedPanel = new ConnectedPanel();
+        Resources.inactivePanel = new InactivePanel();
+        Resources.toolWindow = toolWindow;
+        Resources.skyPanelToolWindowFactory = this;
 
         toolWindowContent = new SkyPanelToolWindowContent();
-        inactivePanel.setSkyPanelToolWindowContent(toolWindowContent);
+        Resources.skyPanelToolWindowContent = toolWindowContent;
 
         content = ContentFactory.getInstance().createContent(toolWindowContent.getContentPanel(), "", false);
         toolWindow.getContentManager().addContent(content);
     }
 
-//    public void recreateToolWindowContent(@NotNull ToolWindow toolWindow){
-//        ConnectedPanel connectedPanel = new ConnectedPanel();
-//        toolWindowContent = new SkyPanelToolWindowContent(connectedPanel.getConnectedPanel());
-//        content = ContentFactory.getInstance().createContent(toolWindowContent.getContentPanel(), "", false);
-//        toolWindow.getContentManager().getContents();
-//    }
-
-
 
 
     public static class SkyPanelToolWindowContent {
-        private JPanel contentPanel = new JPanel();
+        private final JPanel contentPanel = new JPanel();
 
         public SkyPanelToolWindowContent() {
             contentPanel.setLayout(new BoxLayout(contentPanel,BoxLayout.Y_AXIS));
-            InactivePanel inactivePanel = new InactivePanel();
-            inactivePanel.setContentPanel(contentPanel);
 
-            ConnectedPanel connectedPanel = new ConnectedPanel();
+            Resources.contentPanel = contentPanel;
 
-            inactivePanel.getInactivePanel().setVisible(true);
+            Resources.inactivePanel.getInactivePanel().setVisible(true);
 
-            inactivePanel.setConnectedPanel(connectedPanel.getConnectedPanel());
-            inactivePanel.setConnectedPanelVisible(false);
+            Resources.connectedPanel.setVisible(false);
 
-            contentPanel.add(connectedPanel.getConnectedPanel());
-            contentPanel.add(inactivePanel.getInactivePanel());
+            contentPanel.add(Resources.connectedPanel.getConnectedPanel());
+            contentPanel.add(Resources.inactivePanel.getInactivePanel());
 
         }
 
-        public void switchToConnected(){
-            ConnectedPanel connectedPanel = new ConnectedPanel();
-            contentPanel = connectedPanel.getConnectedPanel();
-        }
 
         public JPanel getContentPanel() {
             return contentPanel;

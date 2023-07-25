@@ -3,14 +3,14 @@ package pro.sky.test_task_plugin;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.wm.ToolWindow;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.net.URI;
 
 public class InactivePanel {
@@ -23,18 +23,9 @@ public class InactivePanel {
     private JLabel hostLabel;
     private JLabel titleLabel;
     private JPanel inactivePanel;
-
-    private JPanel connectedPanel;
-
-    private JPanel contentPanel;
-    SkyPanelToolWindowFactory.SkyPanelToolWindowContent skyPanelToolWindowContent;
-    SkyPanelToolWindowFactory skyPanelToolWindowFactory;
-
-    ToolWindow toolWindow;
-
     Project openProject;
 
-    private Socket mSocket;
+
     IO.Options options = IO.Options.builder().setForceNew(true).setUpgrade(true).setTransports(new String[]{"websocket"}).build();
     private final URI SOCKET_URL = URI.create("wss://ws.postman-echo.com/socketio");
 
@@ -43,8 +34,8 @@ public class InactivePanel {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                openProject =  ProjectManager.getInstance().getOpenProjects()[0];// toolWindow.getProject();
-                mSocket = IO.socket(SOCKET_URL, options);
+                openProject =   Resources.toolWindow.getProject();
+                Resources.mSocket = IO.socket(SOCKET_URL, options);
                 String id = "pro.sky";
 
                 Notification balloonNotificationConnected =
@@ -60,53 +51,72 @@ public class InactivePanel {
                 balloonNotificationError.setTitle("Error connecting!");
 
 
-                // baloonNotification.notify(p);
-//                    (connectedString,
-//                    AllIcons.Debugger.ThreadStates.Idle,
-//                    NotificationType.INFORMATION);
-
-                mSocket.on(Socket.EVENT_CONNECT, args -> {
+                Resources.mSocket.on(Socket.EVENT_CONNECT, args -> {
                     balloonNotificationConnected.notify(openProject);
-                   // skyPanelToolWindowContent.switchToConnected();
+
                     inactivePanel.setVisible(false);
-                    connectedPanel.setVisible(true);
-                    // skyPanelToolWindowFactory.recreateToolWindowContent(toolWindow);
-                    // ConnectedPanel connectedPanel = ;
-                    //inactivePanel = new ConnectedPanel().getConnectedPanel();
+                    Resources.roomId = roomIdField.getText();
+                    Resources.userName = nameField.getText();
+                    Resources.connectedPanel.getConnectedPanel().setVisible(true);
+                    Resources.connectedPanel.setConnectionStatusLabelText(String.format("Connected to %s as %s", Resources.roomId , Resources.userName));
+
                 });
-                mSocket.on(Socket.EVENT_DISCONNECT, args -> balloonNotificationDisconnected.notify(openProject));
-                mSocket.on(Socket.EVENT_CONNECT_ERROR, args -> balloonNotificationDisconnected.notify(openProject));
-                mSocket.connect();
+                Resources.mSocket.on(Socket.EVENT_DISCONNECT, args -> balloonNotificationDisconnected.notify(openProject));
+                Resources.mSocket.on(Socket.EVENT_CONNECT_ERROR, args -> balloonNotificationDisconnected.notify(openProject));
+                Resources.mSocket.connect();
+            }
+        });
+        urlField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+               urlField.setText("");
+            }
+        });
+
+        urlField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+               if(urlField.getText().equals("")){
+                   urlField.setText("Enter url to connect to");
+               }
+            }
+        });
+        roomIdField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                roomIdField.setText("");
+            }
+        });
+        roomIdField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                if(roomIdField.getText().equals("")){
+                    roomIdField.setText("Enter room id");
+                }
+            }
+        });
+        nameField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                nameField.setText("");
+            }
+        });
+
+        nameField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                if(nameField.getText().equals("")){
+                    nameField.setText("Enter room id");
+                }
             }
         });
     }
 
-    public void setSkyPanelToolWindowContent(SkyPanelToolWindowFactory.SkyPanelToolWindowContent skyPanelToolWindowContent) {
-        this.skyPanelToolWindowContent = skyPanelToolWindowContent;
-    }
-
-    public void setToolWindow(ToolWindow toolWindow) {
-        this.toolWindow = toolWindow;
-    }
-
-    public void setSkyPanelToolWindowFactory(SkyPanelToolWindowFactory skyPanelToolWindowFactory) {
-        this.skyPanelToolWindowFactory = skyPanelToolWindowFactory;
-    }
-
-    public void setContentPanel(JPanel contentPanel) {
-        this.contentPanel = contentPanel;
-    }
 
 
     public JPanel getInactivePanel() {
         return inactivePanel;
     }
 
-    public void setConnectedPanel(JPanel panel){
-        this.connectedPanel = panel;
-    }
 
-    public void setConnectedPanelVisible(boolean b) {
-        this.connectedPanel.setVisible(b);
-    }
 }

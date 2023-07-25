@@ -17,7 +17,9 @@
           </grid>
         </constraints>
         <properties>
+          <focusTraversalPolicyProvider value="false"/>
           <text value="Enter url to connect to"/>
+          <toolTipText value="Enter url to connect to"/>
         </properties>
       </component>
       <vspacer id="5a4c5">

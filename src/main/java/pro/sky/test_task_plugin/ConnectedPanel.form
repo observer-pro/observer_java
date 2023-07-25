@@ -17,7 +17,7 @@
           <text value="Skypro Observer"/>
         </properties>
       </component>
-      <component id="8f521" class="javax.swing.JLabel">
+      <component id="8f521" class="javax.swing.JLabel" binding="connectionStatusLabel">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -57,13 +57,13 @@
           <text value="stop sharing"/>
         </properties>
       </component>
-      <component id="3f3d9" class="javax.swing.JSeparator">
+      <component id="3f3d9" class="javax.swing.JSeparator" binding="separator">
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <scrollpane id="c2779">
+      <scrollpane id="c2779" binding="scroll">
         <constraints>
           <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>

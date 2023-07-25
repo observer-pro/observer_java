@@ -12,6 +12,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 
 public class InactivePanel {
     private JTextField urlField;
@@ -23,6 +25,11 @@ public class InactivePanel {
     private JLabel hostLabel;
     private JLabel titleLabel;
     private JPanel inactivePanel;
+
+    private final String URL_FIELD_DEFAULT_TEXT  = "Enter url to connect to";
+    private final String ROOM_ID_FIELD_DEFAULT_TEXT  = "Enter room id";
+    private final String NAME_FIELD_DEFAULT_TEXT  = "Enter name to display in chat";
+    private final String CONNECTED_STATUS_TEXT_FORMAT = "Connected to %s as %s";
     Project openProject;
 
 
@@ -33,43 +40,17 @@ public class InactivePanel {
         connectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                openProject =   Resources.toolWindow.getProject();
-                Resources.mSocket = IO.socket(SOCKET_URL, options);
-                String id = "pro.sky";
-
-                Notification balloonNotificationConnected =
-                        new Notification(id, "Connected to socket!", NotificationType.IDE_UPDATE);
-                balloonNotificationConnected.setTitle("Connection success");
-
-                Notification balloonNotificationDisconnected =
-                        new Notification(id, "Disconnected from socket!", NotificationType.WARNING);
-                balloonNotificationDisconnected.setTitle("Disconnected!");
-
-                Notification balloonNotificationError =
-                        new Notification(id, "Disconnected from socket!", NotificationType.ERROR);
-                balloonNotificationError.setTitle("Error connecting!");
-
-
-                Resources.mSocket.on(Socket.EVENT_CONNECT, args -> {
-                    balloonNotificationConnected.notify(openProject);
-
-                    inactivePanel.setVisible(false);
-                    Resources.roomId = roomIdField.getText();
-                    Resources.userName = nameField.getText();
-                    Resources.connectedPanel.getConnectedPanel().setVisible(true);
-                    Resources.connectedPanel.setConnectionStatusLabelText(String.format("Connected to %s as %s", Resources.roomId , Resources.userName));
-
-                });
-                Resources.mSocket.on(Socket.EVENT_DISCONNECT, args -> balloonNotificationDisconnected.notify(openProject));
-                Resources.mSocket.on(Socket.EVENT_CONNECT_ERROR, args -> balloonNotificationDisconnected.notify(openProject));
-                Resources.mSocket.connect();
+                 createSocketWithListenersAndConnect(SOCKET_URL);
             }
         });
+
+
         urlField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-               urlField.setText("");
+               if(urlField.getText().equals(URL_FIELD_DEFAULT_TEXT)) {
+                   urlField.setText("");
+               }
             }
         });
 
@@ -77,28 +58,32 @@ public class InactivePanel {
             @Override
             public void focusLost(FocusEvent e) {
                if(urlField.getText().equals("")){
-                   urlField.setText("Enter url to connect to");
+                   urlField.setText(URL_FIELD_DEFAULT_TEXT);
                }
             }
         });
         roomIdField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                roomIdField.setText("");
+                if(roomIdField.getText().equals(ROOM_ID_FIELD_DEFAULT_TEXT)) {
+                    roomIdField.setText("");
+                }
             }
         });
         roomIdField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
                 if(roomIdField.getText().equals("")){
-                    roomIdField.setText("Enter room id");
+                    roomIdField.setText(ROOM_ID_FIELD_DEFAULT_TEXT);
                 }
             }
         });
         nameField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                nameField.setText("");
+                if(nameField.getText().equals(NAME_FIELD_DEFAULT_TEXT)) {
+                    nameField.setText("");
+                }
             }
         });
 
@@ -106,12 +91,73 @@ public class InactivePanel {
             @Override
             public void focusLost(FocusEvent e) {
                 if(nameField.getText().equals("")){
-                    nameField.setText("Enter room id");
+                    nameField.setText(NAME_FIELD_DEFAULT_TEXT);
                 }
             }
         });
     }
 
+    private void createSocketWithListenersAndConnect(URI uri){
+        Resources.mSocket = IO.socket(uri, options);
+        socketConnectionEventsWithBubbles();
+        socketMessageEvents();
+    }
+
+    private void socketMessageEvents(){
+        Resources.mSocket.on(io.socket.engineio.client.Socket.EVENT_MESSAGE, args -> {
+            Message message = new Message(
+                    1L,
+                    "SOCKET",
+                    LocalDateTime.now(),
+                    args[0].toString()
+            );
+            Resources.messageList.add(message);
+            Resources.connectedPanel.fillChatFieldWithMessages();
+        });
+        Resources.mSocket.connect();
+    }
+
+
+    private void socketConnectionEventsWithBubbles(){
+        openProject =   Resources.toolWindow.getProject();
+        String id = "pro.sky.observer";
+
+        Notification balloonNotificationConnected =
+                new Notification(id, "Connected to socket!", NotificationType.IDE_UPDATE);
+        balloonNotificationConnected.setTitle("Connection success");
+
+        Notification balloonNotificationDisconnected =
+                new Notification(id, "Disconnected from socket!", NotificationType.WARNING);
+        balloonNotificationDisconnected.setTitle("Disconnected!");
+
+        Notification balloonNotificationError =
+                new Notification(id, "Error connecting to socket!", NotificationType.ERROR);
+        balloonNotificationError.setTitle("Error connecting!");
+
+        Resources.mSocket.on(Socket.EVENT_CONNECT, args -> {
+            balloonNotificationConnected.notify(openProject);
+
+            Resources.inactivePanel.getInactivePanel().setVisible(false);
+            Resources.roomId = roomIdField.getText();
+            Resources.userName = nameField.getText();
+
+            Resources.connectedPanel.setConnectionStatusLabelText(
+                    String.format(CONNECTED_STATUS_TEXT_FORMAT, Resources.roomId , Resources.userName)
+            );
+            Resources.connectedPanel.getConnectedPanel().setVisible(true);
+
+        });
+        Resources.mSocket.on(Socket.EVENT_DISCONNECT, args -> {
+            balloonNotificationDisconnected.notify(openProject);
+            Resources.connectedPanel.getConnectedPanel().setVisible(false);
+            Resources.inactivePanel.getInactivePanel().setVisible(true);
+        });
+        Resources.mSocket.on(Socket.EVENT_CONNECT_ERROR, args ->
+                balloonNotificationError.notify(openProject));
+    }
+    private void socketProjectRequest(){
+
+    }
 
 
     public JPanel getInactivePanel() {

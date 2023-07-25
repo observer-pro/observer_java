@@ -1,9 +1,12 @@
 package pro.sky.test_task_plugin;
 
+
 import com.intellij.openapi.wm.ToolWindow;
 import io.socket.client.Socket;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Resources {
     static volatile ConnectedPanel connectedPanel;
@@ -22,5 +25,7 @@ public class Resources {
 
     static volatile JPanel contentPanel;
 
-    static volatile  Socket mSocket;
+    static volatile Socket mSocket;
+
+    static List<Message> messageList = new ArrayList<>();
 }

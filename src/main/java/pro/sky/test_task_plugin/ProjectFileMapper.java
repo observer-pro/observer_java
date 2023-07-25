@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class ProjectFileMapper {
+
+    private final long MAX_FILE_SIZE_TO_TRANSFER = 20000;
     public ProjectFile filetoProjectFile(File file, String relative) throws IOException {
         ProjectFile projectFile = new ProjectFile();
 
@@ -17,8 +19,11 @@ public class ProjectFileMapper {
         );
         projectFile.setStatus("created");
 
-        projectFile.setContent(contentsAsString(Files.readAllLines(Path.of(file.getPath()))));
-
+        if(Files.size(file.toPath()) > MAX_FILE_SIZE_TO_TRANSFER){
+            projectFile.setContent("File too large to transfer");
+        }else {
+            projectFile.setContent(contentsAsString(Files.readAllLines(Path.of(file.getPath()))));
+        }
         return projectFile;
     }
 

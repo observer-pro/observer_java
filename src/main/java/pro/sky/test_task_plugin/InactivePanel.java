@@ -13,6 +13,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class InactivePanel {
     private JTextField urlField;
@@ -29,6 +30,8 @@ public class InactivePanel {
     private final String ROOM_ID_FIELD_DEFAULT_TEXT = "Enter room id";
     private final String NAME_FIELD_DEFAULT_TEXT = "Enter name to display in chat";
     private final String CONNECTED_STATUS_TEXT_FORMAT = "Connected to %s as %s";
+
+    private final String MESSAGE_STRING_FORMAT = "%s: %s\n";
     Project openProject;
 
 
@@ -97,10 +100,16 @@ public class InactivePanel {
     }
 
     private void createSocketWithListenersAndConnect(URI uri) {
+        if(Resources.mSocket != null){
+            Resources.mSocket.disconnect();
+            Resources.messageList = new ArrayList<>();
+        }
         Resources.mSocket = IO.socket(uri, options);
         socketConnectionEventsWithBubbles();
         socketMessageEvents();
         socketProjectRequestEvents();
+
+        Resources.mSocket.connect();
     }
 
     private void socketMessageEvents() {
@@ -111,10 +120,9 @@ public class InactivePanel {
                     LocalDateTime.now(),
                     args[0].toString()
             );
+            Resources.connectedPanel.appendChat(String.format(MESSAGE_STRING_FORMAT, "SOCKET", message.getMessageText()));
             Resources.messageList.add(message);
-            Resources.connectedPanel.fillChatFieldWithMessages();
         });
-        Resources.mSocket.connect();
     }
 
 
@@ -168,7 +176,6 @@ public class InactivePanel {
             FileStructureStringer fileStructureStringer = new FileStructureStringer();
             Resources.mSocket.emit("project_json", fileStructureStringer.getProjectFilesList(openProject));
         });
-
     }
 
 

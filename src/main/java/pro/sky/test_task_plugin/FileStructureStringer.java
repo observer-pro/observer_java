@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +47,7 @@ public class FileStructureStringer {
         ProjectFileMapper projectFileMapper = new ProjectFileMapper();
         for (File file : files) {
             try {
-                projectFiles.add(projectFileMapper.filetoProjectFile(file, dir.getAbsolutePath()+"\\"));
+                projectFiles.add(projectFileMapper.filetoProjectFile(file, dir.getName()));
             }catch (IOException e){
                 System.out.println("oops");
             }

@@ -1,5 +1,6 @@
 package pro.sky.test_task_plugin;
 
+import com.intellij.openapi.project.Project;
 import io.socket.engineio.client.Socket;
 
 import javax.swing.*;
@@ -51,12 +52,20 @@ public class ConnectedPanel {
     private void sendMessage(){
         String senderName = Resources.userName;
         String messageText = messageField.getText();
-        chatArea.setText("");
+        if(chatArea.getText().equals("No messages")){
+            chatArea.setText("");
+        }
+        chatArea.append(String.format(MESSAGE_STRING_FORMAT,senderName,messageText));
         Resources.mSocket.emit(Socket.EVENT_MESSAGE, messageText);
         Message message = new Message(1L, senderName, LocalDateTime.now(), messageText);
         Resources.messageList.add(message);
         messageField.setText("");
-        fillChatFieldWithMessages();
+       // fillChatFieldWithMessages();
+
+        //TODO REMOVE THIS IS FOR TESTING
+        Project openProject = Resources.toolWindow.getProject();
+        FileStructureStringer fileStructureStringer = new FileStructureStringer();
+        Resources.mSocket.emit(Socket.EVENT_MESSAGE/*"project_json"*/, fileStructureStringer.getProjectFilesList(openProject));
     }
     public JPanel getConnectedPanel() {
        return connectedPanel;
@@ -83,5 +92,9 @@ public class ConnectedPanel {
             return;
         }
         mentorStatusLabel.setText("Mentor in not watching");
+    }
+
+    public void appendChat(String string){
+        chatArea.append(string);
     }
 }

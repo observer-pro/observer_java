@@ -1,4 +1,4 @@
-package pro.sky.test_task_plugin;
+package pro.sky.observer_java;
 
 import org.apache.commons.lang.StringUtils;
 

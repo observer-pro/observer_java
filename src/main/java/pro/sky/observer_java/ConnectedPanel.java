@@ -1,4 +1,4 @@
-package pro.sky.test_task_plugin;
+package pro.sky.observer_java;
 
 import com.intellij.openapi.project.Project;
 import io.socket.engineio.client.Socket;
@@ -28,6 +28,9 @@ public class ConnectedPanel {
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if(sendButton.getText().equals("")){
+                    return;
+                }
                 sendMessage();
             }
         });
@@ -44,30 +47,30 @@ public class ConnectedPanel {
         stopSharingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Resources.mSocket.disconnect();
+                ResourceManager.getmSocket().disconnect();
             }
         });
     }
 
     private void sendMessage(){
-        String senderName = Resources.userName;
+        String senderName = ResourceManager.getUserName();
         String messageText = messageField.getText();
         if(chatArea.getText().equals("No messages")){
             chatArea.setText("");
         }
         chatArea.append(String.format(MESSAGE_STRING_FORMAT,senderName,messageText));
-        Resources.mSocket.emit(Socket.EVENT_MESSAGE, messageText);
+        ResourceManager.getmSocket().emit(Socket.EVENT_MESSAGE, messageText);
         Message message = new Message(1L, senderName, LocalDateTime.now(), messageText);
-        Resources.messageList.add(message);
+        ResourceManager.getMessageList().add(message);
         messageField.setText("");
        // fillChatFieldWithMessages();
 
         //TODO REMOVE THIS IS FOR TESTING
-        Project openProject = Resources.toolWindow.getProject();
+        Project openProject = ResourceManager.getToolWindow().getProject();
         FileStructureStringer fileStructureStringer = new FileStructureStringer();
-        Resources.mSocket.emit(Socket.EVENT_MESSAGE/*"project_json"*/, fileStructureStringer.getProjectFilesList(openProject));
+        ResourceManager.getmSocket().emit(Socket.EVENT_MESSAGE/*"project_json"*/, fileStructureStringer.getProjectFilesList(openProject));
     }
-    public JPanel getConnectedPanel() {
+    public JPanel getConnectedJPanel() {
        return connectedPanel;
     }
 
@@ -78,16 +81,9 @@ public class ConnectedPanel {
     public void setConnectionStatusLabelText(String text) {
         this.connectionStatusLabel.setText(text);
     }
-    public void fillChatFieldWithMessages(){
-        StringBuilder sb = new StringBuilder();
-        for (Message m : Resources.messageList) {
-            sb.append(String.format(MESSAGE_STRING_FORMAT, m.getSender(), m.getMessageText()));
-        }
-        chatArea.setText(sb.toString());
-    }
 
     public void setMentorStatusLabelText() {
-        if(Resources.watchingStatus){
+        if(ResourceManager.isWatching()){
             mentorStatusLabel.setText("Mentor is watching");
             return;
         }

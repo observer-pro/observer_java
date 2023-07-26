@@ -1,4 +1,4 @@
-package pro.sky.test_task_plugin;
+package pro.sky.observer_java;
 
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
@@ -16,13 +16,13 @@ public class SkyPanelToolWindowFactory implements ToolWindowFactory, DumbAware {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 
-        Resources.connectedPanel = new ConnectedPanel();
-        Resources.inactivePanel = new InactivePanel();
-        Resources.toolWindow = toolWindow;
-        Resources.skyPanelToolWindowFactory = this;
+        ResourceManager.setConnectedPanel(new ConnectedPanel());
+        ResourceManager.setInactivePanel(new InactivePanel());
+        ResourceManager.setToolWindow(toolWindow);
+        ResourceManager.setSkyPanelToolWindowFactory(this);
 
         toolWindowContent = new SkyPanelToolWindowContent();
-        Resources.skyPanelToolWindowContent = toolWindowContent;
+        ResourceManager.setSkyPanelToolWindowContent(toolWindowContent);
 
         content = ContentFactory.getInstance().createContent(toolWindowContent.getContentPanel(), "", false);
         toolWindow.getContentManager().addContent(content);
@@ -36,14 +36,14 @@ public class SkyPanelToolWindowFactory implements ToolWindowFactory, DumbAware {
         public SkyPanelToolWindowContent() {
             contentPanel.setLayout(new BoxLayout(contentPanel,BoxLayout.Y_AXIS));
 
-            Resources.contentPanel = contentPanel;
+            ResourceManager.setContentPanel(contentPanel);
 
-            Resources.inactivePanel.getInactivePanel().setVisible(true);
 
-            Resources.connectedPanel.setVisible(false);
+            ResourceManager.getInactivePanel().setVisible(true);
+            ResourceManager.getConnectedPanel().setVisible(false);
 
-            contentPanel.add(Resources.connectedPanel.getConnectedPanel());
-            contentPanel.add(Resources.inactivePanel.getInactivePanel());
+            contentPanel.add(ResourceManager.getConnectedPanel().getConnectedJPanel());
+            contentPanel.add(ResourceManager.getInactivePanel().getInactiveJPanel());
         }
 
         public JPanel getContentPanel() {

@@ -1,4 +1,4 @@
-package pro.sky.test_task_plugin;
+package pro.sky.observer_java;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -100,34 +100,34 @@ public class InactivePanel {
     }
 
     private void createSocketWithListenersAndConnect(URI uri) {
-        if(Resources.mSocket != null){
-            Resources.mSocket.disconnect();
-            Resources.messageList = new ArrayList<>();
+        if(ResourceManager.getmSocket() != null){
+            ResourceManager.getmSocket().disconnect();
+            ResourceManager.setMessageList(new ArrayList<>());
         }
-        Resources.mSocket = IO.socket(uri, options);
+        ResourceManager.setmSocket(IO.socket(uri, options));
         socketConnectionEventsWithBubbles();
         socketMessageEvents();
         socketProjectRequestEvents();
 
-        Resources.mSocket.connect();
+        ResourceManager.getmSocket().connect();
     }
 
     private void socketMessageEvents() {
-        Resources.mSocket.on(io.socket.engineio.client.Socket.EVENT_MESSAGE, args -> {
+        ResourceManager.getmSocket().on(io.socket.engineio.client.Socket.EVENT_MESSAGE, args -> {
             Message message = new Message(
                     1L,
                     "SOCKET",
                     LocalDateTime.now(),
                     args[0].toString()
             );
-            Resources.connectedPanel.appendChat(String.format(MESSAGE_STRING_FORMAT, "SOCKET", message.getMessageText()));
-            Resources.messageList.add(message);
+            ResourceManager.getConnectedPanel().appendChat(String.format(MESSAGE_STRING_FORMAT, "SOCKET", message.getMessageText()));
+            ResourceManager.getMessageList().add(message);
         });
     }
 
 
     private void socketConnectionEventsWithBubbles() {
-        openProject = Resources.toolWindow.getProject();
+        openProject = ResourceManager.getToolWindow().getProject();
         String id = "pro.sky.observer";
 
         Notification balloonNotificationConnected =
@@ -142,44 +142,47 @@ public class InactivePanel {
                 new Notification(id, "Error connecting to socket!", NotificationType.ERROR);
         balloonNotificationError.setTitle("Error connecting!");
 
-        Resources.mSocket.on(Socket.EVENT_CONNECT, args -> {
+        ResourceManager.getmSocket().on(Socket.EVENT_CONNECT, args -> {
             balloonNotificationConnected.notify(openProject);
 
-            Resources.inactivePanel.getInactivePanel().setVisible(false);
-            Resources.roomId = roomIdField.getText();
-            Resources.userName = nameField.getText();
+            ResourceManager.getInactivePanel().setVisible(false);
+            ResourceManager.setRoomId(roomIdField.getText());
+            ResourceManager.setUserName(nameField.getText());
 
-            Resources.connectedPanel.setConnectionStatusLabelText(
-                    String.format(CONNECTED_STATUS_TEXT_FORMAT, Resources.roomId, Resources.userName)
+            ResourceManager.getConnectedPanel().setConnectionStatusLabelText(
+                    String.format(CONNECTED_STATUS_TEXT_FORMAT, ResourceManager.getRoomId(), ResourceManager.getUserName())
             );
 
-            Resources.connectedPanel.setMentorStatusLabelText();
-            Resources.connectedPanel.getConnectedPanel().setVisible(true);
+            ResourceManager.getConnectedPanel().setMentorStatusLabelText();
+            ResourceManager.getConnectedPanel().setVisible(true);
 
 
             socketProjectRequestEvents(); //TODO TMP!!!
 
         });
-        Resources.mSocket.on(Socket.EVENT_DISCONNECT, args -> {
+        ResourceManager.getmSocket().on(Socket.EVENT_DISCONNECT, args -> {
             balloonNotificationDisconnected.notify(openProject);
-            Resources.connectedPanel.getConnectedPanel().setVisible(false);
-            Resources.inactivePanel.getInactivePanel().setVisible(true);
+            ResourceManager.getConnectedPanel().setVisible(false);
+            ResourceManager.getInactivePanel().setVisible(true);
         });
-        Resources.mSocket.on(Socket.EVENT_CONNECT_ERROR, args ->
+        ResourceManager.getmSocket().on(Socket.EVENT_CONNECT_ERROR, args ->
                 balloonNotificationError.notify(openProject));
     }
 
     private void socketProjectRequestEvents() {
-        Resources.mSocket.on("initial_file_transfer", args -> {
-            Resources.watchingStatus = true;
-            Resources.connectedPanel.setMentorStatusLabelText();
+        ResourceManager.getmSocket().on("initial_file_transfer", args -> {
+            ResourceManager.setWatching(true);
+            ResourceManager.getConnectedPanel().setMentorStatusLabelText();
             FileStructureStringer fileStructureStringer = new FileStructureStringer();
-            Resources.mSocket.emit("project_json", fileStructureStringer.getProjectFilesList(openProject));
+            ResourceManager.getmSocket().emit("project_json", fileStructureStringer.getProjectFilesList(openProject));
         });
     }
 
+    public void setVisible(boolean toggle){
+        inactivePanel.setVisible(toggle);
+    }
 
-    public JPanel getInactivePanel() {
+    public JPanel getInactiveJPanel() {
         return inactivePanel;
     }
 

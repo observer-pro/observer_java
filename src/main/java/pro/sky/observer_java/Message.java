@@ -1,6 +1,4 @@
-package pro.sky.test_task_plugin;
-
-import com.google.type.DateTime;
+package pro.sky.observer_java;
 
 import java.time.LocalDateTime;
 

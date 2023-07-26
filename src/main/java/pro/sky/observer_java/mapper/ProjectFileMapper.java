@@ -1,6 +1,7 @@
-package pro.sky.observer_java;
+package pro.sky.observer_java.mapper;
 
 import org.apache.commons.lang.StringUtils;
+import pro.sky.observer_java.model.ProjectFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +10,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class ProjectFileMapper {
-
     private final long MAX_FILE_SIZE_TO_TRANSFER = 20000;
     public ProjectFile filetoProjectFile(File file, String relative) throws IOException {
         ProjectFile projectFile = new ProjectFile();

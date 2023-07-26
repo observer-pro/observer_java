@@ -1,4 +1,4 @@
-package pro.sky.observer_java;
+package pro.sky.observer_java.model;
 
 import java.time.LocalDateTime;
 

@@ -2,6 +2,9 @@ package pro.sky.observer_java;
 
 import com.intellij.openapi.project.Project;
 import io.socket.engineio.client.Socket;
+import pro.sky.observer_java.fileProcessor.FileStructureStringer;
+import pro.sky.observer_java.resources.ResourceManager;
+import pro.sky.observer_java.model.Message;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -25,17 +28,10 @@ public class ConnectedPanel {
     private final String MESSAGE_STRING_FORMAT = "%s: %s\n";
 
     public ConnectedPanel() {
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(sendButton.getText().equals("")){
-                    return;
-                }
-                sendMessage();
-            }
-        });
-        messageField.addKeyListener(new KeyAdapter() {
-        });
+        sendButton.addActionListener(e -> sendMessage());
+
+        stopSharingButton.addActionListener(e -> ResourceManager.getmSocket().disconnect());
+
         messageField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -44,22 +40,22 @@ public class ConnectedPanel {
                 }
             }
         });
-        stopSharingButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ResourceManager.getmSocket().disconnect();
-            }
-        });
+
     }
 
     private void sendMessage(){
-        String senderName = ResourceManager.getUserName();
-        String messageText = messageField.getText();
+        if(messageField.getText().equals("")){
+            return;
+        }
         if(chatArea.getText().equals("No messages")){
             chatArea.setText("");
         }
+        String senderName = ResourceManager.getUserName();
+        String messageText = messageField.getText();
+
         chatArea.append(String.format(MESSAGE_STRING_FORMAT,senderName,messageText));
         ResourceManager.getmSocket().emit(Socket.EVENT_MESSAGE, messageText);
+
         Message message = new Message(1L, senderName, LocalDateTime.now(), messageText);
         ResourceManager.getMessageList().add(message);
         messageField.setText("");

@@ -1,8 +1,12 @@
-package pro.sky.observer_java;
+package pro.sky.observer_java.resources;
 
 
 import com.intellij.openapi.wm.ToolWindow;
 import io.socket.client.Socket;
+import pro.sky.observer_java.ConnectedPanel;
+import pro.sky.observer_java.InactivePanel;
+import pro.sky.observer_java.SkyPanelToolWindowFactory;
+import pro.sky.observer_java.model.Message;
 
 import javax.swing.*;
 import java.util.ArrayList;

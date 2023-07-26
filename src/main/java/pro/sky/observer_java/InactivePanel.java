@@ -5,6 +5,9 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import pro.sky.observer_java.fileProcessor.FileStructureStringer;
+import pro.sky.observer_java.resources.ResourceManager;
+import pro.sky.observer_java.model.Message;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

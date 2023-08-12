@@ -1,16 +1,16 @@
 package pro.sky.observer_java.model;
 
 public class ProjectFile {
-    String fileName;
+    String filename;
     String status;
     String content;
 
-    public String getFileName() {
-        return fileName;
+    public String getFilename() {
+        return filename;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public String getStatus() {

@@ -3,6 +3,7 @@ package pro.sky.observer_java.fileProcessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.project.Project;
+import pro.sky.observer_java.model.DataMessage;
 import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.mapper.ProjectFileMapper;
 
@@ -14,8 +15,8 @@ import java.util.Objects;
 
 public class FileStructureStringer {
 
-   private final List<File> files = new ArrayList<>();
-   private final List<ProjectFile> projectFiles = new ArrayList<>();
+    private final List<File> files = new ArrayList<>();
+    private final List<ProjectFile> projectFiles = new ArrayList<>();
 
     public void listFiles(String directoryName, List<File> files) {
         File directory = new File(directoryName);
@@ -49,7 +50,7 @@ public class FileStructureStringer {
             }
         }
         String json;
-                ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         try {
             json = objectMapper.writeValueAsString(projectFiles);
         } catch (JsonProcessingException e) {
@@ -57,7 +58,5 @@ public class FileStructureStringer {
         }
         return json;
     }
-
-
 
 }

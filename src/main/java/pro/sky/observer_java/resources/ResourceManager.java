@@ -17,7 +17,7 @@ public class ResourceManager {
 
    private static volatile InactivePanel inactivePanel;
 
-   private static volatile String roomId;
+   private static volatile Integer roomId;
 
    private static volatile String userName;
 
@@ -29,7 +29,16 @@ public class ResourceManager {
 
    private static volatile JPanel contentPanel;
 
-   private static volatile Socket mSocket;
+   private static Socket mSocket;
+    private static volatile Integer userId;
+
+    public static Integer getUserId() {
+        return userId;
+    }
+
+    public static void setUserId(Integer userId) {
+        ResourceManager.userId = userId;
+    }
 
    private static List<Message> messageList = new ArrayList<>();
 
@@ -52,11 +61,11 @@ public class ResourceManager {
         ResourceManager.inactivePanel = inactivePanel;
     }
 
-    public static String getRoomId() {
+    public static Integer getRoomId() {
         return roomId;
     }
 
-    public static void setRoomId(String roomId) {
+    public static void setRoomId(Integer roomId) {
         ResourceManager.roomId = roomId;
     }
 

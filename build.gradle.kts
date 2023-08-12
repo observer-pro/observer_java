@@ -26,6 +26,7 @@ dependencies{
     }
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.0")
+    implementation("org.jetbrains:annotations:23.0.0")
 
 }
 

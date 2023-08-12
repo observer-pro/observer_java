@@ -14,7 +14,7 @@ public class ProjectFileMapper {
     public ProjectFile filetoProjectFile(File file, String relative) throws IOException {
         ProjectFile projectFile = new ProjectFile();
 
-        projectFile.setFileName(
+        projectFile.setFilename(
                 StringUtils.replaceChars(StringUtils.removeStart(file.getPath(),relative),'\\','/')
         );
         projectFile.setStatus("created");

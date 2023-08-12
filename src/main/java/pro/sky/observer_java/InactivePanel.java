@@ -1,10 +1,14 @@
 package pro.sky.observer_java;
 
+import com.google.gson.JsonObject;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
 import pro.sky.observer_java.resources.ResourceManager;
 import pro.sky.observer_java.model.Message;
@@ -45,7 +49,7 @@ public class InactivePanel {
         connectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                createSocketWithListenersAndConnect(SOCKET_URL);
+                createSocketWithListenersAndConnect(/*SOCKET_URL*/URI.create(urlField.getText()));
             }
         });
 
@@ -62,7 +66,7 @@ public class InactivePanel {
         urlField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                if (urlField.getText().equals("")) {
+                if (urlField.getText().isEmpty()) {
                     urlField.setText(URL_FIELD_DEFAULT_TEXT);
                 }
             }
@@ -78,7 +82,7 @@ public class InactivePanel {
         roomIdField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                if (roomIdField.getText().equals("")) {
+                if (roomIdField.getText().isEmpty()) {
                     roomIdField.setText(ROOM_ID_FIELD_DEFAULT_TEXT);
                 }
             }
@@ -95,7 +99,7 @@ public class InactivePanel {
         nameField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                if (nameField.getText().equals("")) {
+                if (nameField.getText().isEmpty()) {
                     nameField.setText(NAME_FIELD_DEFAULT_TEXT);
                 }
             }
@@ -103,7 +107,7 @@ public class InactivePanel {
     }
 
     private void createSocketWithListenersAndConnect(URI uri) {
-        if(ResourceManager.getmSocket() != null){
+        if (ResourceManager.getmSocket() != null) {
             ResourceManager.getmSocket().disconnect();
             ResourceManager.setMessageList(new ArrayList<>());
         }
@@ -116,10 +120,10 @@ public class InactivePanel {
     }
 
     private void socketMessageEvents() {
-        ResourceManager.getmSocket().on(io.socket.engineio.client.Socket.EVENT_MESSAGE, args -> {
+        ResourceManager.getmSocket().on("message/to_client", args -> {
             Message message = new Message(
                     1L,
-                    "SOCKET",
+                    "HOST",
                     LocalDateTime.now(),
                     args[0].toString()
             );
@@ -145,43 +149,54 @@ public class InactivePanel {
                 new Notification(id, "Error connecting to socket!", NotificationType.ERROR);
         balloonNotificationError.setTitle("Error connecting!");
 
-        ResourceManager.getmSocket().on(Socket.EVENT_CONNECT, args -> {
-            balloonNotificationConnected.notify(openProject);
-
-            ResourceManager.getInactivePanel().setVisible(false);
-            ResourceManager.setRoomId(roomIdField.getText());
-            ResourceManager.setUserName(nameField.getText());
-
-            ResourceManager.getConnectedPanel().setConnectionStatusLabelText(
-                    String.format(CONNECTED_STATUS_TEXT_FORMAT, ResourceManager.getRoomId(), ResourceManager.getUserName())
-            );
-
-            ResourceManager.getConnectedPanel().setMentorStatusLabelText();
-            ResourceManager.getConnectedPanel().setVisible(true);
+        ResourceManager.getmSocket()
+                .on(Socket.EVENT_CONNECT, this::sendEventConnect)
+                .on(Socket.EVENT_DISCONNECT, args -> {
+                    balloonNotificationDisconnected.notify(openProject);
+                    ResourceManager.getConnectedPanel().setVisible(false);
+                    ResourceManager.getInactivePanel().setVisible(true);
 
 
-            socketProjectRequestEvents(); //TODO TMP!!!
+                }).on(Socket.EVENT_CONNECT_ERROR, args -> {
+                    balloonNotificationError.notify(openProject);
 
-        });
-        ResourceManager.getmSocket().on(Socket.EVENT_DISCONNECT, args -> {
-            balloonNotificationDisconnected.notify(openProject);
-            ResourceManager.getConnectedPanel().setVisible(false);
-            ResourceManager.getInactivePanel().setVisible(true);
-        });
-        ResourceManager.getmSocket().on(Socket.EVENT_CONNECT_ERROR, args ->
-                balloonNotificationError.notify(openProject));
+
+                }).on("room/join", args -> {
+
+                    JSONObject message;
+                    try {
+                        message = new JSONObject(args[0].toString());
+                        ResourceManager.setUserId(message.getInt("user_id"));
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    balloonNotificationConnected.notify(openProject);
+                    ResourceManager.getInactivePanel().setVisible(false);
+                    ResourceManager.getConnectedPanel().setVisible(true);
+                });
     }
 
     private void socketProjectRequestEvents() {
-        ResourceManager.getmSocket().on("initial_file_transfer", args -> {
+        ResourceManager.getmSocket().on("sharing/start", args -> {
             ResourceManager.setWatching(true);
             ResourceManager.getConnectedPanel().setMentorStatusLabelText();
             FileStructureStringer fileStructureStringer = new FileStructureStringer();
-            ResourceManager.getmSocket().emit("project_json", fileStructureStringer.getProjectFilesList(openProject));
+            JSONObject sendMessage = new JSONObject();
+            JSONArray data;
+            try {
+                data = new JSONArray(fileStructureStringer.getProjectFilesList(openProject));
+                // sendMessage.put("user_id", ResourceManager.getUserId());
+                sendMessage.put("room_id", ResourceManager.getRoomId());
+                sendMessage.put("files", data);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+            ResourceManager.getmSocket().emit("sharing/code_send", sendMessage);
         });
     }
 
-    public void setVisible(boolean toggle){
+    public void setVisible(boolean toggle) {
         inactivePanel.setVisible(toggle);
     }
 
@@ -189,5 +204,25 @@ public class InactivePanel {
         return inactivePanel;
     }
 
+    private void sendEventConnect(Object... args) {
 
+        ResourceManager.setRoomId(Integer.valueOf(roomIdField.getText()));
+        ResourceManager.setUserName(nameField.getText());
+
+        ResourceManager.getConnectedPanel().setConnectionStatusLabelText(
+                String.format(CONNECTED_STATUS_TEXT_FORMAT, ResourceManager.getRoomId(), ResourceManager.getUserName())
+        );
+
+        JSONObject data = new JSONObject();
+        try {
+            data.put("room_id", Long.parseLong(roomIdField.getText()));
+            data.put("name", nameField.getText());
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        ResourceManager.getmSocket().emit("room/join", data);
+
+    }
 }

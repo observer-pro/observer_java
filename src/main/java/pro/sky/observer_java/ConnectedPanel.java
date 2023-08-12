@@ -2,6 +2,9 @@ package pro.sky.observer_java;
 
 import com.intellij.openapi.project.Project;
 import io.socket.engineio.client.Socket;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
 import pro.sky.observer_java.resources.ResourceManager;
 import pro.sky.observer_java.model.Message;
@@ -44,7 +47,7 @@ public class ConnectedPanel {
     }
 
     private void sendMessage(){
-        if(messageField.getText().equals("")){
+        if(messageField.getText().isEmpty()){
             return;
         }
         if(chatArea.getText().equals("No messages")){
@@ -54,17 +57,22 @@ public class ConnectedPanel {
         String messageText = messageField.getText();
 
         chatArea.append(String.format(MESSAGE_STRING_FORMAT,senderName,messageText));
-        ResourceManager.getmSocket().emit(Socket.EVENT_MESSAGE, messageText);
+
+        JSONObject sendMessage = new JSONObject();
+        try {
+            // sendMessage.put("user_id", ResourceManager.getUserId());
+            sendMessage.put("room_id", ResourceManager.getRoomId());
+            sendMessage.put("content", messageText);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        ResourceManager.getmSocket().emit("message/to_mentor", sendMessage);
 
         Message message = new Message(1L, senderName, LocalDateTime.now(), messageText);
         ResourceManager.getMessageList().add(message);
         messageField.setText("");
-       // fillChatFieldWithMessages();
 
-        //TODO REMOVE THIS IS FOR TESTING
-        Project openProject = ResourceManager.getToolWindow().getProject();
-        FileStructureStringer fileStructureStringer = new FileStructureStringer();
-        ResourceManager.getmSocket().emit(Socket.EVENT_MESSAGE/*"project_json"*/, fileStructureStringer.getProjectFilesList(openProject));
     }
     public JPanel getConnectedJPanel() {
        return connectedPanel;

@@ -4,8 +4,13 @@ import com.google.gson.JsonObject;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.newvfs.BulkFileListener;
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
+import com.intellij.util.messages.MessageBusConnection;
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +26,7 @@ import java.awt.event.FocusEvent;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 public class InactivePanel {
     private JTextField urlField;
@@ -112,9 +118,21 @@ public class InactivePanel {
             ResourceManager.setMessageList(new ArrayList<>());
         }
         ResourceManager.setmSocket(IO.socket(uri, options));
+
         socketConnectionEventsWithBubbles();
         socketMessageEvents();
         socketProjectRequestEvents();
+
+        MessageBusConnection connection = openProject.getMessageBus().connect();
+
+        connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+            @Override
+            public void after(@NotNull List<? extends VFileEvent> events) {
+                for (VFileEvent event: events) {
+                    System.out.println("event = " + event);
+                }
+            }
+        });
 
         ResourceManager.getmSocket().connect();
     }

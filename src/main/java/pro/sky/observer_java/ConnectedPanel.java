@@ -60,7 +60,6 @@ public class ConnectedPanel {
 
         JSONObject sendMessage = new JSONObject();
         try {
-            // sendMessage.put("user_id", ResourceManager.getUserId());
             sendMessage.put("room_id", ResourceManager.getRoomId());
             sendMessage.put("content", messageText);
         } catch (JSONException e) {

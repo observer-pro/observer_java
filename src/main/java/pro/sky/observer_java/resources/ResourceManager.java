@@ -13,23 +13,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResourceManager {
-   private static volatile ConnectedPanel connectedPanel;
+    private static volatile ConnectedPanel connectedPanel;
 
-   private static volatile InactivePanel inactivePanel;
+    private static volatile InactivePanel inactivePanel;
 
-   private static volatile Integer roomId;
+    private static volatile Integer roomId;
 
-   private static volatile String userName;
+    private static volatile String userName;
 
-   private static volatile ToolWindow toolWindow;
+    private static volatile ToolWindow toolWindow;
 
-   private static volatile SkyPanelToolWindowFactory skyPanelToolWindowFactory;
+    private static volatile SkyPanelToolWindowFactory skyPanelToolWindowFactory;
 
-   private static volatile SkyPanelToolWindowFactory.SkyPanelToolWindowContent skyPanelToolWindowContent;
+    private static volatile SkyPanelToolWindowFactory.SkyPanelToolWindowContent skyPanelToolWindowContent;
 
-   private static volatile JPanel contentPanel;
+    private static volatile JPanel contentPanel;
 
-   private static Socket mSocket;
+    private static Socket mSocket;
+
     private static volatile Integer userId;
 
     public static Integer getUserId() {
@@ -40,10 +41,9 @@ public class ResourceManager {
         ResourceManager.userId = userId;
     }
 
-   private static List<Message> messageList = new ArrayList<>();
+    private static List<Message> messageList = new ArrayList<>();
 
-   private static volatile boolean watching = false;
-
+    private static volatile boolean watching = false;
 
     public static ConnectedPanel getConnectedPanel() {
         return connectedPanel;

@@ -201,55 +201,7 @@ public class InactivePanel {
     }
 
     private void socketProjectRequestEvents() {
-        ResourceManager.getmSocket().on("sharing/start", args -> {
-            ResourceManager.setWatching(true);
-            ResourceManager.getConnectedPanel().setMentorStatusLabelText();
-            FileStructureStringer fileStructureStringer = new FileStructureStringer();
-
-            ResourceManager.getmSocket().emit("sharing/code_send",
-                    fileStructureStringer
-                            .getJsonObjectFromString(fileStructureStringer.getProjectFilesList(openProject)));
-
-            MessageBusConnection connection = openProject.getMessageBus().connect();
-
-            ResourceManager.setEditorUpdateEvents(new ArrayList<>());
-            connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
-                @Override
-                public void after(@NotNull List<? extends VFileEvent> events) {
-                    ProjectFileMapper mapper = new ProjectFileMapper();
-                    for (VFileEvent event: events) {
-                        System.out.println("Event = " + event);
-
-                        String status;
-                        String eventString = event.toString();
-                        if (eventString.contains("create")) {
-                            status = "created";
-                        } else if (eventString.contains("update")) {
-                            status = "changed";
-                        } else if (eventString.contains("deleted")) {
-                            status = "removed";
-                        }else {
-                            continue;
-                        }
-                        try {
-                            ResourceManager.getEditorUpdateEvents().add(mapper.
-                                    filetoProjectFile(
-                                            new File(event.getPath()),
-                                            ResourceManager.getToolWindow().getProject().getName(),
-                                            status
-                                    )
-                            );
-                        } catch (IOException e) {
-                            throw new RuntimeException("Update message Exception " + e.getMessage());
-                        }
-                       // ResourceManager.getEditorUpdateEvents().add(event);
-                    }
-                }
-            });
-
-            ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor() ;
-            ses.scheduleAtFixedRate(new UpdateProjectScheduledSending(), 5 , 5 , TimeUnit.SECONDS );
-        });
+        ResourceManager.getmSocket().on("sharing/start", this::codeSharingAndEventCatcher);
     }
 
     public void setVisible(boolean toggle) {
@@ -277,8 +229,55 @@ public class InactivePanel {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-
         ResourceManager.getmSocket().emit("room/join", data);
+    }
 
+    private void codeSharingAndEventCatcher(Object... args) {
+        ResourceManager.setWatching(true);
+        ResourceManager.getConnectedPanel().setMentorStatusLabelText();
+        FileStructureStringer fileStructureStringer = new FileStructureStringer();
+
+        ResourceManager.getmSocket().emit("sharing/code_send",
+                fileStructureStringer
+                        .getJsonObjectFromString(fileStructureStringer.getProjectFilesList(openProject)));
+
+        MessageBusConnection connection = openProject.getMessageBus().connect();
+
+        ResourceManager.setEditorUpdateEvents(new ArrayList<>());
+        connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+            @Override
+            public void after(@NotNull List<? extends VFileEvent> events) {
+                ProjectFileMapper mapper = new ProjectFileMapper();
+                for (VFileEvent event : events) {
+                    System.out.println("Event = " + event);
+
+                    String status;
+                    String eventString = event.toString();
+                    if (eventString.contains("create")) {
+                        status = "created";
+                    } else if (eventString.contains("update")) {
+                        status = "changed";
+                    } else if (eventString.contains("deleted")) {
+                        status = "removed";
+                    } else {
+                        continue;
+                    }
+                    try {
+                        ResourceManager.getEditorUpdateEvents().add(mapper.
+                                filetoProjectFile(
+                                        new File(event.getPath()),
+                                        ResourceManager.getToolWindow().getProject().getName(),
+                                        status
+                                )
+                        );
+                    } catch (IOException e) {
+                        throw new RuntimeException("Update message Exception " + e.getMessage());
+                    }
+                }
+            }
+        });
+
+        ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+        ses.scheduleAtFixedRate(new UpdateProjectScheduledSending(), 5, 5, TimeUnit.SECONDS);
     }
 }

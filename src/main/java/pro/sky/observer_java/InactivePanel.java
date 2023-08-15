@@ -133,12 +133,24 @@ public class InactivePanel {
 
     private void socketMessageEvents() {
         ResourceManager.getmSocket().on("message/to_client", args -> {
-            Message message = new Message(
-                    1L,
-                    "HOST",
-                    LocalDateTime.now(),
-                    args[0].toString()
-            );
+            JSONObject jsonMessage;
+            try {
+                jsonMessage = new JSONObject(args[0].toString());
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            Message message;
+            try {
+                message = new Message(
+                        1L,
+                        "HOST",
+                        LocalDateTime.now(),
+                        jsonMessage.getString("content")
+                );
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+
             ResourceManager.getConnectedPanel().appendChat(String.format(MESSAGE_STRING_FORMAT, "SOCKET", message.getMessageText()));
             ResourceManager.getMessageList().add(message);
         });

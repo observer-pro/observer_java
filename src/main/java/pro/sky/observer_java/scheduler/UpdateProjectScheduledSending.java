@@ -14,11 +14,6 @@ public class UpdateProjectScheduledSending implements Runnable {
         if (updatedFiles.isEmpty()) {
             return;
         }
-//        Project project = ResourceManager.getToolWindow().getProject();
-//        File dir = new File(Objects.requireNonNull(project.getBasePath()));
-//        List<ProjectFile> updatedProjectFiles = new ArrayList<>();
-//        ProjectFileMapper mapper = new ProjectFileMapper();
-
         FileStructureStringer stringer = new FileStructureStringer();
         String json = stringer.getJsonString(updatedFiles);
 

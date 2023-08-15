@@ -7,6 +7,7 @@ import pro.sky.observer_java.ConnectedPanel;
 import pro.sky.observer_java.InactivePanel;
 import pro.sky.observer_java.SkyPanelToolWindowFactory;
 import pro.sky.observer_java.model.Message;
+import pro.sky.observer_java.model.ProjectFile;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -32,6 +33,22 @@ public class ResourceManager {
     private static Socket mSocket;
 
     private static volatile Integer userId;
+
+    private static List<ProjectFile> editorUpdateEvents;
+
+
+    /**
+     *  Getters & Setters
+     */
+
+
+    public static List<ProjectFile> getEditorUpdateEvents() {
+        return editorUpdateEvents;
+    }
+
+    public static void setEditorUpdateEvents(List<ProjectFile> editorUpdateEvents) {
+        ResourceManager.editorUpdateEvents = editorUpdateEvents;
+    }
 
     public static Integer getUserId() {
         return userId;

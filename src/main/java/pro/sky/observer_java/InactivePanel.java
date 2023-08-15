@@ -1,6 +1,5 @@
 package pro.sky.observer_java;
 
-import com.google.gson.JsonObject;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
@@ -11,22 +10,28 @@ import com.intellij.util.messages.MessageBusConnection;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
-import pro.sky.observer_java.resources.ResourceManager;
+import pro.sky.observer_java.mapper.ProjectFileMapper;
 import pro.sky.observer_java.model.Message;
+import pro.sky.observer_java.resources.ResourceManager;
+import pro.sky.observer_java.scheduler.UpdateProjectScheduledSending;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class InactivePanel {
     private JTextField urlField;
@@ -123,17 +128,6 @@ public class InactivePanel {
         socketMessageEvents();
         socketProjectRequestEvents();
 
-        MessageBusConnection connection = openProject.getMessageBus().connect();
-
-        connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
-            @Override
-            public void after(@NotNull List<? extends VFileEvent> events) {
-                for (VFileEvent event: events) {
-                    System.out.println("event = " + event);
-                }
-            }
-        });
-
         ResourceManager.getmSocket().connect();
     }
 
@@ -199,18 +193,50 @@ public class InactivePanel {
             ResourceManager.setWatching(true);
             ResourceManager.getConnectedPanel().setMentorStatusLabelText();
             FileStructureStringer fileStructureStringer = new FileStructureStringer();
-            JSONObject sendMessage = new JSONObject();
-            JSONArray data;
-            try {
-                data = new JSONArray(fileStructureStringer.getProjectFilesList(openProject));
-                // sendMessage.put("user_id", ResourceManager.getUserId());
-                sendMessage.put("room_id", ResourceManager.getRoomId());
-                sendMessage.put("files", data);
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
 
-            ResourceManager.getmSocket().emit("sharing/code_send", sendMessage);
+            ResourceManager.getmSocket().emit("sharing/code_send",
+                    fileStructureStringer
+                            .getJsonObjectFromString(fileStructureStringer.getProjectFilesList(openProject)));
+
+            MessageBusConnection connection = openProject.getMessageBus().connect();
+
+            ResourceManager.setEditorUpdateEvents(new ArrayList<>());
+            connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+                @Override
+                public void after(@NotNull List<? extends VFileEvent> events) {
+                    ProjectFileMapper mapper = new ProjectFileMapper();
+                    for (VFileEvent event: events) {
+                        System.out.println("Event = " + event);
+
+                        String status;
+                        String eventString = event.toString();
+                        if (eventString.contains("create")) {
+                            status = "created";
+                        } else if (eventString.contains("update")) {
+                            status = "changed";
+                        } else if (eventString.contains("deleted")) {
+                            status = "removed";
+                        }else {
+                            continue;
+                        }
+                        try {
+                            ResourceManager.getEditorUpdateEvents().add(mapper.
+                                    filetoProjectFile(
+                                            new File(event.getPath()),
+                                            ResourceManager.getToolWindow().getProject().getName(),
+                                            status
+                                    )
+                            );
+                        } catch (IOException e) {
+                            throw new RuntimeException("Update message Exception " + e.getMessage());
+                        }
+                       // ResourceManager.getEditorUpdateEvents().add(event);
+                    }
+                }
+            });
+
+            ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor() ;
+            ses.scheduleAtFixedRate(new UpdateProjectScheduledSending(), 5 , 5 , TimeUnit.SECONDS );
         });
     }
 

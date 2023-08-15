@@ -11,17 +11,21 @@ import java.util.List;
 
 public class ProjectFileMapper {
     private final long MAX_FILE_SIZE_TO_TRANSFER = 20000;
-    public ProjectFile filetoProjectFile(File file, String relative) throws IOException {
+    public ProjectFile filetoProjectFile(File file, String relative, String status) throws IOException {
         ProjectFile projectFile = new ProjectFile();
 
         projectFile.setFilename(
                 StringUtils.replaceChars(StringUtils.removeStart(file.getPath(),relative),'\\','/')
         );
-        projectFile.setStatus("created");
+        projectFile.setStatus(status);
+
+        if(status.equals("removed")){
+            return projectFile;
+        }
 
         if(Files.size(file.toPath()) > MAX_FILE_SIZE_TO_TRANSFER){
             projectFile.setContent("File too large to transfer");
-        }else {
+        }else{
             projectFile.setContent(contentsAsString(Files.readAllLines(Path.of(file.getPath()))));
         }
         return projectFile;

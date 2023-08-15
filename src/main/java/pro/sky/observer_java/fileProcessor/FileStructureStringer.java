@@ -3,9 +3,12 @@ package pro.sky.observer_java.fileProcessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.project.Project;
-import pro.sky.observer_java.model.DataMessage;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.mapper.ProjectFileMapper;
+import pro.sky.observer_java.resources.ResourceManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,11 +47,15 @@ public class FileStructureStringer {
         ProjectFileMapper projectFileMapper = new ProjectFileMapper();
         for (File file : files) {
             try {
-                projectFiles.add(projectFileMapper.filetoProjectFile(file, dir.getName()));
+                projectFiles.add(projectFileMapper.filetoProjectFile(file, dir.getName(),"created"));
             }catch (IOException e){
-                System.out.println("oops");
+                System.out.println("To project File Exception" + e.getMessage());
             }
         }
+        return getJsonString(projectFiles);
+    }
+
+    public String getJsonString(List<ProjectFile> projectFiles) {
         String json;
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -57,6 +64,19 @@ public class FileStructureStringer {
             throw new RuntimeException(e);
         }
         return json;
+    }
+
+    public JSONObject getJsonObjectFromString(String json){
+        JSONObject sendMessage = new JSONObject();
+        JSONArray data;
+        try {
+            data = new JSONArray(json);
+            sendMessage.put("room_id", ResourceManager.getRoomId());
+            sendMessage.put("files", data);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        return sendMessage;
     }
 
 }

@@ -176,10 +176,13 @@ public class InactivePanel {
         ResourceManager.getmSocket()
                 .on(Socket.EVENT_CONNECT, this::sendEventConnect)
                 .on(Socket.EVENT_DISCONNECT, args -> {
+
                     balloonNotificationDisconnected.notify(openProject);
                     ResourceManager.getConnectedPanel().setVisible(false);
                     ResourceManager.getInactivePanel().setVisible(true);
 
+                    ResourceManager.setWatching(false);
+                    ResourceManager.getConnectedPanel().setMentorStatusLabelText();
 
                 }).on(Socket.EVENT_CONNECT_ERROR, args -> {
                     balloonNotificationError.notify(openProject);

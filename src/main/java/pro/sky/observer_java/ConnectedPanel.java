@@ -34,6 +34,7 @@ public class ConnectedPanel {
         sendButton.addActionListener(e -> sendMessage());
 
         stopSharingButton.addActionListener(e -> ResourceManager.getmSocket().disconnect());
+        //TODO ROOM LEAVE
 
         messageField.addKeyListener(new KeyAdapter() {
             @Override

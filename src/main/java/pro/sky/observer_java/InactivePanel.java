@@ -237,10 +237,20 @@ public class InactivePanel {
         ResourceManager.getConnectedPanel().setMentorStatusLabelText();
         FileStructureStringer fileStructureStringer = new FileStructureStringer();
 
-        ResourceManager.getmSocket().emit("sharing/code_send",
+        ResourceManager.getmSocket().on("sharing/end", this::codeSharingEnd)
+                .emit("sharing/code_send",
                 fileStructureStringer
                         .getJsonObjectFromString(fileStructureStringer.getProjectFilesList(openProject)));
 
+        activateEditorEventListenerAndScheduler();
+    }
+
+    private void codeSharingEnd(Object... args){
+        ResourceManager.setWatching(false);
+        ResourceManager.getConnectedPanel().setMentorStatusLabelText();
+    }
+
+    private void activateEditorEventListenerAndScheduler() {
         MessageBusConnection connection = openProject.getMessageBus().connect();
 
         ResourceManager.setEditorUpdateEvents(new ArrayList<>());
@@ -249,6 +259,9 @@ public class InactivePanel {
             public void after(@NotNull List<? extends VFileEvent> events) {
                 ProjectFileMapper mapper = new ProjectFileMapper();
                 for (VFileEvent event : events) {
+                    if (event.getPath().contains(".idea")) {
+                        continue;
+                    }
                     System.out.println("Event = " + event);
 
                     String status;

@@ -5,13 +5,14 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
-import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
+import com.intellij.openapi.vfs.newvfs.events.*;
 import com.intellij.util.messages.MessageBusConnection;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
+import pro.sky.observer_java.events.EventManager;
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
 import pro.sky.observer_java.mapper.ProjectFileMapper;
 import pro.sky.observer_java.model.Message;
@@ -23,8 +24,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -50,7 +49,9 @@ public class InactivePanel {
     private final String CONNECTED_STATUS_TEXT_FORMAT = "Connected to %s as %s";
 
     private final String MESSAGE_STRING_FORMAT = "%s: %s\n";
-    Project openProject;
+
+    private final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+    private Project openProject;
 
 
     IO.Options options = IO.Options.builder().setForceNew(true).setUpgrade(true).setTransports(new String[]{"websocket"}).build();
@@ -184,6 +185,8 @@ public class InactivePanel {
                     ResourceManager.setWatching(false);
                     ResourceManager.getConnectedPanel().setMentorStatusLabelText();
 
+                    ses.shutdown();
+
                 }).on(Socket.EVENT_CONNECT_ERROR, args -> {
                     balloonNotificationError.notify(openProject);
 
@@ -242,13 +245,13 @@ public class InactivePanel {
 
         ResourceManager.getmSocket().on("sharing/end", this::codeSharingEnd)
                 .emit("sharing/code_send",
-                fileStructureStringer
-                        .getJsonObjectFromString(fileStructureStringer.getProjectFilesList(openProject)));
+                        fileStructureStringer
+                                .getJsonObjectFromString(fileStructureStringer.getProjectFilesList(openProject)));
 
         activateEditorEventListenerAndScheduler();
     }
 
-    private void codeSharingEnd(Object... args){
+    private void codeSharingEnd(Object... args) {
         ResourceManager.setWatching(false);
         ResourceManager.getConnectedPanel().setMentorStatusLabelText();
     }
@@ -260,40 +263,39 @@ public class InactivePanel {
         connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
             @Override
             public void after(@NotNull List<? extends VFileEvent> events) {
-                ProjectFileMapper mapper = new ProjectFileMapper();
-                for (VFileEvent event : events) {
-                    if (event.getPath().contains(".idea")) {
-                        continue;
-                    }
-                    System.out.println("Event = " + event);
+                EventManager eventManager = new EventManager();
 
-                    String status;
-                    String eventString = event.toString();
-                    if (eventString.contains("create")) {
-                        status = "created";
-                    } else if (eventString.contains("update")) {
-                        status = "changed";
-                    } else if (eventString.contains("deleted")) {
-                        status = "removed";
-                    } else {
-                        continue;
+                events.forEach(event -> {
+                    System.out.println(event.getClass());
+                    if (event instanceof VFileContentChangeEvent) {
+                        System.out.println("ContentChangeEvent" + event);
+                        eventManager.addContentChangeEventToEditorEventList((VFileContentChangeEvent) event);
+
+                    } else if (event instanceof VFileCreateEvent) {
+                        System.out.println("CreateEvent" + event);
+                        eventManager.addCreateEventToEditorEventList((VFileCreateEvent) event);
+
+                    } else if (event instanceof VFileDeleteEvent) {
+                        System.out.println("DeleteEvent" + event);
+                        eventManager.addDeleteEventToEditorEventList((VFileDeleteEvent) event);
+
+                    } else if (event instanceof VFilePropertyChangeEvent) {
+                        System.out.println("PropertyChangeEvent" + event);
+                        eventManager.addPropertyChangeEventToEditorEventList((VFilePropertyChangeEvent) event);
                     }
-                    try {
-                        ResourceManager.getEditorUpdateEvents().add(mapper.
-                                filetoProjectFile(
-                                        new File(event.getPath()),
-                                        ResourceManager.getToolWindow().getProject().getName(),
-                                        status
-                                )
-                        );
-                    } catch (IOException e) {
-                        throw new RuntimeException("Update message Exception " + e.getMessage());
-                    }
-                }
+                });
+
+//                for (Object event : events) {
+//                    if(event.getClass().equals(VFilePropertyChangeEvent.class))
+//                    {
+//                        VFilePropertyChangeEvent changeEvent = (VFilePropertyChangeEvent) event;
+//                        changeEvent.
+//                    }
+//                    mapper.addRenameEventToProjectFileEventList(event);
+//                }
             }
         });
 
-        ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
         ses.scheduleAtFixedRate(new UpdateProjectScheduledSending(), 5, 5, TimeUnit.SECONDS);
     }
 }

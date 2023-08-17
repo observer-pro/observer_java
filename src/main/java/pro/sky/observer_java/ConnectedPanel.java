@@ -1,17 +1,11 @@
 package pro.sky.observer_java;
 
-import com.intellij.openapi.project.Project;
-import io.socket.engineio.client.Socket;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import pro.sky.observer_java.fileProcessor.FileStructureStringer;
-import pro.sky.observer_java.resources.ResourceManager;
 import pro.sky.observer_java.model.Message;
+import pro.sky.observer_java.resources.ResourceManager;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.time.LocalDateTime;

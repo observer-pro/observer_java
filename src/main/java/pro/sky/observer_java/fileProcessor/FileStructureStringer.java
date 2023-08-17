@@ -3,6 +3,10 @@ package pro.sky.observer_java.fileProcessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VfsUtilCore;
+import com.intellij.openapi.vfs.VirtualFileVisitor;
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +24,7 @@ public class FileStructureStringer {
 
     private final List<File> files = new ArrayList<>();
     private final List<ProjectFile> projectFiles = new ArrayList<>();
+
 
     public void listFiles(String directoryName, List<File> files) {
         File directory = new File(directoryName);
@@ -40,22 +45,22 @@ public class FileStructureStringer {
 
     public String getProjectFilesList(Project project) {
 
-        File dir = new File(Objects.requireNonNull(project.getBasePath()));
+        String basePath = project.getBasePath();
         listFiles(project.getBasePath(), files);
 
 
         ProjectFileMapper projectFileMapper = new ProjectFileMapper();
         for (File file : files) {
             try {
-                projectFiles.add(projectFileMapper.filetoProjectFile(file, dir.getName(),"created"));
+                projectFiles.add(projectFileMapper.filetoProjectFile(file.getPath(), basePath,"created"));
             }catch (IOException e){
                 System.out.println("To project File Exception" + e.getMessage());
             }
         }
-        return getJsonString(projectFiles);
+        return getJsonStringFromProjectFileList(projectFiles);
     }
 
-    public String getJsonString(List<ProjectFile> projectFiles) {
+    public String getJsonStringFromProjectFileList(List<ProjectFile> projectFiles) {
         String json;
         ObjectMapper objectMapper = new ObjectMapper();
         try {

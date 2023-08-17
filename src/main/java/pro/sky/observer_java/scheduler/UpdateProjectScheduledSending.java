@@ -15,7 +15,7 @@ public class UpdateProjectScheduledSending implements Runnable {
             return;
         }
         FileStructureStringer stringer = new FileStructureStringer();
-        String json = stringer.getJsonString(updatedFiles);
+        String json = stringer.getJsonStringFromProjectFileList(updatedFiles);
 
         ResourceManager.getmSocket().emit("sharing/code_update", stringer.getJsonObjectFromString(json));
         ResourceManager.setEditorUpdateEvents(new ArrayList<>());

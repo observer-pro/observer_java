@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class ConnectedPanel {
     private JTextField messageField;
     private JButton sendButton;
-    private JButton stopSharingButton;
+    private JButton disconnectButton;
     private JLabel logoLabel;
     private JLabel mentorStatusLabel;
     private JTextArea chatArea;
@@ -27,7 +27,7 @@ public class ConnectedPanel {
     public ConnectedPanel() {
         sendButton.addActionListener(e -> sendMessage());
 
-        stopSharingButton.addActionListener(e -> {
+        disconnectButton.addActionListener(e -> {
             ResourceManager.getmSocket().disconnect();
 
             JSONObject sendMessage = new JSONObject();

@@ -12,10 +12,12 @@ public class UpdateProjectScheduledSending implements Runnable {
     @Override
     public void run() {
         List<ProjectFile> updatedFiles = ResourceManager.getEditorUpdateEvents();
+
+        updatedFiles.removeAll(Collections.singleton(null));
+
         if (updatedFiles.isEmpty()) {
             return;
         }
-        updatedFiles.removeAll(Collections.singleton(null));
 
         FileStructureStringer stringer = new FileStructureStringer();
         String json = stringer.getJsonStringFromProjectFileList(updatedFiles);

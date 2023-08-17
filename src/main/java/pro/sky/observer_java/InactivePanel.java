@@ -47,6 +47,17 @@ public class InactivePanel {
 
     private final String MESSAGE_STRING_FORMAT = "%s: %s\n";
 
+    String groupId = "pro.sky";
+
+    Notification balloonNotificationConnected;
+
+    Notification balloonNotificationDisconnected;
+
+    Notification balloonNotificationError;
+
+    Notification balloonNotificationSharingStarted;
+    Notification balloonNotificationSharingStopped;
+
 
     private Project openProject;
 
@@ -54,66 +65,7 @@ public class InactivePanel {
     IO.Options options = IO.Options.builder().setForceNew(true).setUpgrade(true).setTransports(new String[]{"websocket"}).build();
     private final URI SOCKET_URL = URI.create("wss://ws.postman-echo.com/socketio");
 
-    public InactivePanel() {
-        connectButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                createSocketWithListenersAndConnect(/*SOCKET_URL*/URI.create(urlField.getText()));
-            }
-        });
 
-
-        urlField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (urlField.getText().equals(URL_FIELD_DEFAULT_TEXT)) {
-                    urlField.setText("");
-                }
-            }
-        });
-
-        urlField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (urlField.getText().isEmpty()) {
-                    urlField.setText(URL_FIELD_DEFAULT_TEXT);
-                }
-            }
-        });
-        roomIdField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (roomIdField.getText().equals(ROOM_ID_FIELD_DEFAULT_TEXT)) {
-                    roomIdField.setText("");
-                }
-            }
-        });
-        roomIdField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (roomIdField.getText().isEmpty()) {
-                    roomIdField.setText(ROOM_ID_FIELD_DEFAULT_TEXT);
-                }
-            }
-        });
-        nameField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (nameField.getText().equals(NAME_FIELD_DEFAULT_TEXT)) {
-                    nameField.setText("");
-                }
-            }
-        });
-
-        nameField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (nameField.getText().isEmpty()) {
-                    nameField.setText(NAME_FIELD_DEFAULT_TEXT);
-                }
-            }
-        });
-    }
 
     private void createSocketWithListenersAndConnect(URI uri) {
         if (ResourceManager.getmSocket() != null) {
@@ -122,7 +74,8 @@ public class InactivePanel {
         }
         ResourceManager.setmSocket(IO.socket(uri, options));
 
-        socketConnectionEventsWithBubbles();
+        configureBubbles();
+        socketConnectionEvents();
         socketMessageEvents();
         socketProjectRequestEvents();
 
@@ -155,26 +108,17 @@ public class InactivePanel {
     }
 
 
-    private void socketConnectionEventsWithBubbles() {
+    private void socketConnectionEvents() {
         openProject = ResourceManager.getToolWindow().getProject();
-        String id = "pro.sky.observer";
 
-        Notification balloonNotificationConnected =
-                new Notification(id, "Connected to socket!", NotificationType.IDE_UPDATE);
-        balloonNotificationConnected.setTitle("Connection success");
-
-        Notification balloonNotificationDisconnected =
-                new Notification(id, "Disconnected from socket!", NotificationType.WARNING);
-        balloonNotificationDisconnected.setTitle("Disconnected!");
-
-        Notification balloonNotificationError =
-                new Notification(id, "Error connecting to socket!", NotificationType.ERROR);
-        balloonNotificationError.setTitle("Error connecting!");
 
         ResourceManager.getmSocket()
                 .on(Socket.EVENT_CONNECT, this::sendEventConnect)
                 .on(Socket.EVENT_DISCONNECT, args -> {
 
+                    if(ResourceManager.isWatching()){
+                        balloonNotificationSharingStopped.notify(openProject);
+                    }
                     balloonNotificationDisconnected.notify(openProject);
                     ResourceManager.getConnectedPanel().setVisible(false);
                     ResourceManager.getInactivePanel().setVisible(true);
@@ -183,6 +127,14 @@ public class InactivePanel {
                     ResourceManager.getConnectedPanel().setMentorStatusLabelText();
 
                     ResourceManager.getSes().shutdown();
+
+                    JSONObject data = new JSONObject();
+                    try {
+                        data.put("room_id", Long.parseLong(roomIdField.getText()));
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    ResourceManager.getmSocket().emit("room/leave", data);
 
                 }).on(Socket.EVENT_CONNECT_ERROR, args -> {
                     balloonNotificationError.notify(openProject);
@@ -246,12 +198,14 @@ public class InactivePanel {
                                 .getJsonObjectFromString(fileStructureStringer.getProjectFilesList(openProject)));
 
         activateEditorEventListenerAndScheduler();
+        balloonNotificationSharingStarted.notify(openProject);
     }
 
     private void codeSharingEnd(Object... args) {
         ResourceManager.setWatching(false);
         ResourceManager.getConnectedPanel().setMentorStatusLabelText();
         ResourceManager.getSes().shutdown();
+        balloonNotificationSharingStopped.notify(openProject);
     }
 
     private void activateEditorEventListenerAndScheduler() {
@@ -281,8 +235,11 @@ public class InactivePanel {
                     } else if (event instanceof VFilePropertyChangeEvent) {
                         System.out.println("PropertyChangeEvent" + event);
                         eventManager.addPropertyChangeEventToEditorEventList((VFilePropertyChangeEvent) event);
+
                     } else if (event instanceof VFileMoveEvent) {
+                        System.out.println("MoveEvent" + event);
                         eventManager.addMoveEventToEditorEventList((VFileMoveEvent) event);
+
                     }
                 });
             }
@@ -290,5 +247,88 @@ public class InactivePanel {
 
         ResourceManager.getSes()
                 .scheduleAtFixedRate(new UpdateProjectScheduledSending(), 5, 5, TimeUnit.SECONDS);
+    }
+
+
+    private void configureBubbles() {
+        balloonNotificationConnected =
+                new Notification(groupId, "Connected to socket!", NotificationType.IDE_UPDATE);
+        balloonNotificationConnected.setTitle("Connection success");
+
+        balloonNotificationDisconnected =
+                new Notification(groupId, "Disconnected from socket!", NotificationType.WARNING);
+        balloonNotificationDisconnected.setTitle("Disconnected!");
+
+        balloonNotificationError =
+                new Notification(groupId, "Error connecting to socket!", NotificationType.ERROR);
+        balloonNotificationError.setTitle("Error connecting!");
+
+        balloonNotificationSharingStarted =
+                new Notification(groupId, "Your sharing session started. Mentor is now watching", NotificationType.INFORMATION);
+        balloonNotificationError.setTitle("Sharing started");
+
+        balloonNotificationSharingStopped =
+                new Notification(groupId, "Your sharing session stopped. Mentor is not watching", NotificationType.WARNING);
+        balloonNotificationError.setTitle("Sharing stopped");
+    }
+
+    public InactivePanel() {
+        connectButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createSocketWithListenersAndConnect(/*SOCKET_URL*/URI.create(urlField.getText()));
+            }
+        });
+
+        urlField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (urlField.getText().equals(URL_FIELD_DEFAULT_TEXT)) {
+                    urlField.setText("");
+                }
+            }
+        });
+
+        urlField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (urlField.getText().isEmpty()) {
+                    urlField.setText(URL_FIELD_DEFAULT_TEXT);
+                }
+            }
+        });
+        roomIdField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (roomIdField.getText().equals(ROOM_ID_FIELD_DEFAULT_TEXT)) {
+                    roomIdField.setText("");
+                }
+            }
+        });
+        roomIdField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (roomIdField.getText().isEmpty()) {
+                    roomIdField.setText(ROOM_ID_FIELD_DEFAULT_TEXT);
+                }
+            }
+        });
+        nameField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (nameField.getText().equals(NAME_FIELD_DEFAULT_TEXT)) {
+                    nameField.setText("");
+                }
+            }
+        });
+
+        nameField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (nameField.getText().isEmpty()) {
+                    nameField.setText(NAME_FIELD_DEFAULT_TEXT);
+                }
+            }
+        });
     }
 }

@@ -281,6 +281,8 @@ public class InactivePanel {
                     } else if (event instanceof VFilePropertyChangeEvent) {
                         System.out.println("PropertyChangeEvent" + event);
                         eventManager.addPropertyChangeEventToEditorEventList((VFilePropertyChangeEvent) event);
+                    } else if (event instanceof VFileMoveEvent) {
+                        eventManager.addMoveEventToEditorEventList((VFileMoveEvent) event);
                     }
                 });
             }

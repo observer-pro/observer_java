@@ -13,55 +13,23 @@ public class EventManager {
     ProjectFileMapper mapper = new ProjectFileMapper();
     public void addContentChangeEventToEditorEventList(VFileContentChangeEvent event) {
         mapAndAddEvents(event.getPath(), "changed");
-//        try {
-//            ResourceManager.getEditorUpdateEvents().add(mapper.filetoProjectFile(event.getFile().getPath(),
-//                    ResourceManager.getToolWindow().getProject().getBasePath(),
-//                    "changed"));
-//        }catch (IOException e){
-//            logger.warning("addContentChangeEventToEditorEventList " + e.getMessage());
-//        }
-//
-//        logger.info("addContentChangeEventToEditorEventList processed event - " + event);
     }
     public void addCreateEventToEditorEventList(VFileCreateEvent event){
         mapAndAddEvents(event.getPath(), "created");
-//        try {
-//            ResourceManager.getEditorUpdateEvents().add(mapper.filetoProjectFile(event.getFile().getPath(),
-//                    ResourceManager.getToolWindow().getProject().getBasePath(),
-//                    "created"));
-//        }catch (IOException e){
-//            logger.warning("addCreateEventToEditorEventList " + e.getMessage());
-//        }
-//        logger.info("addContentChangeEventToEditorEventList processed event - " + event);
     }
 
     public void addDeleteEventToEditorEventList(VFileDeleteEvent event){
         mapAndAddEvents(event.getPath(), "removed");
-//        try {
-//            ResourceManager.getEditorUpdateEvents().add(mapper.filetoProjectFile(event.getPath(),
-//                    ResourceManager.getToolWindow().getProject().getBasePath(),
-//                    "removed"));
-//        }catch (IOException e){
-//            logger.warning("addDeleteEventToEditorEventList " + e.getMessage());
-//        }
-//        logger.info("addContentChangeEventToEditorEventList processed event - " + event);
     }
 
     public void addPropertyChangeEventToEditorEventList(VFilePropertyChangeEvent event){
         mapAndAddEvents(event.getPath(), "created");
         mapAndAddEvents(event.getOldPath(), "removed");
+    }
 
-//        try{
-//            ResourceManager.getEditorUpdateEvents().add(mapper.filetoProjectFile(event.getPath(),
-//                    ResourceManager.getToolWindow().getProject().getBasePath(),
-//                    "created"));
-//
-//            ResourceManager.getEditorUpdateEvents().add(mapper.filetoProjectFile(event.getOldPath(),
-//                    ResourceManager.getToolWindow().getProject().getBasePath(),  "removed"));
-//        }catch (IOException e){
-//            logger.warning("addPropertyChangeEventToEditorEventList " + e.getMessage());
-//        }
-//        logger.info("created event - " + event);
+    public void addMoveEventToEditorEventList(VFileMoveEvent event) {
+        mapAndAddEvents(event.getPath(), "created");
+        mapAndAddEvents(event.getOldPath(), "removed");
     }
 
     private void mapAndAddEvents(String path, String status){

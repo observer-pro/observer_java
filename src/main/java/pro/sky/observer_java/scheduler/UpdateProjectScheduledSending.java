@@ -5,6 +5,7 @@ import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.resources.ResourceManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class UpdateProjectScheduledSending implements Runnable {
@@ -14,6 +15,8 @@ public class UpdateProjectScheduledSending implements Runnable {
         if (updatedFiles.isEmpty()) {
             return;
         }
+        updatedFiles.removeAll(Collections.singleton(null));
+
         FileStructureStringer stringer = new FileStructureStringer();
         String json = stringer.getJsonStringFromProjectFileList(updatedFiles);
 

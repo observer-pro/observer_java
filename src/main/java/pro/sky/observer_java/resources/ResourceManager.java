@@ -12,6 +12,8 @@ import pro.sky.observer_java.model.ProjectFile;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class ResourceManager {
     private static volatile ConnectedPanel connectedPanel;
@@ -36,11 +38,17 @@ public class ResourceManager {
 
     private static List<ProjectFile> editorUpdateEvents;
 
+    private static final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+
 
     /**
      *  Getters & Setters
      */
 
+
+    public static ScheduledExecutorService getSes() {
+        return ses;
+    }
 
     public static List<ProjectFile> getEditorUpdateEvents() {
         return editorUpdateEvents;

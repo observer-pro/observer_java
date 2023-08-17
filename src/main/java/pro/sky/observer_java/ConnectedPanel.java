@@ -27,8 +27,19 @@ public class ConnectedPanel {
     public ConnectedPanel() {
         sendButton.addActionListener(e -> sendMessage());
 
-        stopSharingButton.addActionListener(e -> ResourceManager.getmSocket().disconnect());
-        //TODO ROOM LEAVE
+        stopSharingButton.addActionListener(e -> {
+            ResourceManager.getmSocket().disconnect();
+
+            JSONObject sendMessage = new JSONObject();
+            try {
+                sendMessage.put("room_id", ResourceManager.getRoomId());
+            } catch (JSONException exception) {
+                throw new RuntimeException(exception);
+            }
+            ResourceManager.getSes().shutdown();
+            ResourceManager.getmSocket().emit("room/leave",sendMessage);
+        });
+
 
         messageField.addKeyListener(new KeyAdapter() {
             @Override

@@ -1,13 +1,9 @@
 package pro.sky.observer_java.mapper;
 
-import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.newvfs.events.*;
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import org.apache.commons.lang.StringUtils;
 import pro.sky.observer_java.model.ProjectFile;
-import pro.sky.observer_java.resources.ResourceManager;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,6 +17,9 @@ public class ProjectFileMapper {
 
     public ProjectFile filetoProjectFile(String filePath, String relative, String status) throws IOException {
         ProjectFile projectFile = new ProjectFile();
+        if(filePath.contains(".idea")){
+            return null;
+        }
 
         projectFile.setFilename(
                 StringUtils.removeStart(StringUtils.replaceChars(filePath,'\\','/'),relative)

@@ -14,7 +14,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import pro.sky.observer_java.events.EventManager;
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
-import pro.sky.observer_java.mapper.ProjectFileMapper;
 import pro.sky.observer_java.model.Message;
 import pro.sky.observer_java.resources.ResourceManager;
 import pro.sky.observer_java.scheduler.UpdateProjectScheduledSending;
@@ -28,8 +27,6 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class InactivePanel {
@@ -50,7 +47,7 @@ public class InactivePanel {
 
     private final String MESSAGE_STRING_FORMAT = "%s: %s\n";
 
-    private final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+
     private Project openProject;
 
 
@@ -185,7 +182,7 @@ public class InactivePanel {
                     ResourceManager.setWatching(false);
                     ResourceManager.getConnectedPanel().setMentorStatusLabelText();
 
-                    ses.shutdown();
+                    ResourceManager.getSes().shutdown();
 
                 }).on(Socket.EVENT_CONNECT_ERROR, args -> {
                     balloonNotificationError.notify(openProject);
@@ -254,12 +251,14 @@ public class InactivePanel {
     private void codeSharingEnd(Object... args) {
         ResourceManager.setWatching(false);
         ResourceManager.getConnectedPanel().setMentorStatusLabelText();
+        ResourceManager.getSes().shutdown();
     }
 
     private void activateEditorEventListenerAndScheduler() {
         MessageBusConnection connection = openProject.getMessageBus().connect();
 
         ResourceManager.setEditorUpdateEvents(new ArrayList<>());
+
         connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
             @Override
             public void after(@NotNull List<? extends VFileEvent> events) {
@@ -284,18 +283,10 @@ public class InactivePanel {
                         eventManager.addPropertyChangeEventToEditorEventList((VFilePropertyChangeEvent) event);
                     }
                 });
-
-//                for (Object event : events) {
-//                    if(event.getClass().equals(VFilePropertyChangeEvent.class))
-//                    {
-//                        VFilePropertyChangeEvent changeEvent = (VFilePropertyChangeEvent) event;
-//                        changeEvent.
-//                    }
-//                    mapper.addRenameEventToProjectFileEventList(event);
-//                }
             }
         });
 
-        ses.scheduleAtFixedRate(new UpdateProjectScheduledSending(), 5, 5, TimeUnit.SECONDS);
+        ResourceManager.getSes()
+                .scheduleAtFixedRate(new UpdateProjectScheduledSending(), 5, 5, TimeUnit.SECONDS);
     }
 }

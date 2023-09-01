@@ -38,7 +38,7 @@ public class ResourceManager {
 
     private static List<ProjectFile> editorUpdateEvents;
 
-    private static final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+    private static ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 
 
     /**
@@ -156,5 +156,9 @@ public class ResourceManager {
 
     public static void setWatching(boolean watching) {
         ResourceManager.watching = watching;
+    }
+
+    public static void setSes(ScheduledExecutorService scheduledExecutorService) {
+        ses= scheduledExecutorService;
     }
 }

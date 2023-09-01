@@ -27,6 +27,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class InactivePanel {
@@ -94,7 +95,7 @@ public class InactivePanel {
             try {
                 message = new Message(
                         1L,
-                        "HOST",
+                        "Teacher",
                         LocalDateTime.now(),
                         jsonMessage.getString("content")
                 );
@@ -204,7 +205,9 @@ public class InactivePanel {
     private void codeSharingEnd(Object... args) {
         ResourceManager.setWatching(false);
         ResourceManager.getConnectedPanel().setMentorStatusLabelText();
-        ResourceManager.getSes().shutdown();
+        if(!ResourceManager.getSes().isShutdown()) {
+            ResourceManager.getSes().shutdown();
+        }
         balloonNotificationSharingStopped.notify(openProject);
     }
 
@@ -212,6 +215,7 @@ public class InactivePanel {
         MessageBusConnection connection = openProject.getMessageBus().connect();
 
         ResourceManager.setEditorUpdateEvents(new ArrayList<>());
+        ResourceManager.setSes(Executors.newSingleThreadScheduledExecutor());
 
         connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
             @Override

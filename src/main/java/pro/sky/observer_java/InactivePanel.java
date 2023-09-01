@@ -62,6 +62,8 @@ public class InactivePanel {
 
     private Project openProject;
 
+    private MessageBusConnection connection;
+
 
     IO.Options options = IO.Options.builder().setForceNew(true).setUpgrade(true).setTransports(new String[]{"websocket"}).build();
     private final URI SOCKET_URL = URI.create("wss://ws.postman-echo.com/socketio");
@@ -112,7 +114,6 @@ public class InactivePanel {
     private void socketConnectionEvents() {
         openProject = ResourceManager.getToolWindow().getProject();
 
-
         ResourceManager.getmSocket()
                 .on(Socket.EVENT_CONNECT, this::sendEventConnect)
                 .on(Socket.EVENT_DISCONNECT, args -> {
@@ -127,7 +128,8 @@ public class InactivePanel {
                     ResourceManager.setWatching(false);
                     ResourceManager.getConnectedPanel().setMentorStatusLabelText();
 
-                    ResourceManager.getSes().shutdown();
+                    ResourceManager.getSes().shutdownNow();
+                    connection.disconnect();
 
                     JSONObject data = new JSONObject();
                     try {
@@ -153,7 +155,7 @@ public class InactivePanel {
                     balloonNotificationConnected.notify(openProject);
                     ResourceManager.getInactivePanel().setVisible(false);
                     ResourceManager.getConnectedPanel().setVisible(true);
-                });
+                }).on("sharing/end", this::codeSharingEnd);
     }
 
     private void socketProjectRequestEvents() {
@@ -193,7 +195,7 @@ public class InactivePanel {
         ResourceManager.getConnectedPanel().setMentorStatusLabelText();
         FileStructureStringer fileStructureStringer = new FileStructureStringer();
 
-        ResourceManager.getmSocket().on("sharing/end", this::codeSharingEnd)
+        ResourceManager.getmSocket()
                 .emit("sharing/code_send",
                         fileStructureStringer
                                 .getJsonObjectFromString(fileStructureStringer.getProjectFilesList(openProject)));
@@ -205,15 +207,16 @@ public class InactivePanel {
     private void codeSharingEnd(Object... args) {
         ResourceManager.setWatching(false);
         ResourceManager.getConnectedPanel().setMentorStatusLabelText();
-        if(!ResourceManager.getSes().isShutdown()) {
-            ResourceManager.getSes().shutdown();
-        }
+
+        ResourceManager.getSes().shutdownNow();
+        connection.disconnect();
+
         balloonNotificationSharingStopped.notify(openProject);
     }
 
     private void activateEditorEventListenerAndScheduler() {
-        MessageBusConnection connection = openProject.getMessageBus().connect();
 
+        connection = openProject.getMessageBus().connect();
         ResourceManager.setEditorUpdateEvents(new ArrayList<>());
         ResourceManager.setSes(Executors.newSingleThreadScheduledExecutor());
 
@@ -248,6 +251,7 @@ public class InactivePanel {
                 });
             }
         });
+
 
         ResourceManager.getSes()
                 .scheduleAtFixedRate(new UpdateProjectScheduledSending(), 5, 5, TimeUnit.SECONDS);

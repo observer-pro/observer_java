@@ -217,6 +217,8 @@ public class InactivePanel {
     private void activateEditorEventListenerAndScheduler() {
 
         connection = openProject.getMessageBus().connect();
+        connection.deliverImmediately();
+
         ResourceManager.setEditorUpdateEvents(new ArrayList<>());
         ResourceManager.setSes(Executors.newSingleThreadScheduledExecutor());
 

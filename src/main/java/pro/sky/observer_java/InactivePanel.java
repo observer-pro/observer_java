@@ -129,7 +129,9 @@ public class InactivePanel {
                     ResourceManager.getConnectedPanel().setMentorStatusLabelText();
 
                     ResourceManager.getSes().shutdownNow();
-                    connection.disconnect();
+                    if(connection!=null) {
+                        connection.disconnect();
+                    }
 
                     JSONObject data = new JSONObject();
                     try {
@@ -215,7 +217,7 @@ public class InactivePanel {
     }
 
     private void activateEditorEventListenerAndScheduler() {
-
+        
         connection = openProject.getMessageBus().connect();
         connection.deliverImmediately();
 

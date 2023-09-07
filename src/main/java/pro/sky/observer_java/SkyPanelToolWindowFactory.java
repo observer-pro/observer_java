@@ -20,10 +20,8 @@ public class SkyPanelToolWindowFactory implements ToolWindowFactory, DumbAware {
         ResourceManager.setConnectedPanel(new ConnectedPanel());
         ResourceManager.setInactivePanel(new InactivePanel());
         ResourceManager.setToolWindow(toolWindow);
-        //ResourceManager.setSkyPanelToolWindowFactory(this);
 
         toolWindowContent = new SkyPanelToolWindowContent();
-        //ResourceManager.setSkyPanelToolWindowContent(toolWindowContent);
 
         content = ContentFactory.getInstance().createContent(toolWindowContent.getContentPanel(), "", false);
         toolWindow.getContentManager().addContent(content);
@@ -36,9 +34,6 @@ public class SkyPanelToolWindowFactory implements ToolWindowFactory, DumbAware {
 
         public SkyPanelToolWindowContent() {
             contentPanel.setLayout(new BoxLayout(contentPanel,BoxLayout.Y_AXIS));
-
-           // ResourceManager.setContentPanel(contentPanel);
-
 
             ResourceManager.getInactivePanel().setVisible(true);
             ResourceManager.getConnectedPanel().setVisible(false);

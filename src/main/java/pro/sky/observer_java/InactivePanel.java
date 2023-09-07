@@ -211,7 +211,9 @@ public class InactivePanel {
         ResourceManager.getConnectedPanel().setMentorStatusLabelText();
 
         ResourceManager.getSes().shutdownNow();
-        connection.disconnect();
+        if(connection!=null) {
+            connection.disconnect();
+        }
 
         balloonNotificationSharingStopped.notify(openProject);
     }

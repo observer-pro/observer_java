@@ -21,23 +21,26 @@ public class ConnectedPanel {
     private JLabel connectionStatusLabel;
     private JScrollPane scroll;
     private JSeparator separator;
+    private final ResourceManager resourceManager;
 
     private final String MESSAGE_STRING_FORMAT = "%s: %s\n";
 
-    public ConnectedPanel() {
+    public ConnectedPanel(ResourceManager resourceManager) {
+
+        this.resourceManager = resourceManager;
         sendButton.addActionListener(e -> sendMessage());
 
         disconnectButton.addActionListener(e -> {
-            ResourceManager.getmSocket().disconnect();
+            resourceManager.getmSocket().disconnect();
 
             JSONObject sendMessage = new JSONObject();
             try {
-                sendMessage.put("room_id", ResourceManager.getRoomId());
+                sendMessage.put("room_id", resourceManager.getRoomId());
             } catch (JSONException exception) {
                 throw new RuntimeException(exception);
             }
-            ResourceManager.getSes().shutdown();
-            ResourceManager.getmSocket().emit("room/leave",sendMessage);
+            resourceManager.getSes().shutdown();
+            resourceManager.getmSocket().emit("room/leave",sendMessage);
         });
 
 
@@ -59,25 +62,24 @@ public class ConnectedPanel {
         if(chatArea.getText().equals("No messages")){
             chatArea.setText("");
         }
-        String senderName = ResourceManager.getUserName();
+        String senderName = resourceManager.getUserName();
         String messageText = messageField.getText();
 
         chatArea.append(String.format(MESSAGE_STRING_FORMAT,senderName,messageText));
 
         JSONObject sendMessage = new JSONObject();
         try {
-            sendMessage.put("room_id", ResourceManager.getRoomId());
+            sendMessage.put("room_id", resourceManager.getRoomId());
             sendMessage.put("content", messageText);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
 
-        ResourceManager.getmSocket().emit("message/to_mentor", sendMessage);
+        resourceManager.getmSocket().emit("message/to_mentor", sendMessage);
 
         Message message = new Message(1L, senderName, LocalDateTime.now(), messageText);
-        ResourceManager.getMessageList().add(message);
+        resourceManager.getMessageList().add(message);
         messageField.setText("");
-
     }
     public JPanel getConnectedJPanel() {
        return connectedPanel;
@@ -91,8 +93,8 @@ public class ConnectedPanel {
         this.connectionStatusLabel.setText(text);
     }
 
-    public void setMentorStatusLabelText() {
-        if(ResourceManager.isWatching()){
+    public void toggleMentorStatusLabelText() {
+        if(resourceManager.isWatching()){
             mentorStatusLabel.setText("Mentor is watching");
             return;
         }

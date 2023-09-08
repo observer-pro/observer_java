@@ -3,28 +3,28 @@ package pro.sky.observer_java.fileProcessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.openapi.vfs.VirtualFileVisitor;
-import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.mapper.ProjectFileMapper;
+import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.resources.ResourceManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class FileStructureStringer {
 
     private final List<File> files = new ArrayList<>();
     private final List<ProjectFile> projectFiles = new ArrayList<>();
 
+    ResourceManager resourceManager;
+
+    public FileStructureStringer(ResourceManager resourceManager) {
+        this.resourceManager = resourceManager;
+    }
 
     public void listFiles(String directoryName, List<File> files) {
         File directory = new File(directoryName);
@@ -76,7 +76,7 @@ public class FileStructureStringer {
         JSONArray data;
         try {
             data = new JSONArray(json);
-            sendMessage.put("room_id", ResourceManager.getRoomId());
+            sendMessage.put("room_id", resourceManager.getRoomId());
             sendMessage.put("files", data);
         } catch (JSONException e) {
             throw new RuntimeException(e);

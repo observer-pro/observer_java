@@ -9,9 +9,14 @@ import java.util.Collections;
 import java.util.List;
 
 public class UpdateProjectScheduledSending implements Runnable {
+    ResourceManager resourceManager;
+    public UpdateProjectScheduledSending(ResourceManager resourceManager) {
+        this.resourceManager = resourceManager;
+    }
+
     @Override
     public void run() {
-        List<ProjectFile> updatedFiles = ResourceManager.getEditorUpdateEvents();
+        List<ProjectFile> updatedFiles = resourceManager.getEditorUpdateEvents();
 
         updatedFiles.removeAll(Collections.singleton(null));
 
@@ -19,10 +24,10 @@ public class UpdateProjectScheduledSending implements Runnable {
             return;
         }
 
-        FileStructureStringer stringer = new FileStructureStringer();
+        FileStructureStringer stringer = new FileStructureStringer(resourceManager);
         String json = stringer.getJsonStringFromProjectFileList(updatedFiles);
 
-        ResourceManager.getmSocket().emit("sharing/code_update", stringer.getJsonObjectFromString(json));
-        ResourceManager.setEditorUpdateEvents(new ArrayList<>());
+        resourceManager.getmSocket().emit("sharing/code_update", stringer.getJsonObjectFromString(json));
+        resourceManager.setEditorUpdateEvents(new ArrayList<>());
     }
 }

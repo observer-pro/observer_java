@@ -14,12 +14,14 @@ import javax.swing.*;
 public class SkyPanelToolWindowFactory implements ToolWindowFactory, DumbAware {
     SkyPanelToolWindowContent toolWindowContent;
     Content content;
+    ResourceManager resourceManager;
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 
-        ResourceManager.setConnectedPanel(new ConnectedPanel());
-        ResourceManager.setInactivePanel(new InactivePanel());
-        ResourceManager.setToolWindow(toolWindow);
+        this.resourceManager = new ResourceManager();
+        resourceManager.setConnectedPanel(new ConnectedPanel(resourceManager));
+        resourceManager.setInactivePanel(new InactivePanel(resourceManager));
+        resourceManager.setToolWindow(toolWindow);
 
         toolWindowContent = new SkyPanelToolWindowContent();
 
@@ -29,17 +31,17 @@ public class SkyPanelToolWindowFactory implements ToolWindowFactory, DumbAware {
 
 
 
-    public static class SkyPanelToolWindowContent {
+    public class SkyPanelToolWindowContent {
         private final JPanel contentPanel = new JPanel();
 
         public SkyPanelToolWindowContent() {
             contentPanel.setLayout(new BoxLayout(contentPanel,BoxLayout.Y_AXIS));
 
-            ResourceManager.getInactivePanel().setVisible(true);
-            ResourceManager.getConnectedPanel().setVisible(false);
+            resourceManager.getInactivePanel().setVisible(true);
+            resourceManager.getConnectedPanel().setVisible(false);
 
-            contentPanel.add(ResourceManager.getConnectedPanel().getConnectedJPanel());
-            contentPanel.add(ResourceManager.getInactivePanel().getInactiveJPanel());
+            contentPanel.add(resourceManager.getConnectedPanel().getConnectedJPanel());
+            contentPanel.add(resourceManager.getInactivePanel().getInactiveJPanel());
         }
 
         public JPanel getContentPanel() {

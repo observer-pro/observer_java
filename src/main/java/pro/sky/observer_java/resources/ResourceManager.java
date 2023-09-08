@@ -16,29 +16,29 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class ResourceManager {
-    private static volatile ConnectedPanel connectedPanel;
+    private volatile ConnectedPanel connectedPanel;
 
-    private static volatile InactivePanel inactivePanel;
+    private volatile InactivePanel inactivePanel;
 
-    private static volatile Integer roomId;
+    private volatile Integer roomId;
 
-    private static volatile String userName;
+    private volatile String userName;
 
-    private static volatile ToolWindow toolWindow;
+    private volatile ToolWindow toolWindow;
 
-    private static volatile SkyPanelToolWindowFactory skyPanelToolWindowFactory;
+    private volatile SkyPanelToolWindowFactory skyPanelToolWindowFactory;
 
-    private static volatile SkyPanelToolWindowFactory.SkyPanelToolWindowContent skyPanelToolWindowContent;
+    private volatile SkyPanelToolWindowFactory.SkyPanelToolWindowContent skyPanelToolWindowContent;
 
-    private static volatile JPanel contentPanel;
+    private volatile JPanel contentPanel;
 
-    private static Socket mSocket;
+    private Socket mSocket;
 
-    private static volatile Integer userId;
+    private volatile Integer userId;
 
-    private static List<ProjectFile> editorUpdateEvents;
+    private List<ProjectFile> editorUpdateEvents;
 
-    private static ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 
 
     /**
@@ -46,119 +46,119 @@ public class ResourceManager {
      */
 
 
-    public static ScheduledExecutorService getSes() {
+    public ScheduledExecutorService getSes() {
         return ses;
     }
 
-    public static List<ProjectFile> getEditorUpdateEvents() {
+    public List<ProjectFile> getEditorUpdateEvents() {
         return editorUpdateEvents;
     }
 
-    public static void setEditorUpdateEvents(List<ProjectFile> editorUpdateEvents) {
-        ResourceManager.editorUpdateEvents = editorUpdateEvents;
+    public void setEditorUpdateEvents(List<ProjectFile> editorUpdateEvents) {
+        this.editorUpdateEvents = editorUpdateEvents;
     }
 
-    public static Integer getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public static void setUserId(Integer userId) {
-        ResourceManager.userId = userId;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
-    private static List<Message> messageList = new ArrayList<>();
+    private List<Message> messageList = new ArrayList<>();
 
-    private static volatile boolean watching = false;
+    private volatile boolean watching = false;
 
-    public static ConnectedPanel getConnectedPanel() {
+    public ConnectedPanel getConnectedPanel() {
         return connectedPanel;
     }
 
-    public static void setConnectedPanel(ConnectedPanel connectedPanel) {
-        ResourceManager.connectedPanel = connectedPanel;
+    public void setConnectedPanel(ConnectedPanel connectedPanel) {
+        this.connectedPanel = connectedPanel;
     }
 
-    public static InactivePanel getInactivePanel() {
+    public InactivePanel getInactivePanel() {
         return inactivePanel;
     }
 
-    public static void setInactivePanel(InactivePanel inactivePanel) {
-        ResourceManager.inactivePanel = inactivePanel;
+    public void setInactivePanel(InactivePanel inactivePanel) {
+        this.inactivePanel = inactivePanel;
     }
 
-    public static Integer getRoomId() {
+    public Integer getRoomId() {
         return roomId;
     }
 
-    public static void setRoomId(Integer roomId) {
-        ResourceManager.roomId = roomId;
+    public void setRoomId(Integer roomId) {
+        this.roomId = roomId;
     }
 
-    public static String getUserName() {
+    public String getUserName() {
         return userName;
     }
 
-    public static void setUserName(String userName) {
-        ResourceManager.userName = userName;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public static ToolWindow getToolWindow() {
+    public ToolWindow getToolWindow() {
         return toolWindow;
     }
 
-    public static void setToolWindow(ToolWindow toolWindow) {
-        ResourceManager.toolWindow = toolWindow;
+    public void setToolWindow(ToolWindow toolWindow) {
+        this.toolWindow = toolWindow;
     }
 
-    public static SkyPanelToolWindowFactory getSkyPanelToolWindowFactory() {
+    public SkyPanelToolWindowFactory getSkyPanelToolWindowFactory() {
         return skyPanelToolWindowFactory;
     }
 
-    public static void setSkyPanelToolWindowFactory(SkyPanelToolWindowFactory skyPanelToolWindowFactory) {
-        ResourceManager.skyPanelToolWindowFactory = skyPanelToolWindowFactory;
+    public void setSkyPanelToolWindowFactory(SkyPanelToolWindowFactory skyPanelToolWindowFactory) {
+        this.skyPanelToolWindowFactory = skyPanelToolWindowFactory;
     }
 
-    public static SkyPanelToolWindowFactory.SkyPanelToolWindowContent getSkyPanelToolWindowContent() {
+    public SkyPanelToolWindowFactory.SkyPanelToolWindowContent getSkyPanelToolWindowContent() {
         return skyPanelToolWindowContent;
     }
 
-    public static void setSkyPanelToolWindowContent(SkyPanelToolWindowFactory.SkyPanelToolWindowContent skyPanelToolWindowContent) {
-        ResourceManager.skyPanelToolWindowContent = skyPanelToolWindowContent;
+    public void setSkyPanelToolWindowContent(SkyPanelToolWindowFactory.SkyPanelToolWindowContent skyPanelToolWindowContent) {
+        this.skyPanelToolWindowContent = skyPanelToolWindowContent;
     }
 
-    public static JPanel getContentPanel() {
+    public JPanel getContentPanel() {
         return contentPanel;
     }
 
-    public static void setContentPanel(JPanel contentPanel) {
-        ResourceManager.contentPanel = contentPanel;
+    public void setContentPanel(JPanel contentPanel) {
+        this.contentPanel = contentPanel;
     }
 
-    public static Socket getmSocket() {
+    public Socket getmSocket() {
         return mSocket;
     }
 
-    public static void setmSocket(Socket mSocket) {
-        ResourceManager.mSocket = mSocket;
+    public void setmSocket(Socket mSocket) {
+        this.mSocket = mSocket;
     }
 
-    public static List<Message> getMessageList() {
+    public List<Message> getMessageList() {
         return messageList;
     }
 
-    public static void setMessageList(List<Message> messageList) {
-        ResourceManager.messageList = messageList;
+    public void setMessageList(List<Message> messageList) {
+        this.messageList = messageList;
     }
 
-    public static boolean isWatching() {
+    public boolean isWatching() {
         return watching;
     }
 
-    public static void setWatching(boolean watching) {
-        ResourceManager.watching = watching;
+    public void setWatching(boolean watching) {
+        this.watching = watching;
     }
 
-    public static void setSes(ScheduledExecutorService scheduledExecutorService) {
-        ses= scheduledExecutorService;
+    public void setSes(ScheduledExecutorService scheduledExecutorService) {
+        this.ses= scheduledExecutorService;
     }
 }

@@ -15,7 +15,6 @@ public class EventManager {
     public EventManager(ResourceManager resourceManager) {
         this.resourceManager = resourceManager;
     }
-
     ProjectFileMapper mapper = new ProjectFileMapper();
     public void addContentChangeEventToEditorEventList(VFileContentChangeEvent event) {
         mapAndAddEvents(event.getPath(), "changed");
@@ -27,17 +26,14 @@ public class EventManager {
     public void addDeleteEventToEditorEventList(VFileDeleteEvent event){
         mapAndAddEvents(event.getPath(), "removed");
     }
-
     public void addPropertyChangeEventToEditorEventList(VFilePropertyChangeEvent event){
         mapAndAddEvents(event.getPath(), "created");
         mapAndAddEvents(event.getOldPath(), "removed");
     }
-
     public void addMoveEventToEditorEventList(VFileMoveEvent event) {
         mapAndAddEvents(event.getPath(), "created");
         mapAndAddEvents(event.getOldPath(), "removed");
     }
-
     private void mapAndAddEvents(String path, String status){
         try {
             resourceManager.getEditorUpdateEvents().add(mapper.filetoProjectFile(path,

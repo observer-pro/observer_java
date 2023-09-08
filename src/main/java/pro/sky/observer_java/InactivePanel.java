@@ -131,7 +131,7 @@ public class InactivePanel {
         resourceManager.getmSocket().connect();
     }
     private void socketMessageEvents() {
-        resourceManager.getmSocket().on("message/to_client", args -> {
+        resourceManager.getmSocket().on(CustomSocketEvents.MESSAGE_TO_CLIENT, args -> {
             JSONObject jsonMessage;
             try {
                 jsonMessage = new JSONObject(args[0].toString());
@@ -142,7 +142,7 @@ public class InactivePanel {
             try {
                 message = new Message(
                         1L,
-                        "Teacher",
+                        "HOST",
                         LocalDateTime.now(),
                         jsonMessage.getString("content")
                 );
@@ -150,7 +150,9 @@ public class InactivePanel {
                 throw new RuntimeException(e);
             }
 
-            resourceManager.getConnectedPanel().appendChat(String.format(MessageTemplates.MESSAGE_STRING_FORMAT, "SOCKET", message.getMessageText()));
+            resourceManager.getConnectedPanel().appendChat(
+                    String.format(MessageTemplates.MESSAGE_STRING_FORMAT, "HOST", message.getMessageText())
+            );
             resourceManager.getMessageList().add(message);
         });
     }
@@ -202,7 +204,7 @@ public class InactivePanel {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-        resourceManager.getmSocket().emit("room/leave", data);
+        resourceManager.getmSocket().emit(CustomSocketEvents.ROOM_LEAVE, data);
     }
     private void eventConnect(Object... args) {
 
@@ -225,7 +227,7 @@ public class InactivePanel {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-        resourceManager.getmSocket().emit("room/join", data);
+        resourceManager.getmSocket().emit(CustomSocketEvents.ROOM_JOIN, data);
     }
     private void eventSharingEnd(Object... args) {
         resourceManager.setWatching(false);
@@ -247,7 +249,7 @@ public class InactivePanel {
         FileStructureStringer fileStructureStringer = new FileStructureStringer(resourceManager);
 
         resourceManager.getmSocket()
-                .emit("sharing/code_send",
+                .emit(CustomSocketEvents.CODE_SEND,
                         fileStructureStringer
                                 .getJsonObjectFromString(fileStructureStringer.getProjectFilesList(openProject)));
 

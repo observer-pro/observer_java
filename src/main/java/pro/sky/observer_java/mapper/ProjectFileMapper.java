@@ -17,9 +17,6 @@ public class ProjectFileMapper {
 
     public ProjectFile filetoProjectFile(String filePath, String relative, String status) throws IOException {
         ProjectFile projectFile = new ProjectFile();
-        if(filePath.contains(".idea")|| filePath.contains("venv")){
-            return null;
-        }
 
         projectFile.setFilename(
                 StringUtils.removeStart(StringUtils.replaceChars(filePath,'\\','/'),relative)

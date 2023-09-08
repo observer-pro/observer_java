@@ -51,13 +51,27 @@ public class FileStructureStringer {
 
         ProjectFileMapper projectFileMapper = new ProjectFileMapper();
         for (File file : files) {
+            ProjectFile projectFile;
+            if(pathContainsIgnored(file.getPath())){
+                continue;
+            }
             try {
-                projectFiles.add(projectFileMapper.filetoProjectFile(file.getPath(), basePath,"created"));
-            }catch (IOException e){
+                projectFile = projectFileMapper.filetoProjectFile(file.getPath(), basePath, "created");
+                if (projectFile != null) {
+                    projectFiles.add(projectFile);
+                }
+            } catch (IOException e) {
                 System.out.println("To project File Exception" + e.getMessage());
             }
         }
         return getJsonStringFromProjectFileList(projectFiles);
+    }
+
+    private static boolean pathContainsIgnored(String path) {
+        if(path.contains(".idea")||path.contains("venv")){
+            return true;
+        }
+        return false;
     }
 
     public String getJsonStringFromProjectFileList(List<ProjectFile> projectFiles) {
@@ -71,7 +85,7 @@ public class FileStructureStringer {
         return json;
     }
 
-    public JSONObject getJsonObjectFromString(String json){
+    public JSONObject getJsonObjectFromString(String json) {
         JSONObject sendMessage = new JSONObject();
         JSONArray data;
         try {

@@ -1,6 +1,7 @@
 package pro.sky.observer_java.scheduler;
 
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
+import pro.sky.observer_java.model.CustomSocketEvents;
 import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.resources.ResourceManager;
 
@@ -27,7 +28,7 @@ public class UpdateProjectScheduledSending implements Runnable {
         FileStructureStringer stringer = new FileStructureStringer(resourceManager);
         String json = stringer.getJsonStringFromProjectFileList(updatedFiles);
 
-        resourceManager.getmSocket().emit("sharing/code_update", stringer.getJsonObjectFromString(json));
+        resourceManager.getmSocket().emit(CustomSocketEvents.CODE_UPDATE, stringer.getJsonObjectFromString(json));
         resourceManager.setEditorUpdateEvents(new ArrayList<>());
     }
 }

@@ -41,11 +41,6 @@ public class ResourceManager {
     private ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 
 
-    /**
-     *  Getters & Setters
-     */
-
-
     public ScheduledExecutorService getSes() {
         return ses;
     }
@@ -159,6 +154,6 @@ public class ResourceManager {
     }
 
     public void setSes(ScheduledExecutorService scheduledExecutorService) {
-        this.ses= scheduledExecutorService;
+        this.ses = scheduledExecutorService;
     }
 }

@@ -12,9 +12,10 @@ import pro.sky.observer_java.resources.ResourceManager;
 import javax.swing.*;
 
 public class SkyPanelToolWindowFactory implements ToolWindowFactory, DumbAware {
-    SkyPanelToolWindowContent toolWindowContent;
-    Content content;
-    ResourceManager resourceManager;
+    private SkyPanelToolWindowContent toolWindowContent;
+    private Content content;
+    private ResourceManager resourceManager;
+
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 
@@ -30,12 +31,11 @@ public class SkyPanelToolWindowFactory implements ToolWindowFactory, DumbAware {
     }
 
 
-
     public class SkyPanelToolWindowContent {
         private final JPanel contentPanel = new JPanel();
 
         public SkyPanelToolWindowContent() {
-            contentPanel.setLayout(new BoxLayout(contentPanel,BoxLayout.Y_AXIS));
+            contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
             resourceManager.getInactivePanel().setVisible(true);
             resourceManager.getConnectedPanel().setVisible(false);

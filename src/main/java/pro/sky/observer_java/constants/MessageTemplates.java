@@ -1,4 +1,4 @@
-package pro.sky.observer_java.model;
+package pro.sky.observer_java.constants;
 
 public final class MessageTemplates {
     public static final String URL_FIELD_DEFAULT_TEXT = "Enter url to connect to";

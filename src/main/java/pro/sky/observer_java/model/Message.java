@@ -3,13 +3,14 @@ package pro.sky.observer_java.model;
 import java.time.LocalDateTime;
 
 public class Message {
-   private Long messageId;
-   private String sender;
-   private LocalDateTime sendTime;
-   private String messageText;
+    private Long messageId;
+    private String sender;
+    private LocalDateTime sendTime;
+    private String messageText;
+    private static long messageCounter = 0;
 
-    public Message(Long messageId, String sender, LocalDateTime sendTime, String messageText) {
-        this.messageId = messageId;
+    public Message(String sender, LocalDateTime sendTime, String messageText) {
+        this.messageId = messageCounter++;
         this.sender = sender;
         this.sendTime = sendTime;
         this.messageText = messageText;

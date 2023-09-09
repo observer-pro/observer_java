@@ -1,9 +1,11 @@
 package pro.sky.observer_java.model;
 
+import pro.sky.observer_java.constants.ProjectFileStatus;
+
 public class ProjectFile {
-    String filename;
-    String status;
-    String content;
+    private String filename;
+    private ProjectFileStatus status;
+    private String content;
 
     public String getFilename() {
         return filename;
@@ -13,11 +15,11 @@ public class ProjectFile {
         this.filename = filename;
     }
 
-    public String getStatus() {
+    public ProjectFileStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ProjectFileStatus status) {
         this.status = status;
     }
 

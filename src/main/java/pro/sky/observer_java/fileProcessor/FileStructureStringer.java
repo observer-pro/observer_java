@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import pro.sky.observer_java.constants.ProjectFileStatus;
 import pro.sky.observer_java.mapper.ProjectFileMapper;
 import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.resources.ResourceManager;
@@ -14,14 +15,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class FileStructureStringer {
 
     private final List<File> files = new ArrayList<>();
     private final List<ProjectFile> projectFiles = new ArrayList<>();
-
-    ResourceManager resourceManager;
-
+    private final ResourceManager resourceManager;
+    private final Logger logger = Logger.getLogger(FileStructureStringer.class.getName());
     public FileStructureStringer(ResourceManager resourceManager) {
         this.resourceManager = resourceManager;
     }
@@ -32,7 +33,7 @@ public class FileStructureStringer {
         File[] fList = directory.listFiles();
         if (fList != null)
             for (File file : fList) {
-                if (file.getPath().contains(".idea")) {
+                if (pathContainsIgnored(file.getPath())) {
                     continue;
                 }
                 if (file.isFile()) {
@@ -42,7 +43,6 @@ public class FileStructureStringer {
                 }
             }
     }
-
     public String getProjectFilesList(Project project) {
 
         String basePath = project.getBasePath();
@@ -56,12 +56,12 @@ public class FileStructureStringer {
                 continue;
             }
             try {
-                projectFile = projectFileMapper.filetoProjectFile(file.getPath(), basePath, "created");
+                projectFile = projectFileMapper.filetoProjectFile(file.getPath(), basePath, ProjectFileStatus.CREATED);
                 if (projectFile != null) {
                     projectFiles.add(projectFile);
                 }
             } catch (IOException e) {
-                System.out.println("To project File Exception" + e.getMessage());
+                logger.warning("To project File Exception" + e.getMessage());
             }
         }
         return getJsonStringFromProjectFileList(projectFiles);

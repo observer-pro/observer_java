@@ -12,11 +12,13 @@ import io.socket.client.Socket;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
+import pro.sky.observer_java.constants.FieldTexts;
+import pro.sky.observer_java.constants.JsonFields;
 import pro.sky.observer_java.events.EventManager;
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
-import pro.sky.observer_java.model.CustomSocketEvents;
+import pro.sky.observer_java.constants.CustomSocketEvents;
 import pro.sky.observer_java.model.Message;
-import pro.sky.observer_java.model.MessageTemplates;
+import pro.sky.observer_java.constants.MessageTemplates;
 import pro.sky.observer_java.resources.ResourceManager;
 import pro.sky.observer_java.scheduler.UpdateProjectScheduledSending;
 
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class InactivePanel {
     private JTextField urlField;
@@ -40,27 +43,29 @@ public class InactivePanel {
     private JLabel hostLabel;
     private JLabel titleLabel;
     private JPanel inactivePanel;
-    String groupId = "pro.sky";
-    Notification balloonNotificationConnected;
-    Notification balloonNotificationDisconnected;
-    Notification balloonNotificationError;
-    Notification balloonNotificationSharingStarted;
-    Notification balloonNotificationSharingStopped;
-
+    private Notification balloonNotificationConnected;
+    private Notification balloonNotificationDisconnected;
+    private Notification balloonNotificationError;
+    private Notification balloonNotificationSharingStarted;
+    private Notification balloonNotificationSharingStopped;
     private Project openProject;
-
     private MessageBusConnection connection;
-
     private final ResourceManager resourceManager;
 
-    IO.Options options = IO.Options.builder().setForceNew(true).setUpgrade(true).setTransports(new String[]{"websocket"}).build();
-    private final URI SOCKET_URL = URI.create("wss://ws.postman-echo.com/socketio");
+    private final Logger logger = Logger.getLogger(InactivePanel.class.getName());
+
+    private final IO.Options options = IO.Options
+            .builder()
+            .setForceNew(true)
+            .setUpgrade(true)
+            .setTransports(new String[]{"websocket"})
+            .build();
 
     public InactivePanel(ResourceManager resourceManager) {
         this.resourceManager = resourceManager;
 
         connectButton.addActionListener(e ->
-                createSocketWithListenersAndConnect(/*SOCKET_URL*/URI.create(urlField.getText()))
+                createSocketWithListenersAndConnect(URI.create(urlField.getText()))
         );
 
         urlField.addFocusListener(new FocusAdapter() {
@@ -113,6 +118,7 @@ public class InactivePanel {
             }
         });
     }
+
     private void createSocketWithListenersAndConnect(URI uri) {
         if (resourceManager.getmSocket() != null) {
             resourceManager.getmSocket().disconnect();
@@ -130,32 +136,35 @@ public class InactivePanel {
 
         resourceManager.getmSocket().connect();
     }
+
     private void socketMessageEvents() {
         resourceManager.getmSocket().on(CustomSocketEvents.MESSAGE_TO_CLIENT, args -> {
-            JSONObject jsonMessage;
-            try {
-                jsonMessage = new JSONObject(args[0].toString());
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
-            Message message;
-            try {
-                message = new Message(
-                        1L,
-                        "HOST",
-                        LocalDateTime.now(),
-                        jsonMessage.getString("content")
-                );
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
+
+            if (resourceManager.getConnectedPanel().getChatArea().getText().equals(FieldTexts.NO_MESSAGES)) {
+                resourceManager.getConnectedPanel().getChatArea().setText("");
             }
 
-            resourceManager.getConnectedPanel().appendChat(
-                    String.format(MessageTemplates.MESSAGE_STRING_FORMAT, "HOST", message.getMessageText())
-            );
-            resourceManager.getMessageList().add(message);
+            JSONObject jsonMessage;
+            Message message;
+
+            try {
+                jsonMessage = new JSONObject(args[0].toString());
+
+                message = new Message(
+                        "HOST",
+                        LocalDateTime.now(),
+                        jsonMessage.getString(JsonFields.CONTENT)
+                );
+                resourceManager.getConnectedPanel().appendChat(
+                        String.format(MessageTemplates.MESSAGE_STRING_FORMAT, "HOST", message.getMessageText())
+                );
+                resourceManager.getMessageList().add(message);
+            } catch (JSONException e) {
+                logger.warning("Connected panel message/to_client json - " + e.getMessage());
+            }
         });
     }
+
     private void socketConnectionEvents() {
         openProject = resourceManager.getToolWindow().getProject();
 
@@ -166,22 +175,25 @@ public class InactivePanel {
                 .on(CustomSocketEvents.ROOM_JOIN, this::eventRoomJoin)
                 .on(CustomSocketEvents.SHARING_END, this::eventSharingEnd);
     }
-    private void eventRoomJoin(Object... args){
+
+    private void eventRoomJoin(Object... args) {
         JSONObject message;
         try {
             message = new JSONObject(args[0].toString());
-            resourceManager.setUserId(message.getInt("user_id"));
+            resourceManager.setUserId(message.getInt(JsonFields.USER_ID));
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            logger.warning("Connected panel room/join json - " + e.getMessage());
         }
         balloonNotificationConnected.notify(openProject);
         resourceManager.getInactivePanel().setVisible(false);
         resourceManager.getConnectedPanel().setVisible(true);
     }
-    private void eventError(Object... args){
+
+    private void eventError(Object... args) {
         balloonNotificationError.notify(openProject);
     }
-    private void eventDisconnect(Object... args){
+
+    private void eventDisconnect(Object... args) {
         if (resourceManager.isWatching()) {
             balloonNotificationSharingStopped.notify(openProject);
         }
@@ -200,12 +212,13 @@ public class InactivePanel {
 
         JSONObject data = new JSONObject();
         try {
-            data.put("room_id", Long.parseLong(roomIdField.getText()));
+            data.put(JsonFields.ROOM_ID, Long.parseLong(roomIdField.getText()));
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            logger.warning("Connected panel disconnect json - " + e.getMessage());
         }
         resourceManager.getmSocket().emit(CustomSocketEvents.ROOM_LEAVE, data);
     }
+
     private void eventConnect(Object... args) {
 
         resourceManager.setRoomId(Integer.valueOf(roomIdField.getText()));
@@ -221,14 +234,15 @@ public class InactivePanel {
 
         JSONObject data = new JSONObject();
         try {
-            data.put("room_id", Long.parseLong(roomIdField.getText()));
-            data.put("name", nameField.getText());
+            data.put(JsonFields.ROOM_ID, Long.parseLong(roomIdField.getText()));
+            data.put(JsonFields.NAME, nameField.getText());
 
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            logger.warning("Connected panel connect json - " + e.getMessage());
         }
         resourceManager.getmSocket().emit(CustomSocketEvents.ROOM_JOIN, data);
     }
+
     private void eventSharingEnd(Object... args) {
         resourceManager.setWatching(false);
         resourceManager.getConnectedPanel().toggleMentorStatusLabelText();
@@ -240,9 +254,11 @@ public class InactivePanel {
 
         balloonNotificationSharingStopped.notify(openProject);
     }
+
     private void socketProjectRequestEvents() {
         resourceManager.getmSocket().on(CustomSocketEvents.SHARING_START, this::codeSharingAndEventCatcher);
     }
+
     private void codeSharingAndEventCatcher(Object... args) {
         resourceManager.setWatching(true);
         resourceManager.getConnectedPanel().toggleMentorStatusLabelText();
@@ -256,6 +272,7 @@ public class InactivePanel {
         activateEditorEventListenerAndScheduler();
         balloonNotificationSharingStarted.notify(openProject);
     }
+
     private void activateEditorEventListenerAndScheduler() {
 
         connection = openProject.getMessageBus().connect();
@@ -268,29 +285,27 @@ public class InactivePanel {
             @Override
             public void after(@NotNull List<? extends VFileEvent> events) {
                 EventManager eventManager = new EventManager(resourceManager);
-
                 events.forEach(event -> {
-                    System.out.println(event.getClass());
+                    logger.info("Event Caught - " + event);
                     if (event instanceof VFileContentChangeEvent) {
-                        System.out.println("ContentChangeEvent" + event);
+                        logger.info("ContentChangeEvent - " + event);
                         eventManager.addContentChangeEventToEditorEventList((VFileContentChangeEvent) event);
 
                     } else if (event instanceof VFileCreateEvent) {
-                        System.out.println("CreateEvent" + event);
+                        logger.info("CreateEvent - " + event);
                         eventManager.addCreateEventToEditorEventList((VFileCreateEvent) event);
 
                     } else if (event instanceof VFileDeleteEvent) {
-                        System.out.println("DeleteEvent" + event);
+                        logger.info("DeleteEvent - " + event);
                         eventManager.addDeleteEventToEditorEventList((VFileDeleteEvent) event);
 
                     } else if (event instanceof VFilePropertyChangeEvent) {
-                        System.out.println("PropertyChangeEvent" + event);
+                        logger.info("PropertyChangeEvent - " + event);
                         eventManager.addPropertyChangeEventToEditorEventList((VFilePropertyChangeEvent) event);
 
                     } else if (event instanceof VFileMoveEvent) {
-                        System.out.println("MoveEvent" + event);
+                        logger.info("MoveEvent - " + event);
                         eventManager.addMoveEventToEditorEventList((VFileMoveEvent) event);
-
                     }
                 });
             }
@@ -300,7 +315,9 @@ public class InactivePanel {
         resourceManager.getSes()
                 .scheduleAtFixedRate(new UpdateProjectScheduledSending(resourceManager), 5, 5, TimeUnit.SECONDS);
     }
+
     private void configureBubbles() {
+        String groupId = "pro.sky";
         balloonNotificationConnected =
                 new Notification(groupId, "Connected to socket!", NotificationType.IDE_UPDATE);
         balloonNotificationConnected.setTitle("Connection success");
@@ -321,9 +338,11 @@ public class InactivePanel {
                 new Notification(groupId, "Your sharing session stopped. Mentor is not watching", NotificationType.WARNING);
         balloonNotificationError.setTitle("Sharing stopped");
     }
+
     public void setVisible(boolean toggle) {
         inactivePanel.setVisible(toggle);
     }
+
     public JPanel getInactiveJPanel() {
         return inactivePanel;
     }

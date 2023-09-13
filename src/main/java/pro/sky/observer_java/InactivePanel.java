@@ -2,17 +2,18 @@ package pro.sky.observer_java;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
+import com.intellij.notification.impl.NotificationGroupEP;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.vfs.AsyncFileListener;
+import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.*;
 import com.intellij.util.messages.MessageBusConnection;
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 import pro.sky.observer_java.constants.CustomSocketEvents;
@@ -26,9 +27,9 @@ import pro.sky.observer_java.resources.ResourceManager;
 import pro.sky.observer_java.scheduler.UpdateProjectScheduledSending;
 
 import javax.swing.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.awt.event.*;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,9 +69,10 @@ public class InactivePanel {
     public InactivePanel(ResourceManager resourceManager) {
         this.resourceManager = resourceManager;
 
+        //nameField.getInputMap().setParent(null);
 
         connectButton.addActionListener(e ->
-                createSocketWithListenersAndConnect(URI.create(urlField.getText()))
+                createSocketWithListenersAndConnect(urlField.getText())
         );
 
         urlField.addFocusListener(new FocusAdapter() {
@@ -122,14 +124,34 @@ public class InactivePanel {
                 }
             }
         });
+        nameField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isAlphabetic(c)) {
+                    e.consume();
+                }
+                if (e.isActionKey()) {
+                    e.consume();
+                }
+            }
+        });
     }
 
-    private void createSocketWithListenersAndConnect(URI uri) {
+
+    private void createSocketWithListenersAndConnect(String url) {
+        url = StringUtils.remove(url, " ");
+
         if (resourceManager.getmSocket() != null) {
             resourceManager.getmSocket().disconnect();
             resourceManager.setMessageList(new ArrayList<>());
         }
-        resourceManager.setmSocket(IO.socket(uri, options));
+        try {
+            resourceManager.setmSocket(IO.socket(new URI(url), options));
+        } catch (URISyntaxException e) {
+            logger.warning(e.getMessage());
+            urlField.setText("Wrong url syntax");
+        }
 
         configureBubbles();
 
@@ -276,6 +298,7 @@ public class InactivePanel {
 
         activateEditorEventListenerAndScheduler();
         balloonNotificationSharingStarted.notify(openProject);
+        resourceManager.getConnectedPanel().setAllNoneAndSend();
     }
 
     private void activateEditorEventListenerAndScheduler() {
@@ -288,6 +311,7 @@ public class InactivePanel {
 
         connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
             final EventManager eventManager = new EventManager(resourceManager);
+
             @Override
             public void before(@NotNull List<? extends VFileEvent> events) {
                 events.forEach(event -> {
@@ -298,22 +322,23 @@ public class InactivePanel {
                     }
                 });
             }
+
             @Override
             public void after(@NotNull List<? extends VFileEvent> events) {
                 events.forEach(event -> {
-                    if(!ProjectFileIndex.getInstance(openProject).isInContent(Objects.requireNonNull(event.getFile()))){
+                    if (!ProjectFileIndex.getInstance(openProject).isInContent(Objects.requireNonNull(event.getFile()))) {
                         return;
                     }
 
                     logger.info("Event Caught - " + event);
-                    System.out.println("AFTER Event Caught - " +event);
+                    System.out.println("AFTER Event Caught - " + event);
                     if (event instanceof VFileContentChangeEvent) {
                         System.out.println("ContentChangeEvent" + event);
                         logger.info("ContentChangeEvent - " + event);
                         eventManager.addContentChangeEventToEditorEventList((VFileContentChangeEvent) event);
 
                     } else if (event instanceof VFileCreateEvent) {
-                        System.out.println("CreateEvent"+ event);
+                        System.out.println("CreateEvent" + event);
                         logger.info("CreateEvent - " + event);
                         eventManager.addCreateEventToEditorEventList((VFileCreateEvent) event);
                     } else if (event instanceof VFilePropertyChangeEvent) {
@@ -341,6 +366,7 @@ public class InactivePanel {
 
     private void configureBubbles() {
         String groupId = "pro.sky";
+
         balloonNotificationConnected =
                 new Notification(groupId, "Connected to socket!", NotificationType.IDE_UPDATE);
         balloonNotificationConnected.setTitle("Connection success");

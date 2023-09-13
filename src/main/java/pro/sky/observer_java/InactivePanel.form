@@ -6,7 +6,8 @@
       <xy x="17" y="10" width="362" height="443"/>
     </constraints>
     <properties>
-      <enabled value="false"/>
+      <enabled value="true"/>
+      <foreground color="-12824475"/>
     </properties>
     <border type="none"/>
     <children>
@@ -87,7 +88,8 @@
           <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <background color="-12824475"/>
+          <background color="-12828863"/>
+          <enabled value="true"/>
           <font style="1"/>
           <foreground color="-6908266"/>
           <hideActionText value="false"/>

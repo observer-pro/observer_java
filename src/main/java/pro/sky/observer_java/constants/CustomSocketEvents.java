@@ -9,5 +9,5 @@ public final class CustomSocketEvents {
     public static final String MESSAGE_TO_CLIENT = "message/to_client";
     public static final String MESSAGE_TO_MENTOR = "message/to_mentor";
     public final static String ROOM_LEAVE = "room/leave";
-    public final static String STATUS = "status";
+    public final static String SIGNAL = "signal";
 }

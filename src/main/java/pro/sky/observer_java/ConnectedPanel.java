@@ -9,11 +9,8 @@ import pro.sky.observer_java.model.Message;
 import pro.sky.observer_java.resources.ResourceManager;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.time.LocalDateTime;
 import java.util.logging.Logger;
 
@@ -56,60 +53,72 @@ public class ConnectedPanel {
         inProgressButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (resourceManager.getStudentStatus() == StudentStatus.IN_PROGRESS) {
+                if (resourceManager.getStudentStatus() == StudentSignal.IN_PROGRESS) {
                     setAllNoneAndSend();
                     return;
                 }
 
-                resourceManager.setStudentStatus(StudentStatus.IN_PROGRESS);
+                resourceManager.setStudentStatus(StudentSignal.IN_PROGRESS);
                 helpButton.setForeground(Gray._60);
                 doneButton.setForeground(Gray._60);
                 inProgressButton.setForeground(JBColor.GREEN);
 
-                resourceManager.getmSocket().emit(CustomSocketEvents.STATUS, StudentStatus.IN_PROGRESS);
+                sendSignal(StudentSignal.IN_PROGRESS);
             }
         });
 
         helpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (resourceManager.getStudentStatus() == StudentStatus.HELP) {
+                if (resourceManager.getStudentStatus() == StudentSignal.HELP) {
                     setAllNoneAndSend();
                     return;
                 }
 
-                resourceManager.setStudentStatus(StudentStatus.HELP);
+                resourceManager.setStudentStatus(StudentSignal.HELP);
                 doneButton.setForeground(Gray._60);
                 inProgressButton.setForeground(Gray._60);
                 helpButton.setForeground(JBColor.ORANGE);
 
-                resourceManager.getmSocket().emit(CustomSocketEvents.STATUS, StudentStatus.HELP);
+                sendSignal(StudentSignal.HELP);
             }
         });
         doneButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (resourceManager.getStudentStatus() == StudentStatus.DONE) {
+                if (resourceManager.getStudentStatus() == StudentSignal.DONE) {
                     setAllNoneAndSend();
                     return;
                 }
 
-                resourceManager.setStudentStatus(StudentStatus.DONE);
+                resourceManager.setStudentStatus(StudentSignal.DONE);
                 helpButton.setForeground(Gray._60);
                 inProgressButton.setForeground(Gray._60);
                 doneButton.setForeground(JBColor.GREEN);
 
-                resourceManager.getmSocket().emit(CustomSocketEvents.STATUS, StudentStatus.DONE);
+                sendSignal(StudentSignal.DONE);
             }
         });
     }
 
-    private void setAllNoneAndSend() {
-        resourceManager.setStudentStatus(StudentStatus.NONE);
-        inProgressButton.setForeground(JBColor.GRAY);
-        helpButton.setForeground(JBColor.GRAY);
-        doneButton.setForeground(JBColor.GRAY);
-        resourceManager.getmSocket().emit(CustomSocketEvents.STATUS, StudentStatus.NONE);
+    public void setAllNoneAndSend() {
+        resourceManager.setStudentStatus(StudentSignal.NONE);
+        inProgressButton.setForeground(Gray._187);
+        helpButton.setForeground(Gray._187);
+        doneButton.setForeground(Gray._187);
+
+        sendSignal(StudentSignal.NONE);
+    }
+
+    private void sendSignal(StudentSignal signal) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put(JsonFields.VALUE, signal);
+        } catch (JSONException e) {
+            logger.warning(e.getMessage());
+        }
+
+        resourceManager.getmSocket().emit(CustomSocketEvents.SIGNAL, jsonObject);
     }
 
     private void sendMessage() {

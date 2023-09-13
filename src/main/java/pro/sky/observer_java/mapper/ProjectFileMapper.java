@@ -1,7 +1,7 @@
 package pro.sky.observer_java.mapper;
 
 import org.apache.commons.lang.StringUtils;
-import pro.sky.observer_java.constants.MappingConstants;
+import pro.sky.observer_java.constants.FieldTexts;
 import pro.sky.observer_java.constants.ProjectFileStatus;
 import pro.sky.observer_java.model.ProjectFile;
 
@@ -31,7 +31,7 @@ public class ProjectFileMapper {
         Path path = Path.of(filePath);
 
         if (Files.size(path) > MAX_FILE_SIZE_TO_TRANSFER) {
-            projectFile.setContent(MappingConstants.TOO_LARGE);
+            projectFile.setContent(FieldTexts.TOO_LARGE);
         } else {
             projectFile.setContent(contentsAsString(Files.readAllLines(path)));
         }

@@ -4,14 +4,14 @@ import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import org.json.JSONException;
 import org.json.JSONObject;
-import pro.sky.observer_java.constants.CustomSocketEvents;
-import pro.sky.observer_java.constants.FieldTexts;
-import pro.sky.observer_java.constants.JsonFields;
-import pro.sky.observer_java.constants.MessageTemplates;
+import pro.sky.observer_java.constants.*;
 import pro.sky.observer_java.model.Message;
 import pro.sky.observer_java.resources.ResourceManager;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.time.LocalDateTime;
@@ -28,6 +28,9 @@ public class ConnectedPanel {
     private JLabel connectionStatusLabel;
     private JScrollPane scroll;
     private JSeparator separator;
+    private JButton inProgressButton;
+    private JButton doneButton;
+    private JButton helpButton;
     private final ResourceManager resourceManager;
 
     private final Logger logger = Logger.getLogger(ConnectedPanel.class.getName());
@@ -50,16 +53,63 @@ public class ConnectedPanel {
             resourceManager.getmSocket().emit(CustomSocketEvents.ROOM_LEAVE, sendMessage);
         });
 
-
-        messageField.addKeyListener(new KeyAdapter() {
+        inProgressButton.addActionListener(new ActionListener() {
             @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    sendMessage();
+            public void actionPerformed(ActionEvent e) {
+                if (resourceManager.getStudentStatus() == StudentStatus.IN_PROGRESS) {
+                    setAllNoneAndSend();
+                    return;
                 }
+
+                resourceManager.setStudentStatus(StudentStatus.IN_PROGRESS);
+                helpButton.setForeground(Gray._60);
+                doneButton.setForeground(Gray._60);
+                inProgressButton.setForeground(JBColor.GREEN);
+
+                resourceManager.getmSocket().emit(CustomSocketEvents.STATUS, StudentStatus.IN_PROGRESS);
             }
         });
 
+        helpButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (resourceManager.getStudentStatus() == StudentStatus.HELP) {
+                    setAllNoneAndSend();
+                    return;
+                }
+
+                resourceManager.setStudentStatus(StudentStatus.HELP);
+                doneButton.setForeground(Gray._60);
+                inProgressButton.setForeground(Gray._60);
+                helpButton.setForeground(JBColor.ORANGE);
+
+                resourceManager.getmSocket().emit(CustomSocketEvents.STATUS, StudentStatus.HELP);
+            }
+        });
+        doneButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (resourceManager.getStudentStatus() == StudentStatus.DONE) {
+                    setAllNoneAndSend();
+                    return;
+                }
+
+                resourceManager.setStudentStatus(StudentStatus.DONE);
+                helpButton.setForeground(Gray._60);
+                inProgressButton.setForeground(Gray._60);
+                doneButton.setForeground(JBColor.GREEN);
+
+                resourceManager.getmSocket().emit(CustomSocketEvents.STATUS, StudentStatus.DONE);
+            }
+        });
+    }
+
+    private void setAllNoneAndSend() {
+        resourceManager.setStudentStatus(StudentStatus.NONE);
+        inProgressButton.setForeground(JBColor.GRAY);
+        helpButton.setForeground(JBColor.GRAY);
+        doneButton.setForeground(JBColor.GRAY);
+        resourceManager.getmSocket().emit(CustomSocketEvents.STATUS, StudentStatus.NONE);
     }
 
     private void sendMessage() {
@@ -119,10 +169,6 @@ public class ConnectedPanel {
 
     public JTextArea getChatArea() {
         return chatArea;
-    }
-
-    public void setChatArea(JTextArea chatArea) {
-        this.chatArea = chatArea;
     }
 
 }

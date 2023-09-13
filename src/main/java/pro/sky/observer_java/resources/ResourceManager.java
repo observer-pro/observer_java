@@ -6,6 +6,7 @@ import io.socket.client.Socket;
 import pro.sky.observer_java.ConnectedPanel;
 import pro.sky.observer_java.InactivePanel;
 import pro.sky.observer_java.SkyPanelToolWindowFactory;
+import pro.sky.observer_java.constants.StudentStatus;
 import pro.sky.observer_java.model.Message;
 import pro.sky.observer_java.model.ProjectFile;
 
@@ -40,6 +41,15 @@ public class ResourceManager {
 
     private ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 
+    private StudentStatus studentStatus = StudentStatus.NONE;
+
+    public StudentStatus getStudentStatus() {
+        return studentStatus;
+    }
+
+    public void setStudentStatus(StudentStatus studentStatus) {
+        this.studentStatus = studentStatus;
+    }
 
     public ScheduledExecutorService getSes() {
         return ses;

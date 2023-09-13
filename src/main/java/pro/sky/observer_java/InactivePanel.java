@@ -3,6 +3,8 @@ package pro.sky.observer_java;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.vfs.AsyncFileListener;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.*;
@@ -10,15 +12,16 @@ import com.intellij.util.messages.MessageBusConnection;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
+import pro.sky.observer_java.constants.CustomSocketEvents;
 import pro.sky.observer_java.constants.FieldTexts;
 import pro.sky.observer_java.constants.JsonFields;
+import pro.sky.observer_java.constants.MessageTemplates;
 import pro.sky.observer_java.events.EventManager;
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
-import pro.sky.observer_java.constants.CustomSocketEvents;
 import pro.sky.observer_java.model.Message;
-import pro.sky.observer_java.constants.MessageTemplates;
 import pro.sky.observer_java.resources.ResourceManager;
 import pro.sky.observer_java.scheduler.UpdateProjectScheduledSending;
 
@@ -29,6 +32,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -63,6 +67,7 @@ public class InactivePanel {
 
     public InactivePanel(ResourceManager resourceManager) {
         this.resourceManager = resourceManager;
+
 
         connectButton.addActionListener(e ->
                 createSocketWithListenersAndConnect(URI.create(urlField.getText()))
@@ -282,28 +287,42 @@ public class InactivePanel {
         resourceManager.setSes(Executors.newSingleThreadScheduledExecutor());
 
         connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+            final EventManager eventManager = new EventManager(resourceManager);
+            @Override
+            public void before(@NotNull List<? extends VFileEvent> events) {
+                events.forEach(event -> {
+                    if (event instanceof VFileDeleteEvent) {
+                        System.out.println("DeleteEvent" + event);
+                        logger.info("DeleteEvent - " + event);
+                        eventManager.addDeleteEventToEditorEventList((VFileDeleteEvent) event);
+                    }
+                });
+            }
             @Override
             public void after(@NotNull List<? extends VFileEvent> events) {
-                EventManager eventManager = new EventManager(resourceManager);
                 events.forEach(event -> {
+                    if(!ProjectFileIndex.getInstance(openProject).isInContent(Objects.requireNonNull(event.getFile()))){
+                        return;
+                    }
+
                     logger.info("Event Caught - " + event);
+                    System.out.println("AFTER Event Caught - " +event);
                     if (event instanceof VFileContentChangeEvent) {
+                        System.out.println("ContentChangeEvent" + event);
                         logger.info("ContentChangeEvent - " + event);
                         eventManager.addContentChangeEventToEditorEventList((VFileContentChangeEvent) event);
 
                     } else if (event instanceof VFileCreateEvent) {
+                        System.out.println("CreateEvent"+ event);
                         logger.info("CreateEvent - " + event);
                         eventManager.addCreateEventToEditorEventList((VFileCreateEvent) event);
-
-                    } else if (event instanceof VFileDeleteEvent) {
-                        logger.info("DeleteEvent - " + event);
-                        eventManager.addDeleteEventToEditorEventList((VFileDeleteEvent) event);
-
                     } else if (event instanceof VFilePropertyChangeEvent) {
+                        System.out.println("PropertyChangeEvent " + event);
                         logger.info("PropertyChangeEvent - " + event);
                         eventManager.addPropertyChangeEventToEditorEventList((VFilePropertyChangeEvent) event);
 
                     } else if (event instanceof VFileMoveEvent) {
+                        System.out.println("MoveEvent" + event);
                         logger.info("MoveEvent - " + event);
                         eventManager.addMoveEventToEditorEventList((VFileMoveEvent) event);
                     }
@@ -313,7 +332,11 @@ public class InactivePanel {
 
 
         resourceManager.getSes()
-                .scheduleAtFixedRate(new UpdateProjectScheduledSending(resourceManager), 5, 5, TimeUnit.SECONDS);
+                .scheduleAtFixedRate(
+                        new UpdateProjectScheduledSending(resourceManager, openProject),
+                        5,
+                        5,
+                        TimeUnit.SECONDS);
     }
 
     private void configureBubbles() {

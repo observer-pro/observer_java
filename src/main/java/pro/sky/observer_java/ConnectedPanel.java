@@ -23,11 +23,15 @@ public class ConnectedPanel {
     private JTextArea chatArea;
     private JPanel connectedPanel;
     private JLabel connectionStatusLabel;
-    private JScrollPane scroll;
     private JSeparator separator;
     private JButton inProgressButton;
     private JButton doneButton;
     private JButton helpButton;
+    private JTabbedPane tabbedPane1;
+    private JTextPane taskCodeField;
+    private JTextArea taskTextField;
+    private JPanel chatTab;
+    private JPanel taskTab;
     private final ResourceManager resourceManager;
 
     private final Logger logger = Logger.getLogger(ConnectedPanel.class.getName());
@@ -113,6 +117,7 @@ public class ConnectedPanel {
     private void sendSignal(StudentSignal signal) {
         JSONObject jsonObject = new JSONObject();
         try {
+            jsonObject.put(JsonFields.USER_ID, resourceManager.getUserId());
             jsonObject.put(JsonFields.VALUE, signal);
         } catch (JSONException e) {
             logger.warning(e.getMessage());

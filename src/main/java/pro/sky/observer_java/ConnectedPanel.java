@@ -27,7 +27,7 @@ public class ConnectedPanel {
     private JButton inProgressButton;
     private JButton doneButton;
     private JButton helpButton;
-    private JTabbedPane tabbedPane1;
+    private JTabbedPane tabPanel;
     private JTextPane taskCodeField;
     private JTextArea taskTextField;
     private JPanel chatTab;

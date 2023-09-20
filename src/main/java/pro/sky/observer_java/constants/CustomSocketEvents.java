@@ -10,6 +10,6 @@ public final class CustomSocketEvents {
     public static final String MESSAGE_TO_MENTOR = "message/to_mentor";
     public final static String ROOM_LEAVE = "room/leave";
     public final static String SIGNAL = "signal";
-
     public final static String EXERCISE = "exercise";
+    public final static String ROOM_CLOSED = "room/closed";
 }

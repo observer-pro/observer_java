@@ -215,7 +215,8 @@ public class InactivePanel {
                 .on(Socket.EVENT_DISCONNECT, this::eventDisconnect)
                 .on(Socket.EVENT_CONNECT_ERROR, this::eventError)
                 .on(CustomSocketEvents.ROOM_JOIN, this::eventRoomJoin)
-                .on(CustomSocketEvents.SHARING_END, this::eventSharingEnd);
+                .on(CustomSocketEvents.SHARING_END, this::eventSharingEnd)
+                .on(CustomSocketEvents.ROOM_CLOSED, this::eventDisconnect);
     }
 
     private void eventRoomJoin(Object... args) {

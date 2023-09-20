@@ -169,7 +169,7 @@ public class InactivePanel {
             JSONObject jsonObject;
             String taskMd;
             try {
-                jsonObject = new JSONObject(args[0]);
+                jsonObject = new JSONObject(args[0].toString());
                 taskMd = jsonObject.getString(JsonFields.CONTENT);
             } catch (JSONException e) {
                 throw new RuntimeException(e);
@@ -190,7 +190,7 @@ public class InactivePanel {
 
             try {
                 //TODO test
-                jsonMessage = new JSONObject(args[0]);
+                jsonMessage = new JSONObject(args[0].toString());
 
                 message = new Message(
                         "HOST",
@@ -222,7 +222,7 @@ public class InactivePanel {
         JSONObject message;
         try {
             //TODO Test
-            message = new JSONObject(args[0]);
+            message = new JSONObject(args[0].toString());
             resourceManager.setUserId(message.getInt(JsonFields.USER_ID));
         } catch (JSONException e) {
             logger.warning("Connected panel room/join json - " + e.getMessage());

@@ -2,10 +2,8 @@ package pro.sky.observer_java;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
-import com.intellij.notification.impl.NotificationGroupEP;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.*;
@@ -161,7 +159,23 @@ public class InactivePanel {
 
         socketProjectRequestEvents();
 
+        excessiveEvent();
+
         resourceManager.getmSocket().connect();
+    }
+
+    private void excessiveEvent() {
+        resourceManager.getmSocket().on(CustomSocketEvents.EXERCISE, args -> {
+            JSONObject jsonObject;
+            String taskMd;
+            try {
+                jsonObject = new JSONObject(args[0]);
+                taskMd = jsonObject.getString(JsonFields.CONTENT);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            resourceManager.getConnectedPanel().setExerciseText(taskMd);
+        });
     }
 
     private void socketMessageEvents() {
@@ -175,7 +189,8 @@ public class InactivePanel {
             Message message;
 
             try {
-                jsonMessage = new JSONObject(args[0].toString());
+                //TODO test
+                jsonMessage = new JSONObject(args[0]);
 
                 message = new Message(
                         "HOST",
@@ -206,7 +221,8 @@ public class InactivePanel {
     private void eventRoomJoin(Object... args) {
         JSONObject message;
         try {
-            message = new JSONObject(args[0].toString());
+            //TODO Test
+            message = new JSONObject(args[0]);
             resourceManager.setUserId(message.getInt(JsonFields.USER_ID));
         } catch (JSONException e) {
             logger.warning("Connected panel room/join json - " + e.getMessage());

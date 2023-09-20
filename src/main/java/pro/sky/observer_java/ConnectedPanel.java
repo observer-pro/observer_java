@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 import java.util.logging.Logger;
+import com.github.rjeschke.txtmark.Processor;
 
 public class ConnectedPanel {
     private JTextField messageField;
@@ -29,7 +30,6 @@ public class ConnectedPanel {
     private JButton helpButton;
     private JTabbedPane tabPanel;
     private JTextPane taskCodeField;
-    private JTextArea taskTextField;
     private JPanel chatTab;
     private JPanel taskTab;
     private final ResourceManager resourceManager;
@@ -175,6 +175,11 @@ public class ConnectedPanel {
         mentorStatusLabel.setText(FieldTexts.MENTOR_IS_NOT_WATCHING);
         mentorStatusLabel.setForeground(Gray._187);
 
+    }
+
+    public void setExerciseText(String md){
+        String html = Processor.process(md);
+        taskCodeField.setText(html);
     }
 
     public void appendChat(String string) {

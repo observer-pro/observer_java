@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="pro.sky.observer_java.ConnectedPanel">
-  <grid id="27dc6" binding="connectedPanel" layout-manager="GridLayoutManager" row-count="7" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="connectedPanel" layout-manager="GridLayoutManager" row-count="6" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="15" left="15" bottom="15" right="15"/>
     <constraints>
-      <xy x="41" y="20" width="350" height="593"/>
+      <xy x="39" y="20" width="350" height="540"/>
     </constraints>
     <properties>
       <minimumSize width="350" height="200"/>
@@ -75,7 +75,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="d0c66" binding="taskTab" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="d0c66" binding="taskTab" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Задание"/>
@@ -83,35 +83,22 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="3c730" class="javax.swing.JTextArea" binding="taskTextField">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                    <minimum-size width="200" height="150"/>
-                    <preferred-size width="200" height="200"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <editable value="false"/>
-                  <lineWrap value="true"/>
-                  <text value="&lt;ТЕКСТ ЗАДАНИЯ&gt;"/>
-                  <wrapStyleWord value="true"/>
-                </properties>
-              </component>
               <component id="7c598" class="javax.swing.JTextPane" binding="taskCodeField">
                 <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
                     <minimum-size width="200" height="200"/>
                     <preferred-size width="200" height="200"/>
                   </grid>
                 </constraints>
                 <properties>
+                  <contentType value="text/html"/>
                   <editable value="false"/>
-                  <text value="class HelloWorld {     public static void main(String[] args) {         System.out.println(&quot;Hello, World!&quot;);      } }"/>
+                  <text value="&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;p&gt;&#10;      &amp;#1058;&amp;#1077;&amp;#1082;&amp;#1089;&amp;#1090; &amp;#1079;&amp;#1072;&amp;#1076;&amp;#1072;&amp;#1085;&amp;#1080;&amp;#1103;&#10;    &lt;/p&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;"/>
                 </properties>
               </component>
             </children>
           </grid>
-          <grid id="72dbe" binding="chatTab" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="72dbe" binding="chatTab" layout-manager="GridLayoutManager" row-count="3" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Чат"/>
@@ -121,7 +108,7 @@
             <children>
               <component id="746e6" class="javax.swing.JTextField" binding="messageField">
                 <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
@@ -129,7 +116,7 @@
               </component>
               <component id="73f62" class="javax.swing.JTextArea" binding="chatArea">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                  <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
                     <minimum-size width="200" height="200"/>
                     <preferred-size width="200" height="200"/>
                   </grid>
@@ -152,21 +139,21 @@
                   <text value="send"/>
                 </properties>
               </component>
+              <component id="5693f" class="javax.swing.JButton" binding="disconnectButton">
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <borderPainted value="false"/>
+                  <contentAreaFilled value="false"/>
+                  <focusPainted value="true"/>
+                  <text value="disconnect"/>
+                </properties>
+              </component>
             </children>
           </grid>
         </children>
       </tabbedpane>
-      <component id="5693f" class="javax.swing.JButton" binding="disconnectButton">
-        <constraints>
-          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <borderPainted value="false"/>
-          <contentAreaFilled value="false"/>
-          <focusPainted value="true"/>
-          <text value="disconnect"/>
-        </properties>
-      </component>
     </children>
   </grid>
 </form>

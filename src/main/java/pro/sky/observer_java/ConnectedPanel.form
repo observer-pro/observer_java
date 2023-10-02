@@ -93,6 +93,7 @@
                 <properties>
                   <contentType value="text/html"/>
                   <editable value="false"/>
+                  <font name="Arial" style="0"/>
                   <text value="&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;p&gt;&#10;      &amp;#1058;&amp;#1077;&amp;#1082;&amp;#1089;&amp;#1090; &amp;#1079;&amp;#1072;&amp;#1076;&amp;#1072;&amp;#1085;&amp;#1080;&amp;#1103;&#10;    &lt;/p&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;"/>
                 </properties>
               </component>
@@ -125,6 +126,7 @@
                   <columns value="0"/>
                   <editable value="false"/>
                   <enabled value="true"/>
+                  <font name="Arial" style="0"/>
                   <lineWrap value="true"/>
                   <rows value="0"/>
                   <text value="No messages"/>

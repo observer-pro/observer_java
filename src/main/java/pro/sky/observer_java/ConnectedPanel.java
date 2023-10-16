@@ -179,7 +179,7 @@ public class ConnectedPanel {
 
     public void setExerciseText(String md){
         String html = Processor.process(md);
-        taskCodeField.setText(html);
+        taskCodeField.setText(html.replace("`",""));
     }
 
     public void appendChat(String string) {

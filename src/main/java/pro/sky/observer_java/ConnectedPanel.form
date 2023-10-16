@@ -83,20 +83,24 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="7c598" class="javax.swing.JTextPane" binding="taskCodeField">
+              <scrollpane id="c18cd">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                    <minimum-size width="200" height="200"/>
-                    <preferred-size width="200" height="200"/>
-                  </grid>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
-                <properties>
-                  <contentType value="text/html"/>
-                  <editable value="false"/>
-                  <font name="Arial" style="0"/>
-                  <text value="&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;p&gt;&#10;      &amp;#1058;&amp;#1077;&amp;#1082;&amp;#1089;&amp;#1090; &amp;#1079;&amp;#1072;&amp;#1076;&amp;#1072;&amp;#1085;&amp;#1080;&amp;#1103;&#10;    &lt;/p&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;"/>
-                </properties>
-              </component>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="7c598" class="javax.swing.JTextPane" binding="taskCodeField">
+                    <constraints/>
+                    <properties>
+                      <contentType value="text/html"/>
+                      <editable value="false"/>
+                      <font name="Arial" style="0"/>
+                      <text value="&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;p&gt;&#10;      &amp;#1058;&amp;#1077;&amp;#1082;&amp;#1089;&amp;#1090; &amp;#1079;&amp;#1072;&amp;#1076;&amp;#1072;&amp;#1085;&amp;#1080;&amp;#1103;&#10;    &lt;/p&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;"/>
+                    </properties>
+                  </component>
+                </children>
+              </scrollpane>
             </children>
           </grid>
           <grid id="72dbe" binding="chatTab" layout-manager="GridLayoutManager" row-count="3" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

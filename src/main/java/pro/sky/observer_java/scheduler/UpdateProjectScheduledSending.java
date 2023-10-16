@@ -3,6 +3,7 @@ package pro.sky.observer_java.scheduler;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
 import pro.sky.observer_java.constants.CustomSocketEvents;
@@ -25,14 +26,16 @@ public class UpdateProjectScheduledSending implements Runnable {
     public void run() {
         List<ProjectFile> updatedFiles = resourceManager.getEditorUpdateEvents();
 
+        VirtualFile apiDir = project.getBaseDir();
+        VfsUtil.markDirtyAndRefresh(true, true, true, apiDir);
         updatedFiles.removeAll(Collections.singleton(null));
 
         if (updatedFiles.isEmpty()) {
             VfsUtil.markDirtyAndRefresh(
+                    false,
                     true,
                     true,
-                    true,
-                    ProjectRootManager.getInstance(project).getContentRoots()
+                    apiDir
             );
             return;
         }

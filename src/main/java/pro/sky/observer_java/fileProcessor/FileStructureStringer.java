@@ -43,7 +43,13 @@ public class FileStructureStringer {
                 }
             }
     }
-    public String getProjectFilesList(Project project) {
+
+    public List<File> getProjectFilesList(Project project){
+        String basePath = project.getBasePath();
+        listFiles(project.getBasePath(), files);
+        return files;
+    }
+    public String getProjectFilesJson(Project project) {
 
         String basePath = project.getBasePath();
         listFiles(project.getBasePath(), files);

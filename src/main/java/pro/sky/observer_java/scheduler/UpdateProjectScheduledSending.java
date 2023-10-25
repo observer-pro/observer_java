@@ -1,6 +1,5 @@
 package pro.sky.observer_java.scheduler;
 
-import com.intellij.ide.actions.SaveAllAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
@@ -29,17 +28,10 @@ public class UpdateProjectScheduledSending implements Runnable {
         VirtualFile apiDir = project.getBaseDir();
         VfsUtil.markDirtyAndRefresh(true, true, true, apiDir);
         updatedFiles.removeAll(Collections.singleton(null));
-       // FileStructureStringer fileStructureStringer = new FileStructureStringer(resourceManager);
-        List<VirtualFile> fileList = VfsUtil.collectChildrenRecursively(apiDir);
-
-        VirtualFile[] fileArray = fileList.toArray(new VirtualFile[fileList.size()]);
-      //  VirtualFile[] vFilesArray = apiDir.getChildren();
-        SaveAllAction saveAllAction = new SaveAllAction();
-        // saveAllAction.actionPerformed(new AnActionEvent());
 
         if (updatedFiles.isEmpty()) {
 
-            // apiDir.refresh(false,true);
+            apiDir.refresh(false,true);
             ApplicationManager.getApplication().invokeLater(() -> {
                 FileDocumentManager.getInstance().saveAllDocuments();
             });

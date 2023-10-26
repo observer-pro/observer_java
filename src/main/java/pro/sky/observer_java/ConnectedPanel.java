@@ -19,7 +19,6 @@ public class ConnectedPanel {
     private JTextField messageField;
     private JButton sendButton;
     private JButton disconnectButton;
-    private JLabel logoLabel;
     private JLabel mentorStatusLabel;
     private JTextArea chatArea;
     private JPanel connectedPanel;

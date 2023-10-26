@@ -19,7 +19,7 @@
         </constraints>
         <properties>
           <focusTraversalPolicyProvider value="false"/>
-          <text value="Enter url to connect to"/>
+          <text value="ws://server.observer-app.pro"/>
           <toolTipText value="Enter url to connect to"/>
         </properties>
       </component>

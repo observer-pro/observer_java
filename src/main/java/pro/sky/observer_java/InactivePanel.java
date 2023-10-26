@@ -70,10 +70,8 @@ public class InactivePanel {
     public InactivePanel(ResourceManager resourceManager) {
         this.resourceManager = resourceManager;
 
-        //nameField.getInputMap().setParent(null);
-
         connectButton.addActionListener(e ->
-                createSocketWithListenersAndConnect(urlField.getText())
+                 createSocketWithListenersAndConnect(urlField.getText())
         );
 
         urlField.addFocusListener(new FocusAdapter() {

@@ -25,7 +25,10 @@ import pro.sky.observer_java.resources.ResourceManager;
 import pro.sky.observer_java.scheduler.UpdateProjectScheduledSending;
 
 import javax.swing.*;
-import java.awt.event.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
@@ -67,10 +70,8 @@ public class InactivePanel {
     public InactivePanel(ResourceManager resourceManager) {
         this.resourceManager = resourceManager;
 
-        //nameField.getInputMap().setParent(null);
-
         connectButton.addActionListener(e ->
-                createSocketWithListenersAndConnect(urlField.getText())
+                 createSocketWithListenersAndConnect(urlField.getText())
         );
 
         urlField.addFocusListener(new FocusAdapter() {
@@ -311,7 +312,7 @@ public class InactivePanel {
         resourceManager.getmSocket()
                 .emit(CustomSocketEvents.CODE_SEND,
                         fileStructureStringer
-                                .getJsonObjectFromString(fileStructureStringer.getProjectFilesList(openProject)));
+                                .getJsonObjectFromString(fileStructureStringer.getProjectFilesJson(openProject)));
 
         activateEditorEventListenerAndScheduler();
         balloonNotificationSharingStarted.notify(openProject);
@@ -377,7 +378,7 @@ public class InactivePanel {
                 .scheduleAtFixedRate(
                         new UpdateProjectScheduledSending(resourceManager, openProject),
                         5,
-                        5,
+                        1,
                         TimeUnit.SECONDS);
     }
 

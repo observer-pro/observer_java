@@ -5,4 +5,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "observer_java"
+rootProject.name = "observer_app"

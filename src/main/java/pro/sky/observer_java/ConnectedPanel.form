@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="pro.sky.observer_java.ConnectedPanel">
-  <grid id="27dc6" binding="connectedPanel" layout-manager="GridLayoutManager" row-count="6" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="connectedPanel" layout-manager="GridLayoutManager" row-count="6" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
     <margin top="15" left="15" bottom="15" right="15"/>
     <constraints>
-      <xy x="39" y="20" width="350" height="540"/>
+      <xy x="39" y="20" width="371" height="463"/>
     </constraints>
     <properties>
       <minimumSize width="350" height="200"/>
@@ -18,7 +18,7 @@
       </component>
       <component id="8f521" class="javax.swing.JLabel" binding="connectionStatusLabel">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="1" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="1" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Connected to &lt;room_number&gt; as &lt;name_field&gt;"/>
@@ -30,15 +30,6 @@
         </constraints>
         <properties>
           <text value="Mentor Is Not Watching"/>
-        </properties>
-      </component>
-      <component id="5065c" class="javax.swing.JLabel" binding="logoLabel">
-        <constraints>
-          <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="4" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <font style="1"/>
-          <text value="Skypro Observer"/>
         </properties>
       </component>
       <component id="98151" class="javax.swing.JButton" binding="inProgressButton">
@@ -72,7 +63,9 @@
             <preferred-size width="200" height="200"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <font/>
+        </properties>
         <border type="none"/>
         <children>
           <grid id="d0c66" binding="taskTab" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -80,23 +73,35 @@
             <constraints>
               <tabbedpane title="Задание"/>
             </constraints>
-            <properties/>
+            <properties>
+              <font name="Arial"/>
+            </properties>
             <border type="none"/>
             <children>
-              <component id="7c598" class="javax.swing.JTextPane" binding="taskCodeField">
+              <scrollpane id="c18cd">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                    <minimum-size width="200" height="200"/>
-                    <preferred-size width="200" height="200"/>
-                  </grid>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <contentType value="text/html"/>
-                  <editable value="false"/>
-                  <font name="Arial" style="0"/>
-                  <text value="&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;p&gt;&#10;      &amp;#1058;&amp;#1077;&amp;#1082;&amp;#1089;&amp;#1090; &amp;#1079;&amp;#1072;&amp;#1076;&amp;#1072;&amp;#1085;&amp;#1080;&amp;#1103;&#10;    &lt;/p&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;"/>
+                  <font/>
                 </properties>
-              </component>
+                <border type="none"/>
+                <children>
+                  <component id="7c598" class="javax.swing.JTextPane" binding="taskCodeField">
+                    <constraints/>
+                    <properties>
+                      <contentType value="text/html"/>
+                      <editable value="false"/>
+                      <font size="16"/>
+                      <text value="&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    Text&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;"/>
+                    </properties>
+                    <clientProperties>
+                      <JEditorPane.honorDisplayProperties class="java.lang.Boolean" value="true"/>
+                      <html.disable class="java.lang.Boolean" value="false"/>
+                    </clientProperties>
+                  </component>
+                </children>
+              </scrollpane>
             </children>
           </grid>
           <grid id="72dbe" binding="chatTab" layout-manager="GridLayoutManager" row-count="3" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -141,21 +146,24 @@
                   <text value="send"/>
                 </properties>
               </component>
-              <component id="5693f" class="javax.swing.JButton" binding="disconnectButton">
-                <constraints>
-                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <borderPainted value="false"/>
-                  <contentAreaFilled value="false"/>
-                  <focusPainted value="true"/>
-                  <text value="disconnect"/>
-                </properties>
-              </component>
             </children>
           </grid>
         </children>
       </tabbedpane>
+      <component id="5693f" class="javax.swing.JButton" binding="disconnectButton">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+            <preferred-size width="10" height="25"/>
+          </grid>
+        </constraints>
+        <properties>
+          <borderPainted value="false"/>
+          <contentAreaFilled value="false"/>
+          <focusPainted value="true"/>
+          <horizontalAlignment value="2"/>
+          <text value="&lt;html&gt;&lt;u&gt;Disconnect&lt;/u&gt;&lt;/html&gt;"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>

@@ -19,7 +19,6 @@ public class ConnectedPanel {
     private JTextField messageField;
     private JButton sendButton;
     private JButton disconnectButton;
-    private JLabel logoLabel;
     private JLabel mentorStatusLabel;
     private JTextArea chatArea;
     private JPanel connectedPanel;
@@ -179,7 +178,7 @@ public class ConnectedPanel {
 
     public void setExerciseText(String md){
         String html = Processor.process(md);
-        taskCodeField.setText(html);
+        taskCodeField.setText(html.replace("`",""));
     }
 
     public void appendChat(String string) {

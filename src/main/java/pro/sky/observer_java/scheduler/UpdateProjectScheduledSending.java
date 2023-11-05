@@ -1,11 +1,12 @@
 package pro.sky.observer_java.scheduler;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import pro.sky.observer_java.fileProcessor.FileStructureStringer;
+import com.intellij.openapi.vfs.VirtualFile;
 import pro.sky.observer_java.constants.CustomSocketEvents;
+import pro.sky.observer_java.fileProcessor.FileStructureStringer;
 import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.resources.ResourceManager;
 
@@ -24,16 +25,25 @@ public class UpdateProjectScheduledSending implements Runnable {
     @Override
     public void run() {
         List<ProjectFile> updatedFiles = resourceManager.getEditorUpdateEvents();
-
+        VirtualFile apiDir = project.getBaseDir();
+        VfsUtil.markDirtyAndRefresh(true, true, true, apiDir);
         updatedFiles.removeAll(Collections.singleton(null));
 
         if (updatedFiles.isEmpty()) {
-            VfsUtil.markDirtyAndRefresh(
-                    true,
-                    true,
-                    true,
-                    ProjectRootManager.getInstance(project).getContentRoots()
-            );
+
+            apiDir.refresh(false,true);
+            ApplicationManager.getApplication().invokeLater(() -> {
+                FileDocumentManager.getInstance().saveAllDocuments();
+            });
+
+//            VfsUtil.markDirtyAndRefresh(
+//                    false,
+//                    true,
+//                    true,
+//                    fileArray
+//            );
+
+
             return;
         }
 

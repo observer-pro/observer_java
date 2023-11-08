@@ -115,7 +115,7 @@ public class ConnectedPanel {
                     Optional<Steps> currentStepOptional = resourceManager.
                             getSteps()
                             .stream()
-                            .filter(o -> o.getName().equals(e.getItem().toString()))
+                            .filter(o -> o.toString().equals(e.getItem().toString()))
                             .findFirst();
                     if(currentStepOptional.isEmpty()){
                         taskCodeField.setText("No task");
@@ -238,13 +238,14 @@ public class ConnectedPanel {
     public void setAllSteps(List<Steps> steps) {
         resourceManager.setSteps(steps);
 
-        String title = String.format("Tasks (%d)", steps.size());
+        String title = String.format(StringFormats.TASK_HEADER_FORMAT, steps.size());
         tabPanel.setTitleAt(0,title);
         comboBoxTasks.removeAllItems();
         for (Steps step : steps) {
-            String taskString = String.format("Task %s", step.getName());
-            step.setName(taskString);
-            comboBoxTasks.addItem(taskString);
+            String stepString = step.toString();
+            if(stepString != null) {
+                comboBoxTasks.addItem(stepString);
+            }
         }
     }
 }

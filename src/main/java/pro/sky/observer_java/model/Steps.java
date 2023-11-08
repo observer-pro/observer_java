@@ -1,5 +1,7 @@
 package pro.sky.observer_java.model;
 
+import pro.sky.observer_java.constants.StringFormats;
+
 public class Steps {
     String name;
     String content;
@@ -38,5 +40,10 @@ public class Steps {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public String toString(){
+        return String.format(StringFormats.TASK_FORMAT, this.name);
     }
 }

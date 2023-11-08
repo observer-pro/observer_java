@@ -49,11 +49,14 @@ public class InactivePanel {
     private JLabel hostLabel;
     private JLabel titleLabel;
     private JPanel inactivePanel;
+    private JTextPane instructionTextPane;
     private Notification balloonNotificationConnected;
     private Notification balloonNotificationDisconnected;
     private Notification balloonNotificationError;
-    private Notification balloonNotificationSharingStarted;
-    private Notification balloonNotificationSharingStopped;
+    private Notification balloonNotificationWrongName;
+    private Notification balloonNotificationWrongRoom;
+//    private Notification balloonNotificationSharingStarted;
+//    private Notification balloonNotificationSharingStopped;
     private Project openProject;
     private MessageBusConnection connection;
     private final ResourceManager resourceManager;
@@ -168,14 +171,16 @@ public class InactivePanel {
     private void excessiveEvent() {
         resourceManager.getmSocket().on(CustomSocketEvents.EXERCISE, args -> {
             JSONObject jsonObject;
-            String taskMd;
+            String taskCode;
+            String parseLanguage;
             try {
                 jsonObject = new JSONObject(args[0].toString());
-                taskMd = jsonObject.getString(JsonFields.CONTENT);
+                taskCode = jsonObject.getString(JsonFields.CONTENT);
+                parseLanguage = jsonObject.getString(JsonFields.PARSE_LANGUAGE);
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
-            resourceManager.getConnectedPanel().setExerciseText(taskMd);
+            resourceManager.getConnectedPanel().setExerciseText(taskCode, parseLanguage);
         });
     }
 
@@ -239,9 +244,9 @@ public class InactivePanel {
     }
 
     private void eventDisconnect(Object... args) {
-        if (resourceManager.isWatching()) {
-            balloonNotificationSharingStopped.notify(openProject);
-        }
+//        if (resourceManager.isWatching()) {
+//            balloonNotificationSharingStopped.notify(openProject);
+//        }
         balloonNotificationDisconnected.notify(openProject);
 
         resourceManager.getConnectedPanel().setVisible(false);
@@ -265,9 +270,21 @@ public class InactivePanel {
     }
 
     private void eventConnect(Object... args) {
-
+        String roomFieldText = roomIdField.getText();
+        if(roomFieldText.equals(MessageTemplates.ROOM_ID_FIELD_DEFAULT_TEXT)){
+            balloonNotificationWrongRoom.notify(openProject);
+            return;
+        }
         resourceManager.setRoomId(Integer.valueOf(roomIdField.getText()));
-        resourceManager.setUserName(nameField.getText());
+
+        String nameFieldText = nameField.getText();
+
+        if(nameFieldText.equals(MessageTemplates.NAME_FIELD_DEFAULT_TEXT)){
+            balloonNotificationWrongName.notify(openProject);
+            return;
+        }
+
+        resourceManager.setUserName(nameFieldText);
 
         resourceManager.getConnectedPanel().setConnectionStatusLabelText(
                 String.format(
@@ -279,8 +296,8 @@ public class InactivePanel {
 
         JSONObject data = new JSONObject();
         try {
-            data.put(JsonFields.ROOM_ID, Long.parseLong(roomIdField.getText()));
-            data.put(JsonFields.NAME, nameField.getText());
+            data.put(JsonFields.ROOM_ID, resourceManager.getRoomId());
+            data.put(JsonFields.NAME, resourceManager.getUserName());
 
         } catch (JSONException e) {
             logger.warning("Connected panel connect json - " + e.getMessage());
@@ -296,13 +313,28 @@ public class InactivePanel {
         if (connection != null) {
             connection.disconnect();
         }
-
-        balloonNotificationSharingStopped.notify(openProject);
+        //TODO NOTIFY TO CHAT
+        Message message = new Message(
+                "HOST",
+                LocalDateTime.now(),
+                "Your sharing session started. Mentor is now watching"
+        );
+        resourceManager.getConnectedPanel().appendChat(
+                String.format(MessageTemplates.MESSAGE_STRING_FORMAT, "HOST", message.getMessageText())
+        );
+       // balloonNotificationSharingStopped.notify(openProject);
     }
 
     private void socketProjectRequestEvents() {
-        resourceManager.getmSocket().on(CustomSocketEvents.SHARING_START, this::codeSharingAndEventCatcher);
+        resourceManager.getmSocket()
+                .on(CustomSocketEvents.SHARING_START, this::codeSharingAndEventCatcher)
+                .on(CustomSocketEvents.EXERCISE_RESET, this::exerciseReset);
     }
+
+    private void exerciseReset(Object... objects) {
+        resourceManager.getConnectedPanel().setAllNoneAndSend();
+    }
+
 
     private void codeSharingAndEventCatcher(Object... args) {
         resourceManager.setWatching(true);
@@ -315,8 +347,17 @@ public class InactivePanel {
                                 .getJsonObjectFromString(fileStructureStringer.getProjectFilesJson(openProject)));
 
         activateEditorEventListenerAndScheduler();
-        balloonNotificationSharingStarted.notify(openProject);
-        resourceManager.getConnectedPanel().setAllNoneAndSend();
+        //TODO NOTIFY TO CHAT
+        Message message = new Message(
+                "HOST",
+                LocalDateTime.now(),
+                "Your sharing session STOPPED. Mentor is now NOT watching"
+        );
+        resourceManager.getConnectedPanel().appendChat(
+                String.format(MessageTemplates.MESSAGE_STRING_FORMAT, "HOST", message.getMessageText())
+        );
+       // balloonNotificationSharingStarted.notify(openProject);
+        resourceManager.getConnectedPanel().setAllNoneButDoneAndSend();
     }
 
     private void activateEditorEventListenerAndScheduler() {
@@ -397,13 +438,21 @@ public class InactivePanel {
                 new Notification(groupId, "Error connecting to socket!", NotificationType.ERROR);
         balloonNotificationError.setTitle("Error connecting!");
 
-        balloonNotificationSharingStarted =
-                new Notification(groupId, "Your sharing session started. Mentor is now watching", NotificationType.INFORMATION);
-        balloonNotificationError.setTitle("Sharing started");
+        balloonNotificationWrongName =
+                new Notification(groupId, "Name not filled!", NotificationType.ERROR);
+        balloonNotificationError.setTitle("Error connecting!");
 
-        balloonNotificationSharingStopped =
-                new Notification(groupId, "Your sharing session stopped. Mentor is not watching", NotificationType.WARNING);
-        balloonNotificationError.setTitle("Sharing stopped");
+        balloonNotificationWrongRoom =
+                new Notification(groupId, "Room not filled!", NotificationType.ERROR);
+        balloonNotificationError.setTitle("Error connecting!");
+
+//        balloonNotificationSharingStarted =
+//                new Notification(groupId, "Your sharing session started. Mentor is now watching", NotificationType.INFORMATION);
+//        balloonNotificationError.setTitle("Sharing started");
+
+//        balloonNotificationSharingStopped =
+//                new Notification(groupId, "Your sharing session stopped. Mentor is not watching", NotificationType.WARNING);
+//        balloonNotificationError.setTitle("Sharing stopped");
     }
 
     public void setVisible(boolean toggle) {

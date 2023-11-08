@@ -14,7 +14,9 @@ import pro.sky.observer_java.resources.ResourceManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class FileStructureStringer {
@@ -23,6 +25,9 @@ public class FileStructureStringer {
     private final List<ProjectFile> projectFiles = new ArrayList<>();
     private final ResourceManager resourceManager;
     private final Logger logger = Logger.getLogger(FileStructureStringer.class.getName());
+
+    private final Set<String> pathsToIgnore = new HashSet<>();
+    private final Set<String> extensionsToIgnore = new HashSet<>();
     public FileStructureStringer(ResourceManager resourceManager) {
         this.resourceManager = resourceManager;
     }
@@ -75,6 +80,13 @@ public class FileStructureStringer {
 
     private static boolean pathContainsIgnored(String path) {
         if(path.contains(".idea")||path.contains("venv")){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isInIgnored(String path){
+        if(pathsToIgnore.contains(path)){
             return true;
         }
         return false;

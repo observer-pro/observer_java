@@ -31,6 +31,7 @@ public class ConnectedPanel {
     private JTextPane taskCodeField;
     private JPanel chatTab;
     private JPanel taskTab;
+    private JComboBox comboBox1;
     private final ResourceManager resourceManager;
 
     private final Logger logger = Logger.getLogger(ConnectedPanel.class.getName());
@@ -57,7 +58,7 @@ public class ConnectedPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (resourceManager.getStudentStatus() == StudentSignal.IN_PROGRESS) {
-                    setAllNoneAndSend();
+                    setAllNoneButDoneAndSend();
                     return;
                 }
 
@@ -74,7 +75,7 @@ public class ConnectedPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (resourceManager.getStudentStatus() == StudentSignal.HELP) {
-                    setAllNoneAndSend();
+                    setAllNoneButDoneAndSend();
                     return;
                 }
 
@@ -90,7 +91,7 @@ public class ConnectedPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (resourceManager.getStudentStatus() == StudentSignal.DONE) {
-                    setAllNoneAndSend();
+                    setAllNoneButDoneAndSend();
                     return;
                 }
 
@@ -104,7 +105,14 @@ public class ConnectedPanel {
         });
     }
 
-    public void setAllNoneAndSend() {
+    public void setAllNoneButDoneAndSend() {
+        if(resourceManager.getStudentStatus() == StudentSignal.DONE) {
+            return;
+        }
+        setAllNoneAndSend();
+    }
+
+    public void setAllNoneAndSend(){
         resourceManager.setStudentStatus(StudentSignal.NONE);
         inProgressButton.setForeground(Gray._187);
         helpButton.setForeground(Gray._187);
@@ -176,7 +184,22 @@ public class ConnectedPanel {
 
     }
 
-    public void setExerciseText(String md){
+    public void setExerciseText(String taskCode, String parseLanguage){
+        switch(parseLanguage){
+            case ParseTags.MD: {
+                this.setMdTask(taskCode);
+                break;
+            }
+            case ParseTags.HTML: {
+                this.setHtmlTask(taskCode);
+            }
+        }
+    }
+    private void setHtmlTask(String html){
+        taskCodeField.setText(html);
+    }
+
+    private void setMdTask(String md){
         String html = Processor.process(md);
         taskCodeField.setText(html.replace("`",""));
     }

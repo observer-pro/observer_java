@@ -1,6 +1,5 @@
 package pro.sky.observer_java.resources;
 
-
 import com.intellij.openapi.wm.ToolWindow;
 import io.socket.client.Socket;
 import pro.sky.observer_java.ConnectedPanel;
@@ -166,4 +165,6 @@ public class ResourceManager {
     public void setSes(ScheduledExecutorService scheduledExecutorService) {
         this.ses = scheduledExecutorService;
     }
+
+
 }

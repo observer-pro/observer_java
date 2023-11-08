@@ -12,4 +12,5 @@ public final class CustomSocketEvents {
     public final static String SIGNAL = "signal";
     public final static String EXERCISE = "exercise";
     public final static String ROOM_CLOSED = "room/closed";
+    public final static String EXERCISE_RESET = "exercise/reset";
 }

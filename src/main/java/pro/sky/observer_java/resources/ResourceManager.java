@@ -174,4 +174,8 @@ public class ResourceManager {
     public void setSteps(List<Steps> steps) {
         this.stepsList = steps;
     }
+
+    public List<Steps> getSteps() {
+        return stepsList;
+    }
 }

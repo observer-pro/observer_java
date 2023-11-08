@@ -12,8 +12,11 @@ import pro.sky.observer_java.resources.ResourceManager;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import com.github.rjeschke.txtmark.Processor;
 
@@ -102,6 +105,25 @@ public class ConnectedPanel {
                 doneButton.setForeground(JBColor.GREEN);
 
                 sendSignal(StudentSignal.DONE);
+            }
+        });
+        comboBoxTasks.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    Optional<Steps> currentStepOptional = resourceManager.
+                            getSteps()
+                            .stream()
+                            .filter(o -> o.getName().equals(e.getItem().toString()))
+                            .findFirst();
+                    if(currentStepOptional.isEmpty()){
+                        taskCodeField.setText("No task");
+                        return;
+                    }
+                    taskCodeField.setText(currentStepOptional.get().getContent());
+                }
+
             }
         });
     }
@@ -220,7 +242,9 @@ public class ConnectedPanel {
         tabPanel.setTitleAt(0,title);
         comboBoxTasks.removeAllItems();
         for (Steps step : steps) {
-            comboBoxTasks.addItem(String.format("Task %s", step.getName()));
+            String taskString = String.format("Task %s", step.getName());
+            step.setName(taskString);
+            comboBoxTasks.addItem(taskString);
         }
     }
 }

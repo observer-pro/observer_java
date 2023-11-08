@@ -6,12 +6,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import pro.sky.observer_java.constants.*;
 import pro.sky.observer_java.model.Message;
+import pro.sky.observer_java.model.Steps;
 import pro.sky.observer_java.resources.ResourceManager;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.logging.Logger;
 import com.github.rjeschke.txtmark.Processor;
 
@@ -22,7 +24,6 @@ public class ConnectedPanel {
     private JLabel mentorStatusLabel;
     private JTextArea chatArea;
     private JPanel connectedPanel;
-    private JLabel connectionStatusLabel;
     private JSeparator separator;
     private JButton inProgressButton;
     private JButton doneButton;
@@ -31,7 +32,7 @@ public class ConnectedPanel {
     private JTextPane taskCodeField;
     private JPanel chatTab;
     private JPanel taskTab;
-    private JComboBox comboBox1;
+    private JComboBox comboBoxTasks;
     private final ResourceManager resourceManager;
 
     private final Logger logger = Logger.getLogger(ConnectedPanel.class.getName());
@@ -168,9 +169,9 @@ public class ConnectedPanel {
         connectedPanel.setVisible(toggle);
     }
 
-    public void setConnectionStatusLabelText(String text) {
-        this.connectionStatusLabel.setText(text);
-    }
+//    public void setConnectionStatusLabelText(String text) {
+//        this.connectionStatusLabel.setText(text);
+//    }
 
     public void toggleMentorStatusLabelText() {
         if (resourceManager.isWatching()) {
@@ -212,4 +213,14 @@ public class ConnectedPanel {
         return chatArea;
     }
 
+    public void setAllSteps(List<Steps> steps) {
+        resourceManager.setSteps(steps);
+
+        String title = String.format("Tasks (%d)", steps.size());
+        tabPanel.setTitleAt(0,title);
+        comboBoxTasks.removeAllItems();
+        for (Steps step : steps) {
+            comboBoxTasks.addItem(String.format("Task %s", step.getName()));
+        }
+    }
 }

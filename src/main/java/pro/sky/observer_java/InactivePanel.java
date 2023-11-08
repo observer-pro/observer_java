@@ -1,5 +1,8 @@
 package pro.sky.observer_java;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
@@ -21,6 +24,7 @@ import pro.sky.observer_java.constants.MessageTemplates;
 import pro.sky.observer_java.events.EventManager;
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
 import pro.sky.observer_java.model.Message;
+import pro.sky.observer_java.model.Steps;
 import pro.sky.observer_java.resources.ResourceManager;
 import pro.sky.observer_java.scheduler.UpdateProjectScheduledSending;
 
@@ -142,6 +146,9 @@ public class InactivePanel {
 
 
     private void createSocketWithListenersAndConnect(String url) {
+
+        configureBubbles();
+
         url = StringUtils.remove(url, " ");
 
         if (resourceManager.getmSocket() != null) {
@@ -155,7 +162,16 @@ public class InactivePanel {
             urlField.setText("Wrong url syntax");
         }
 
-        configureBubbles();
+        if(nameField.getText().equals(MessageTemplates.NAME_FIELD_DEFAULT_TEXT)){
+            balloonNotificationWrongName.notify(openProject);
+            return;
+        }
+
+        if(roomIdField.getText().equals(MessageTemplates.ROOM_ID_FIELD_DEFAULT_TEXT) ||
+                StringUtils.isAlpha(roomIdField.getText())){
+            balloonNotificationWrongRoom.notify(openProject);
+            return;
+        }
 
         socketConnectionEvents();
 
@@ -165,7 +181,25 @@ public class InactivePanel {
 
         excessiveEvent();
 
+        stepsEvent();
+
         resourceManager.getmSocket().connect();
+    }
+    private void stepsEvent() {
+        resourceManager.getmSocket().on(CustomSocketEvents.STEPS_ALL, args -> {
+            String data = args[0].toString();
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Steps> steps;
+            try {
+                steps = objectMapper
+                        .readValue(data,
+                                new TypeReference<>(){});
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+
+            resourceManager.getConnectedPanel().setAllSteps(steps);
+        });
     }
 
     private void excessiveEvent() {
@@ -270,29 +304,18 @@ public class InactivePanel {
     }
 
     private void eventConnect(Object... args) {
-        String roomFieldText = roomIdField.getText();
-        if(roomFieldText.equals(MessageTemplates.ROOM_ID_FIELD_DEFAULT_TEXT)){
-            balloonNotificationWrongRoom.notify(openProject);
-            return;
-        }
+
         resourceManager.setRoomId(Integer.valueOf(roomIdField.getText()));
 
-        String nameFieldText = nameField.getText();
+        resourceManager.setUserName(nameField.getText());
 
-        if(nameFieldText.equals(MessageTemplates.NAME_FIELD_DEFAULT_TEXT)){
-            balloonNotificationWrongName.notify(openProject);
-            return;
-        }
-
-        resourceManager.setUserName(nameFieldText);
-
-        resourceManager.getConnectedPanel().setConnectionStatusLabelText(
-                String.format(
-                        MessageTemplates.CONNECTED_STATUS_TEXT_FORMAT,
-                        resourceManager.getRoomId(),
-                        resourceManager.getUserName()
-                )
-        );
+//        resourceManager.getConnectedPanel().setConnectionStatusLabelText(
+//                String.format(
+//                        MessageTemplates.CONNECTED_STATUS_TEXT_FORMAT,
+//                        resourceManager.getRoomId(),
+//                        resourceManager.getUserName()
+//                )
+//        );
 
         JSONObject data = new JSONObject();
         try {

@@ -36,7 +36,7 @@ public class FileStructureStringer {
         File directory = new File(directoryName);
 
         File[] fList = directory.listFiles();
-        if (fList != null)
+        if (fList != null) {
             for (File file : fList) {
                 if (pathContainsIgnored(file.getPath())) {
                     continue;
@@ -47,6 +47,7 @@ public class FileStructureStringer {
                     listFiles(file.getAbsolutePath(), files);
                 }
             }
+        }
     }
 
     public List<File> getProjectFilesList(Project project){

@@ -24,7 +24,7 @@ import pro.sky.observer_java.constants.MessageTemplates;
 import pro.sky.observer_java.events.EventManager;
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
 import pro.sky.observer_java.model.Message;
-import pro.sky.observer_java.model.Steps;
+import pro.sky.observer_java.model.Step;
 import pro.sky.observer_java.resources.ResourceManager;
 import pro.sky.observer_java.scheduler.UpdateProjectScheduledSending;
 
@@ -189,7 +189,7 @@ public class InactivePanel {
         resourceManager.getmSocket().on(CustomSocketEvents.STEPS_ALL, args -> {
             String data = args[0].toString();
             ObjectMapper objectMapper = new ObjectMapper();
-            List<Steps> steps;
+            List<Step> steps;
             try {
                 steps = objectMapper
                         .readValue(data,

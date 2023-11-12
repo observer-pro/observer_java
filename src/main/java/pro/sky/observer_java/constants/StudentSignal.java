@@ -4,5 +4,6 @@ public enum StudentSignal {
     NONE,
     IN_PROGRESS,
     HELP,
-    DONE
+    DONE,
+    ACCEPTED
 }

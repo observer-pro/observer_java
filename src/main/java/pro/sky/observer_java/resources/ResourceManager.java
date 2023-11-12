@@ -8,11 +8,10 @@ import pro.sky.observer_java.SkyPanelToolWindowFactory;
 import pro.sky.observer_java.constants.StudentSignal;
 import pro.sky.observer_java.model.Message;
 import pro.sky.observer_java.model.ProjectFile;
-import pro.sky.observer_java.model.Steps;
+import pro.sky.observer_java.model.Step;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -43,8 +42,7 @@ public class ResourceManager {
 
     private StudentSignal studentSignal = StudentSignal.NONE;
 
-    private List<Steps> stepsList = new ArrayList<>();
-
+    private Map<String, Step> stepMap = new HashMap<>();
 
 
     public StudentSignal getStudentStatus() {
@@ -171,11 +169,15 @@ public class ResourceManager {
         this.ses = scheduledExecutorService;
     }
 
-    public void setSteps(List<Steps> steps) {
-        this.stepsList = steps;
+    public void setSteps(Map<String, Step> stepMap) {
+        this.stepMap = stepMap;
     }
 
-    public List<Steps> getSteps() {
-        return stepsList;
+    public Collection<Step> getStepsList() {
+        return stepMap.values();
+    }
+
+    public Map<String, Step> getStepsMap() {
+        return stepMap;
     }
 }

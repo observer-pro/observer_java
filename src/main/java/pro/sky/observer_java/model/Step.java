@@ -1,14 +1,19 @@
 package pro.sky.observer_java.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import pro.sky.observer_java.constants.StringFormats;
+import pro.sky.observer_java.constants.StudentSignal;
 
-public class Steps {
+public class Step {
     String name;
     String content;
     String language;
     String type;
 
-    public Steps(){}
+    @JsonIgnore
+    StudentSignal status;
+
+    public Step(){}
 
     public String getName() {
         return name;
@@ -42,8 +47,16 @@ public class Steps {
         this.type = type;
     }
 
-    @Override
-    public String toString(){
+
+    public String toFormattedString(){
         return String.format(StringFormats.TASK_FORMAT, this.name);
+    }
+
+    public StudentSignal getStatus() {
+        return status;
+    }
+
+    public void setStatus(StudentSignal status) {
+        this.status = status;
     }
 }

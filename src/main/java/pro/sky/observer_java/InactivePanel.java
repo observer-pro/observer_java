@@ -350,13 +350,13 @@ public class InactivePanel {
 
     private void socketProjectRequestEvents() {
         resourceManager.getmSocket()
-                .on(CustomSocketEvents.SHARING_START, this::codeSharingAndEventCatcher)
-                .on(CustomSocketEvents.EXERCISE_RESET, this::exerciseReset);
+                .on(CustomSocketEvents.SHARING_START, this::codeSharingAndEventCatcher);
+                // .on(CustomSocketEvents.EXERCISE_RESET, this::exerciseReset);
     }
 
-    private void exerciseReset(Object... objects) {
-        resourceManager.getConnectedPanel().setAllNoneAndSend();
-    }
+//    private void exerciseReset(Object... objects) {
+//        resourceManager.getConnectedPanel().setAllNoneAndSend();
+//    }
 
 
     private void codeSharingAndEventCatcher(Object... args) {
@@ -380,7 +380,7 @@ public class InactivePanel {
                 String.format(MessageTemplates.MESSAGE_STRING_FORMAT, "HOST", message.getMessageText())
         );
        // balloonNotificationSharingStarted.notify(openProject);
-        resourceManager.getConnectedPanel().setAllNoneButDoneAndSend();
+      //  resourceManager.getConnectedPanel().setAllNoneButDoneAndSend();
     }
 
     private void activateEditorEventListenerAndScheduler() {

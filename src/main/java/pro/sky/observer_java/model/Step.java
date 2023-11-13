@@ -13,7 +13,9 @@ public class Step {
     @JsonIgnore
     StudentSignal status;
 
-    public Step(){}
+    public Step(){
+        this.status = StudentSignal.NONE;
+    }
 
     public String getName() {
         return name;

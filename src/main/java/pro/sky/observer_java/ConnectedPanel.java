@@ -1,5 +1,6 @@
 package pro.sky.observer_java;
 
+import com.github.rjeschke.txtmark.Processor;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import org.json.JSONException;
@@ -19,12 +20,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import com.github.rjeschke.txtmark.Processor;
 
 public class ConnectedPanel {
     private JTextField messageField;
@@ -68,33 +66,33 @@ public class ConnectedPanel {
         helpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (resourceManager.getStudentStatus() == StudentSignal.HELP) {
-                    setAllNoneButDoneAndSend();
+                Step currentSelectedStep = resourceManager.getStepsMap()
+                        .get(Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString());
+
+                if (currentSelectedStep.getStatus() == StudentSignal.HELP) {
+                    setAllButtonVisualsToNone();
+                    setStepStatusAndSend(currentSelectedStep, StudentSignal.NONE);
                     return;
                 }
 
-                // resourceManager.setStudentStatus(StudentSignal.HELP);
-                doneButton.setForeground(Gray._60);
-                helpButton.setForeground(JBColor.ORANGE);
-
-                setCurrentTaskStatus(StudentSignal.HELP);
-                sendStatus(resourceManager.getStepsMap());
+                setAllButtonVisualsToHelp();
+                setStepStatusAndSend(currentSelectedStep, StudentSignal.HELP);
             }
         });
         doneButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (resourceManager.getStudentStatus() == StudentSignal.DONE) {
-                    setAllNoneButDoneAndSend();
+                Step currentSelectedStep = resourceManager.getStepsMap()
+                        .get(Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString());
+                if (currentSelectedStep.getStatus() == StudentSignal.DONE) {
+                    setAllButtonVisualsToNone();
+                    setStepStatusAndSend(currentSelectedStep, StudentSignal.NONE);
                     return;
                 }
 
-                resourceManager.setStudentStatus(StudentSignal.DONE);
-                helpButton.setForeground(Gray._60);
-                doneButton.setForeground(JBColor.GREEN);
+                setAllButtonVisualsToDone();
                 //TODO DO STATUSES
-                setCurrentTaskStatus(StudentSignal.DONE);
-                sendStatus(resourceManager.getStepsMap());
+                setStepStatusAndSend(currentSelectedStep, StudentSignal.DONE);
             }
         });
         comboBoxTasks.addItemListener(new ItemListener() {
@@ -105,39 +103,70 @@ public class ConnectedPanel {
                     Map<String, Step> steps = resourceManager.getStepsMap();
                     String selectedStep = e.getItem().toString();
                     String taskText = "No task";
-                    if(steps.containsKey(selectedStep)) {
-                        taskText = steps.get(selectedStep).getContent();
+                    if (steps.containsKey(selectedStep)) {
+                        Step currentSelectedStep = steps.get(selectedStep);
+                        taskText = currentSelectedStep.getContent();
+                        switch (currentSelectedStep.getStatus()){
+                            case DONE:
+                                setAllButtonVisualsToDone();
+                                break;
+                            case HELP:
+                                setAllButtonVisualsToHelp();
+                                break;
+                            case NONE:
+                            default:
+                                setAllButtonVisualsToNone();
+                        }
                     }
                     taskCodeField.setText(taskText);
                 }
-
             }
         });
     }
 
-    private void selectHelpButton(){
+//    private void selectHelpButton(){
+
+//    }
+
+//    private void setCurrentTaskStatus(StudentSignal signal){
+//        Map<String, Step> steps = resourceManager.getStepsMap();
+//        String currentSelectedTask = Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString();
+//        Step currentStep = steps.get(currentSelectedTask);
+//        if(currentStep.getStatus() == StudentSignal.ACCEPTED){
+//            setAllNone();
+//            return;
+//        }
+//        currentStep.setStatus(signal);
+//    }
+
+    private void setStepStatusAndSend(Step step, StudentSignal signal) {
+        step.setStatus(signal);
+        sendStatuses();
+    }
+//    public void setAllNoneButDoneAndSend() {
+//        if (resourceManager.getStudentStatus() == StudentSignal.DONE) {
+//            return;
+//        }
+//        setAllNone();
+//    }
+
+    public void setAllButtonVisualsToDone() {
+
+        helpButton.setForeground(Gray._60);
+        doneButton.setForeground(JBColor.GREEN);
+        //TODO DO STATUSES
 
     }
 
-    private void setCurrentTaskStatus(StudentSignal signal){
-        Map<String, Step> steps = resourceManager.getStepsMap();
-        String currentSelectedTask = Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString();
-        Step currentStep = steps.get(currentSelectedTask);
-        if(currentStep.getStatus() == StudentSignal.ACCEPTED){
-            setAllNoneAndSend();
-            return;
-        }
-        currentStep.setStatus(signal);
+    public void setAllButtonVisualsToHelp() {
+
+        doneButton.setForeground(Gray._60);
+        helpButton.setForeground(JBColor.ORANGE);
+        //TODO DO STATUSES
+
     }
 
-    public void setAllNoneButDoneAndSend() {
-        if (resourceManager.getStudentStatus() == StudentSignal.DONE) {
-            return;
-        }
-        setAllNoneAndSend();
-    }
-
-    public void setAllNoneAndSend() {
+    public void setAllButtonVisualsToNone() {
 
         helpButton.setForeground(Gray._187);
         doneButton.setForeground(Gray._187);
@@ -145,9 +174,10 @@ public class ConnectedPanel {
 
     }
 
-    private void sendStatus(Map<String,Step> steps) {
+    private void sendStatuses() {
         JsonMapper jsonMapper = new JsonMapper();
-        resourceManager.getmSocket().emit(CustomSocketEvents.STEPS_STATUS, jsonMapper.stepStatusToJson(steps));
+        resourceManager.getmSocket()
+                .emit(CustomSocketEvents.STEPS_STATUS, jsonMapper.stepStatusToJson(resourceManager.getStepsMap()));
     }
 
     private void sendMessage() {

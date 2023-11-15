@@ -256,7 +256,13 @@ public class InactivePanel {
                 .on(Socket.EVENT_CONNECT_ERROR, this::eventError)
                 .on(CustomSocketEvents.ROOM_JOIN, this::eventRoomJoin)
                 .on(CustomSocketEvents.SHARING_END, this::eventSharingEnd)
-                .on(CustomSocketEvents.ROOM_CLOSED, this::eventDisconnect);
+                .on(CustomSocketEvents.ROOM_CLOSED, this::eventDisconnect)
+                .on(CustomSocketEvents.SETTINGS, this::eventSettings);
+    }
+
+    private void eventSettings(Object... args) {
+        //TODO Decide how to settings
+
     }
 
     private void eventRoomJoin(Object... args) {
@@ -289,6 +295,8 @@ public class InactivePanel {
         resourceManager.getConnectedPanel().toggleMentorStatusLabelText();
 
         resourceManager.getSes().shutdownNow();
+
+        resourceManager.refreshObserverIgnore();
 
         if (connection != null) {
             connection.disconnect();
@@ -367,7 +375,7 @@ public class InactivePanel {
         resourceManager.getmSocket()
                 .emit(CustomSocketEvents.CODE_SEND,
                         fileStructureStringer
-                                .getJsonObjectFromString(fileStructureStringer.getProjectFilesJson(openProject)));
+                                .getCodeSendJsonObjectFromString(fileStructureStringer.getProjectFilesJson(openProject)));
 
         activateEditorEventListenerAndScheduler();
         //TODO NOTIFY TO CHAT

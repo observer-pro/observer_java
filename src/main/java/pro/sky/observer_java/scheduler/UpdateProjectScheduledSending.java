@@ -32,7 +32,7 @@ public class UpdateProjectScheduledSending implements Runnable {
         if (updatedFiles.isEmpty()) {
 
             apiDir.refresh(false,true);
-            ApplicationManager.getApplication().invokeLater(() -> {
+            ApplicationManager.getApplication().invokeAndWait(() -> {
                 FileDocumentManager.getInstance().saveAllDocuments();
             });
 
@@ -50,7 +50,7 @@ public class UpdateProjectScheduledSending implements Runnable {
         FileStructureStringer stringer = new FileStructureStringer(resourceManager);
         String json = stringer.getJsonStringFromProjectFileList(updatedFiles);
 
-        resourceManager.getmSocket().emit(CustomSocketEvents.CODE_UPDATE, stringer.getJsonObjectFromString(json));
+        resourceManager.getmSocket().emit(CustomSocketEvents.CODE_UPDATE, stringer.getCodeSendJsonObjectFromString(json));
         resourceManager.setEditorUpdateEvents(new ArrayList<>());
 
     }

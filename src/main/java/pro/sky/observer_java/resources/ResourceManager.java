@@ -44,6 +44,16 @@ public class ResourceManager {
 
     private Map<String, Step> stepMap = new HashMap<>();
 
+    private ObserverIgnore observerIgnore = new ObserverIgnore();
+
+
+    public ObserverIgnore getObserverIgnore() {
+        return observerIgnore;
+    }
+
+    public void refreshObserverIgnore(){
+        this.observerIgnore = new ObserverIgnore();
+    }
 
     public StudentSignal getStudentStatus() {
         return studentSignal;

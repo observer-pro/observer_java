@@ -38,9 +38,12 @@ public class FileStructureStringer {
         File[] fList = directory.listFiles();
         if (fList != null) {
             for (File file : fList) {
-                if (pathContainsIgnored(file.getPath())) {
+                if (resourceManager.getObserverIgnore().fileCheckIfIsInIgnored(file)) {
                     continue;
                 }
+//                if(fileShouldBeIgnored(file)){
+//                    continue;
+//                }
                 if (file.isFile()) {
                     files.add(file);
                 } else if (file.isDirectory()) {
@@ -61,10 +64,10 @@ public class FileStructureStringer {
         listFiles(project.getBasePath(), files);
 
 
-        ProjectFileMapper projectFileMapper = new ProjectFileMapper();
+        ProjectFileMapper projectFileMapper = new ProjectFileMapper(resourceManager);
         for (File file : files) {
             ProjectFile projectFile;
-            if(pathContainsIgnored(file.getPath())){
+            if(resourceManager.getObserverIgnore().fileCheckIfIsInIgnored(file)){
                 continue;
             }
             try {
@@ -79,19 +82,6 @@ public class FileStructureStringer {
         return getJsonStringFromProjectFileList(projectFiles);
     }
 
-    private static boolean pathContainsIgnored(String path) {
-        if(path.contains(".idea")||path.contains("venv")){
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isInIgnored(String path){
-        if(pathsToIgnore.contains(path)){
-            return true;
-        }
-        return false;
-    }
 
     public String getJsonStringFromProjectFileList(List<ProjectFile> projectFiles) {
         String json;
@@ -104,7 +94,11 @@ public class FileStructureStringer {
         return json;
     }
 
-    public JSONObject getJsonObjectFromString(String json) {
+    private void filterWithObserverIgnore(){
+
+    }
+
+    public JSONObject getCodeSendJsonObjectFromString(String json) {
         JSONObject sendMessage = new JSONObject();
         JSONArray data;
         try {

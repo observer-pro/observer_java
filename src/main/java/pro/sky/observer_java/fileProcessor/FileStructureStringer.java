@@ -14,9 +14,7 @@ import pro.sky.observer_java.resources.ResourceManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
 public class FileStructureStringer {
@@ -26,8 +24,6 @@ public class FileStructureStringer {
     private final ResourceManager resourceManager;
     private final Logger logger = Logger.getLogger(FileStructureStringer.class.getName());
 
-    private final Set<String> pathsToIgnore = new HashSet<>();
-    private final Set<String> extensionsToIgnore = new HashSet<>();
     public FileStructureStringer(ResourceManager resourceManager) {
         this.resourceManager = resourceManager;
     }
@@ -38,7 +34,7 @@ public class FileStructureStringer {
         File[] fList = directory.listFiles();
         if (fList != null) {
             for (File file : fList) {
-                if (resourceManager.getObserverIgnore().fileCheckIfIsInIgnored(file)) {
+                if (resourceManager.getObserverIgnore().checkIfIsInIgnored(file)) {
                     continue;
                 }
 //                if(fileShouldBeIgnored(file)){
@@ -53,11 +49,6 @@ public class FileStructureStringer {
         }
     }
 
-    public List<File> getProjectFilesList(Project project){
-        String basePath = project.getBasePath();
-        listFiles(project.getBasePath(), files);
-        return files;
-    }
     public String getProjectFilesJson(Project project) {
 
         String basePath = project.getBasePath();
@@ -67,7 +58,7 @@ public class FileStructureStringer {
         ProjectFileMapper projectFileMapper = new ProjectFileMapper(resourceManager);
         for (File file : files) {
             ProjectFile projectFile;
-            if(resourceManager.getObserverIgnore().fileCheckIfIsInIgnored(file)){
+            if(resourceManager.getObserverIgnore().checkIfIsInIgnored(file)){
                 continue;
             }
             try {
@@ -92,10 +83,6 @@ public class FileStructureStringer {
             throw new RuntimeException(e);
         }
         return json;
-    }
-
-    private void filterWithObserverIgnore(){
-
     }
 
     public JSONObject getCodeSendJsonObjectFromString(String json) {

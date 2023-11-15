@@ -1,12 +1,17 @@
 package pro.sky.observer_java.resources;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class ObserverIgnore {
     private final Set<String> directories = new HashSet<>();
+    private final Set<String> fileNames = new HashSet<>();
+    private final Set<String> extensions = new HashSet<>();
     private final Set<String> endsWith = new HashSet<>();
 
     public ObserverIgnore() {
@@ -15,20 +20,18 @@ public class ObserverIgnore {
                 ".idea",
                 "cmake-build-",
                 "out",
-                ".idea_module",
-                ".git",
-                ".mvn",
-                "mvnw"
-                ));
+                ".idea_modules"
+        ));
 
-        endsWith.addAll(List.of(
-                ".iws",
+        fileNames.addAll(List.of(
                 "atlassian-ide-plugin.xml",
                 "com_crashlytics_export_strings.xml",
                 "crashlytics.properties",
                 "crashlytics-build.properties",
-                "fabric.properties",
-                "mvnw.cmd"
+                "fabric.properties"
+        ));
+        extensions.addAll(List.of(
+                "iws"
         ));
         //Python
         directories.addAll(List.of(
@@ -46,6 +49,7 @@ public class ObserverIgnore {
                 "var",
                 "wheels",
                 "python-wheels",
+                ".egg-info",
                 "htmlcov",
                 ".tox",
                 ".nox",
@@ -53,6 +57,7 @@ public class ObserverIgnore {
                 ".pytest_cache",
                 "cover",
                 "instance",
+                "_build",
                 ".pybuilder",
                 "target",
                 "profile_default",
@@ -67,26 +72,16 @@ public class ObserverIgnore {
                 ".pytype",
                 "cython_debug"
         ));
-
-        endsWith.addAll(List.of(
-                "$py.class",
-                ".so",
+        fileNames.addAll(List.of(
                 ".Python",
                 ".installed.cfg",
-                ".egg",
-                "MANIFEST",
-                ".manifest",
-                ".spec",
                 "pip-log.txt",
                 "pip-delete-this-directory.txt",
+                "MANIFEST",
                 ".coverage",
                 ".cache",
                 "nosetests.xml",
                 "coverage.xml",
-                ".cover",
-                ".mo",
-                ".pot",
-                ".log",
                 "local_settings.py",
                 "db.sqlite3",
                 "db.sqlite3-journal",
@@ -97,7 +92,6 @@ public class ObserverIgnore {
                 ".pdm.toml",
                 "celerybeat-schedule",
                 "celerybeat.pid",
-                ".sage.py",
                 ".env",
                 ".venv",
                 ".spyderproject",
@@ -106,8 +100,20 @@ public class ObserverIgnore {
                 ".dmypy.json",
                 "dmypy.json",
                 "pyvenv.cfg",
-                ".venv",
                 "pip-selfcheck.json"
+        ));
+        extensions.addAll(List.of(
+                "so",
+                "egg",
+                "manifest",
+                "spec",
+                "cover",
+                "mo",
+                "pot",
+                "log"
+        ));
+        endsWith.addAll(List.of(
+                "$py.class"
         ));
 
         //Java
@@ -116,31 +122,28 @@ public class ObserverIgnore {
                 "temp",
                 "classes",
                 "deploy",
-                "javadoc",
-                ".mtj.tmp"
+                "javadoc"
         ));
-        endsWith.addAll(List.of(
+        fileNames.addAll(List.of(
                 "cwallet.sso.lck",
-                ".class",
-                ".log",
-                ".ctxt",
-                ".jar",
-                ".war",
-                ".nar",
-                ".ear",
-                ".zip",
-                ".tar.gz",
-                ".rar"
+                "hs_err_pid",
+                "replay_pid"
+        ));
+        extensions.addAll(List.of(
+                "log",
+                "ctxt",
+                "jar",
+                "war",
+                "nar",
+                "ear",
+                "zip",
+                "rar"
         ));
         //JS
         directories.addAll(List.of(
-                "logs",
-                "pids",
-                "lib-cov",
-                "coverage",
-                "bower_components",
                 "node_modules",
                 "jspm_packages",
+                "web_modules",
                 ".rpt2_cache",
                 ".rts2_cache_cjs",
                 ".rts2_cache_es",
@@ -152,21 +155,19 @@ public class ObserverIgnore {
                 ".yarn"
         ));
 
-        endsWith.addAll(List.of(
-                ".log",
-                ".pid",
-                ".seed",
-                ".pid.lock",
-                ".lcov",
+        fileNames.addAll(List.of(
+                "logs",
+                "pids",
+                "lib-cov",
+                "coverage",
+                ".nyc_output",
                 ".grunt",
-                ".lock-wscript",
                 "bower_components",
-                ".tsbuildinfo",
+                ".lock-wscript",
                 ".npm",
                 ".eslintcache",
                 ".stylelintcache",
                 ".node_repl_history",
-                ".tgz",
                 ".yarn-integrity",
                 ".env",
                 ".env.development.local",
@@ -185,8 +186,16 @@ public class ObserverIgnore {
                 ".tern-port",
                 ".vscode-test"
         ));
+        extensions.addAll(List.of(
+                "log",
+                "pid",
+                "seed",
+                "lcov",
+                "tsbuildinfo",
+                "tgz"
+        ));
         //macOS
-        endsWith.addAll(List.of(
+        fileNames.addAll(List.of(
                 ".DS_Store",
                 ".AppleDouble",
                 ".LSOverride",
@@ -206,43 +215,95 @@ public class ObserverIgnore {
         ));
     }
 
-    public Set<String> getDirectories() {
-        return directories;
-    }
-
-    public Set<String> getEndsWith() {
-        return endsWith;
-    }
-
-    public void addToDirectories(String directory){
+    public void addToDirectories(String directory) {
         this.directories.add(directory);
     }
 
-    public void addToEndsWith(String endsWith){
-        this.directories.add(endsWith);
+    public void addToDirectories(List<String> directories) {
+        this.directories.addAll(directories);
     }
 
-    public boolean fileCheckIfIsInIgnored(File file){
-        if(file.isDirectory()){
+    public void addToDirectories(String ... directories) {
+        this.directories.addAll(Arrays.asList(directories));
+    }
+
+
+    public void addToFileNames(String fileName) {
+        this.fileNames.add(fileName);
+    }
+
+    public void addToFileNames(List<String> fileNames) {
+        this.fileNames.addAll(fileNames);
+    }
+    public void addToFileNames(String ... fileNames) {
+        this.fileNames.addAll(Arrays.asList(fileNames));
+    }
+
+    public void addToExtensions(String extension) {
+        this.extensions.add(extension);
+    }
+
+    public void addToExtensions(List<String> extensions) {
+        this.extensions.addAll(extensions);
+    }
+
+    public void addToExtensions(String ... extensions) {
+        this.extensions.addAll(Arrays.asList(extensions));
+    }
+
+    public boolean checkIfIsInIgnored(File file) {
+        if (file.isDirectory()) {
             for (String directory : directories) {
-                if(file.getPath().contains(directory)){
+                if (file.getPath().contains(directory)) {
                     return true;
                 }
             }
             return false;
         }
-        for (String s : endsWith) {
-            if(file.getPath().endsWith(s)){
+
+        String fileName = file.getName();
+        if (fileNames.contains(fileName)) {
+            return true;
+        }
+
+        String fileExtension = FilenameUtils.getExtension(fileName);
+        if (extensions.contains(fileExtension)) {
+            return true;
+        }
+
+        for (String end : endsWith) {
+            if (file.getPath().endsWith(end)) {
                 return true;
             }
         }
+
         return false;
     }
 
-    public boolean pathCheckIfIsInIgnored(String path){
-        //File file = new File(path);
+    public boolean checkIfIsInIgnored(String path) {
+        String baseUrl = FilenameUtils.getPath(path);
+
+        String extension = FilenameUtils.getExtension(path);
+
+        String fileString = FilenameUtils.getBaseName(path)
+                + "." + extension;
+
+        if (extensions.contains(extension)) {
+            return true;
+        }
+
+        if (fileNames.contains(fileString)) {
+            return true;
+        }
+
         for (String directory : directories) {
-            if(path.contains(directory)){
+            if (baseUrl.contains(directory)) {
+                return true;
+            }
+        }
+
+        for (String s : endsWith) {
+            if (fileString.endsWith(s)) {
                 return true;
             }
         }

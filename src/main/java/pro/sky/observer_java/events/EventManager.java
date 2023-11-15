@@ -37,7 +37,7 @@ public class EventManager {
         mapAndAddEvents(event.getOldPath(), ProjectFileStatus.REMOVED);
     }
     private void mapAndAddEvents(String path, ProjectFileStatus status){
-        if(resourceManager.getObserverIgnore().pathCheckIfIsInIgnored(path)){
+        if(resourceManager.getObserverIgnore().checkIfIsInIgnored(path)){
             return;
         }
         try {

@@ -3,8 +3,6 @@ package pro.sky.observer_java.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -52,18 +50,15 @@ public class SocketEvents {
             .setTransports(new String[]{"websocket"})
             .build();
 
+    private final BubbleNotifications bubbleNotifications;
 
-    private Notification balloonNotificationConnected;
-    private Notification balloonNotificationDisconnected;
-    private Notification balloonNotificationError;
-    private Notification balloonNotificationWrongName;
-    private Notification balloonNotificationWrongRoom;
     private final Logger logger = Logger.getLogger(SocketEvents.class.getName());
 
     public SocketEvents(ResourceManager resourceManager, InactivePanel inactivePanel, ConnectedPanel connectedPanel) {
         this.resourceManager = resourceManager;
         this.inactivePanel = inactivePanel;
         this.connectedPanel = connectedPanel;
+        this.bubbleNotifications = new BubbleNotifications();
     }
 
     private void connect() {
@@ -72,9 +67,6 @@ public class SocketEvents {
     }
 
     public void createSocketWithListenersAndConnect(String url) {
-
-        configureBubbles();
-
         url = StringUtils.remove(url, " ");
 
         if (resourceManager.getmSocket() != null) {
@@ -89,13 +81,13 @@ public class SocketEvents {
         }
 
         if (inactivePanel.getNameField().getText().equals(MessageTemplates.NAME_FIELD_DEFAULT_TEXT)) {
-            balloonNotificationWrongName.notify(openProject);
+            bubbleNotifications.wrongName(openProject);
             return;
         }
 
         if (inactivePanel.getRoomIdField().getText().equals(MessageTemplates.ROOM_ID_FIELD_DEFAULT_TEXT) ||
                 StringUtils.isAlpha(inactivePanel.getRoomIdField().getText())) {
-            balloonNotificationWrongRoom.notify(openProject);
+            bubbleNotifications.wrongRoom(openProject);
             return;
         }
 
@@ -137,7 +129,7 @@ public class SocketEvents {
 
 
     private void eventDisconnect(Object... args) {
-        balloonNotificationDisconnected.notify(openProject);
+        bubbleNotifications.disconnected(openProject);
 
         connectedPanel.setVisible(false);
         inactivePanel.setVisible(true);
@@ -162,7 +154,7 @@ public class SocketEvents {
     }
 
     private void eventError(Object... args) {
-        balloonNotificationError.notify(openProject);
+        bubbleNotifications.error(openProject);
     }
 
     private void eventRoomJoin(Object... args) {
@@ -173,7 +165,7 @@ public class SocketEvents {
         } catch (JSONException e) {
             logger.warning("Connected panel room/join json - " + e.getMessage());
         }
-        balloonNotificationConnected.notify(openProject);
+        bubbleNotifications.connected(openProject);
         inactivePanel.setVisible(false);
         connectedPanel.setVisible(true);
     }
@@ -345,27 +337,5 @@ public class SocketEvents {
     }
 
 
-    public void configureBubbles() {
-        String groupId = "pro.sky";
 
-        balloonNotificationConnected =
-                new Notification(groupId, "Connected to socket!", NotificationType.IDE_UPDATE);
-        balloonNotificationConnected.setTitle("Connection success");
-
-        balloonNotificationDisconnected =
-                new Notification(groupId, "Disconnected from socket!", NotificationType.WARNING);
-        balloonNotificationDisconnected.setTitle("Disconnected!");
-
-        balloonNotificationError =
-                new Notification(groupId, "Error connecting to socket!", NotificationType.ERROR);
-        balloonNotificationError.setTitle("Error connecting!");
-
-        balloonNotificationWrongName =
-                new Notification(groupId, "Name not filled!", NotificationType.ERROR);
-        balloonNotificationError.setTitle("Error connecting!");
-
-        balloonNotificationWrongRoom =
-                new Notification(groupId, "Room not filled!", NotificationType.ERROR);
-        balloonNotificationError.setTitle("Error connecting!");
-    }
 }

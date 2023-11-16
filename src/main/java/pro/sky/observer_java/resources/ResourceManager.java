@@ -55,14 +55,6 @@ public class ResourceManager {
         this.observerIgnore = new ObserverIgnore();
     }
 
-    public StudentSignal getStudentStatus() {
-        return studentSignal;
-    }
-
-    public void setStudentStatus(StudentSignal studentSignal) {
-        this.studentSignal = studentSignal;
-    }
-
     public ScheduledExecutorService getSes() {
         return ses;
     }
@@ -74,11 +66,6 @@ public class ResourceManager {
     public void setEditorUpdateEvents(List<ProjectFile> editorUpdateEvents) {
         this.editorUpdateEvents = editorUpdateEvents;
     }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
     public void setUserId(Integer userId) {
         this.userId = userId;
     }

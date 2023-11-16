@@ -96,8 +96,6 @@ public class InactivePanel {
             }
         });
     }
-
-
     public void setVisible(boolean toggle) {
         inactivePanel.setVisible(toggle);
     }
@@ -117,5 +115,4 @@ public class InactivePanel {
     public JTextField getNameField() {
         return nameField;
     }
-
 }

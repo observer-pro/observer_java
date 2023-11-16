@@ -4,13 +4,11 @@ import com.intellij.openapi.wm.ToolWindow;
 import io.socket.client.Socket;
 import pro.sky.observer_java.ConnectedPanel;
 import pro.sky.observer_java.InactivePanel;
-import pro.sky.observer_java.SkyPanelToolWindowFactory;
 import pro.sky.observer_java.constants.StudentSignal;
 import pro.sky.observer_java.model.Message;
 import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.model.Step;
 
-import javax.swing.*;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,12 +24,12 @@ public class ResourceManager {
 
     private volatile ToolWindow toolWindow;
 
-    private volatile SkyPanelToolWindowFactory skyPanelToolWindowFactory;
-
-    private volatile SkyPanelToolWindowFactory.SkyPanelToolWindowContent skyPanelToolWindowContent;
-
-    private volatile JPanel contentPanel;
-
+//    private volatile SkyPanelToolWindowFactory skyPanelToolWindowFactory;
+//
+//    private volatile SkyPanelToolWindowFactory.SkyPanelToolWindowContent skyPanelToolWindowContent;
+//
+//    private volatile JPanel contentPanel;
+//
     private Socket mSocket;
 
     private volatile Integer userId;
@@ -40,12 +38,9 @@ public class ResourceManager {
 
     private ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 
-    private StudentSignal studentSignal = StudentSignal.NONE;
-
     private Map<String, Step> stepMap = new HashMap<>();
 
     private ObserverIgnore observerIgnore = new ObserverIgnore();
-
 
     public ObserverIgnore getObserverIgnore() {
         return observerIgnore;
@@ -65,6 +60,9 @@ public class ResourceManager {
 
     public void setEditorUpdateEvents(List<ProjectFile> editorUpdateEvents) {
         this.editorUpdateEvents = editorUpdateEvents;
+    }
+    public void clearEditorUpdateEvents(){
+        this.editorUpdateEvents.clear();
     }
     public void setUserId(Integer userId) {
         this.userId = userId;
@@ -114,29 +112,6 @@ public class ResourceManager {
         this.toolWindow = toolWindow;
     }
 
-    public SkyPanelToolWindowFactory getSkyPanelToolWindowFactory() {
-        return skyPanelToolWindowFactory;
-    }
-
-    public void setSkyPanelToolWindowFactory(SkyPanelToolWindowFactory skyPanelToolWindowFactory) {
-        this.skyPanelToolWindowFactory = skyPanelToolWindowFactory;
-    }
-
-    public SkyPanelToolWindowFactory.SkyPanelToolWindowContent getSkyPanelToolWindowContent() {
-        return skyPanelToolWindowContent;
-    }
-
-    public void setSkyPanelToolWindowContent(SkyPanelToolWindowFactory.SkyPanelToolWindowContent skyPanelToolWindowContent) {
-        this.skyPanelToolWindowContent = skyPanelToolWindowContent;
-    }
-
-    public JPanel getContentPanel() {
-        return contentPanel;
-    }
-
-    public void setContentPanel(JPanel contentPanel) {
-        this.contentPanel = contentPanel;
-    }
 
     public Socket getmSocket() {
         return mSocket;

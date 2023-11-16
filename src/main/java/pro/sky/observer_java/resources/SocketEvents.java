@@ -257,8 +257,7 @@ public class SocketEvents {
     }
 
     private void eventSettings(Object... args) {
-        //TODO Decide how to settings
-
+        //TODO Make it happen
     }
 
 
@@ -335,7 +334,4 @@ public class SocketEvents {
         );
         resourceManager.getMessageList().add(message);
     }
-
-
-
 }

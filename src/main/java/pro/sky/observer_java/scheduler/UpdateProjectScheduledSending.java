@@ -10,7 +10,6 @@ import pro.sky.observer_java.fileProcessor.FileStructureStringer;
 import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.resources.ResourceManager;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,15 +34,6 @@ public class UpdateProjectScheduledSending implements Runnable {
             ApplicationManager.getApplication().invokeAndWait(() -> {
                 FileDocumentManager.getInstance().saveAllDocuments();
             });
-
-//            VfsUtil.markDirtyAndRefresh(
-//                    false,
-//                    true,
-//                    true,
-//                    fileArray
-//            );
-
-
             return;
         }
 
@@ -51,7 +41,6 @@ public class UpdateProjectScheduledSending implements Runnable {
         String json = stringer.getJsonStringFromProjectFileList(updatedFiles);
 
         resourceManager.getmSocket().emit(CustomSocketEvents.CODE_UPDATE, stringer.getCodeSendJsonObjectFromString(json));
-        resourceManager.setEditorUpdateEvents(new ArrayList<>());
-
+        resourceManager.clearEditorUpdateEvents();
     }
 }

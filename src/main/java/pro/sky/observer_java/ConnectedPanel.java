@@ -32,7 +32,6 @@ public class ConnectedPanel {
     private JTextArea chatArea;
     private JPanel connectedPanel;
     private JSeparator separator;
-    // private JButton inProgressButton;
     private JButton doneButton;
     private JButton helpButton;
     private JTabbedPane tabPanel;
@@ -91,7 +90,7 @@ public class ConnectedPanel {
                 }
 
                 setAllButtonVisualsToDone();
-                //TODO DO STATUSES
+
                 setStepStatusAndSend(currentSelectedStep, StudentSignal.DONE);
             }
         });
@@ -123,7 +122,6 @@ public class ConnectedPanel {
             }
         });
     }
-
 
     private void setStepStatusAndSend(Step step, StudentSignal signal) {
         step.setStatus(signal);

@@ -5,15 +5,15 @@ import pro.sky.observer_java.constants.StringFormats;
 import pro.sky.observer_java.constants.StudentSignal;
 
 public class Step {
-    String name;
-    String content;
-    String language;
-    String type;
+    private String name;
+    private String content;
+    private String language;
+    private String type;
 
     @JsonIgnore
-    StudentSignal status;
+    private StudentSignal status;
 
-    public Step(){
+    public Step() {
         this.status = StudentSignal.NONE;
     }
 
@@ -50,7 +50,7 @@ public class Step {
     }
 
 
-    public String toFormattedString(){
+    public String toFormattedString() {
         return String.format(StringFormats.TASK_FORMAT, this.name);
     }
 

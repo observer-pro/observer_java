@@ -21,10 +21,7 @@ public class InactivePanel {
     private JLabel titleLabel;
     private JPanel inactivePanel;
     private JTextPane instructionTextPane;
-
     private final SocketEvents socketEvents;
-
-
 
     public InactivePanel(ResourceManager resourceManager) {
 

@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import pro.sky.observer_java.constants.JsonFields;
 import pro.sky.observer_java.constants.ProjectFileStatus;
 import pro.sky.observer_java.mapper.ProjectFileMapper;
 import pro.sky.observer_java.model.ProjectFile;
@@ -37,9 +38,6 @@ public class FileStructureStringer {
                 if (resourceManager.getObserverIgnore().checkIfIsInIgnored(file)) {
                     continue;
                 }
-//                if(fileShouldBeIgnored(file)){
-//                    continue;
-//                }
                 if (file.isFile()) {
                     files.add(file);
                 } else if (file.isDirectory()) {
@@ -90,12 +88,11 @@ public class FileStructureStringer {
         JSONArray data;
         try {
             data = new JSONArray(json);
-            sendMessage.put("room_id", resourceManager.getRoomId());
-            sendMessage.put("files", data);
+            sendMessage.put(JsonFields.ROOM_ID, resourceManager.getRoomId());
+            sendMessage.put(JsonFields.FILES, data);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
         return sendMessage;
     }
-
 }

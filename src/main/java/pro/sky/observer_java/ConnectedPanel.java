@@ -124,54 +124,25 @@ public class ConnectedPanel {
         });
     }
 
-//    private void selectHelpButton(){
-
-//    }
-
-//    private void setCurrentTaskStatus(StudentSignal signal){
-//        Map<String, Step> steps = resourceManager.getStepsMap();
-//        String currentSelectedTask = Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString();
-//        Step currentStep = steps.get(currentSelectedTask);
-//        if(currentStep.getStatus() == StudentSignal.ACCEPTED){
-//            setAllNone();
-//            return;
-//        }
-//        currentStep.setStatus(signal);
-//    }
 
     private void setStepStatusAndSend(Step step, StudentSignal signal) {
         step.setStatus(signal);
         sendStatuses();
     }
-//    public void setAllNoneButDoneAndSend() {
-//        if (resourceManager.getStudentStatus() == StudentSignal.DONE) {
-//            return;
-//        }
-//        setAllNone();
-//    }
 
     public void setAllButtonVisualsToDone() {
-
         helpButton.setForeground(Gray._60);
         doneButton.setForeground(JBColor.GREEN);
-        //TODO DO STATUSES
-
     }
 
     public void setAllButtonVisualsToHelp() {
-
         doneButton.setForeground(Gray._60);
         helpButton.setForeground(JBColor.ORANGE);
-        //TODO DO STATUSES
-
     }
 
     public void setAllButtonVisualsToNone() {
-
         helpButton.setForeground(Gray._187);
         doneButton.setForeground(Gray._187);
-        //TODO DO STATUSES
-
     }
 
     private void sendStatuses() {

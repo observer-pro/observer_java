@@ -15,7 +15,6 @@ public final class CustomSocketEvents {
     public final static String EXERCISE_RESET = "exercise/reset";
     public final static String STEPS_ALL = "steps/all";
     public final static String STEPS_STATUS = "steps/status";
-
     public final static String SETTINGS = "settings";
 
 

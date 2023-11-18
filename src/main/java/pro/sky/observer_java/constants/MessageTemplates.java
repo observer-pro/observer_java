@@ -7,5 +7,6 @@ public final class MessageTemplates {
     public static final String MESSAGE_STRING_FORMAT = "%s: %s\n";
     public static final String SHARING_START = "Your sharing session started. Mentor is now watching";
     public static final String SHARING_END = "Your sharing session STOPPED. Mentor is now NOT watching";
+    public static final String AI_WAITING_FOR_SERVER = "Waiting for server response. Answer will be here";
 
 }

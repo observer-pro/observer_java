@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -42,17 +41,9 @@ public class ProjectFileMapper {
         if (Files.size(path) > MAX_FILE_SIZE_TO_TRANSFER) {
             projectFile.setContent(FieldTexts.TOO_LARGE);
         } else {
-            projectFile.setContent(contentsAsString(Files.readAllLines(path)));
+            projectFile.setContent(EditorToString.contentsAsString(Files.readAllLines(path)));
         }
         logger.info("fileToProjectFile Created");
         return projectFile;
-    }
-
-    private String contentsAsString(List<String> strings) {
-        StringBuilder sb = new StringBuilder();
-        for (String string : strings) {
-            sb.append(string).append("\n");
-        }
-        return sb.toString();
     }
 }

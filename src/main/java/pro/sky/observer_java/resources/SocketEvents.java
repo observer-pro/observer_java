@@ -106,8 +106,23 @@ public class SocketEvents {
                 .on(CustomSocketEvents.MESSAGE_TO_CLIENT, this::socketMessageEvents)
                 .on(CustomSocketEvents.SHARING_START, this::codeSharingAndEventCatcher)
                 .on(CustomSocketEvents.STEPS_ALL, this::stepsEvent)
-                .on(CustomSocketEvents.EXERCISE, this::exerciseEvent)
+                .on(CustomSocketEvents.SOLUTION_AI, this::solutionAiEvent)
+                //.on(CustomSocketEvents.EXERCISE, this::exerciseEvent)
                 .on(CustomSocketEvents.SETTINGS, this::eventSettings);
+    }
+
+    private void solutionAiEvent(Object... args) {
+        JSONObject jsonObject;
+        String aiAnswer;
+        try {
+            jsonObject = new JSONObject(args[0].toString());
+            aiAnswer = jsonObject.getString(JsonFields.CONTENT);
+        } catch (JSONException e) {
+            logger.warning("AI HELP RECEIVE WARNING");
+            throw new RuntimeException(e);
+        }
+
+        connectedPanel.setAiHelpFieldText(aiAnswer);
     }
 
     private void eventConnect(Object... args) {
@@ -243,19 +258,19 @@ public class SocketEvents {
         connectedPanel.setAllSteps(steps);
     }
 
-    private void exerciseEvent(Object... args) {
-        JSONObject jsonObject;
-        String taskCode;
-        String parseLanguage;
-        try {
-            jsonObject = new JSONObject(args[0].toString());
-            taskCode = jsonObject.getString(JsonFields.CONTENT);
-            parseLanguage = jsonObject.getString(JsonFields.PARSE_LANGUAGE);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        connectedPanel.setExerciseText(taskCode, parseLanguage);
-    }
+//    private void exerciseEvent(Object... args) {
+//        JSONObject jsonObject;
+//        String taskCode;
+//        String parseLanguage;
+//        try {
+//            jsonObject = new JSONObject(args[0].toString());
+//            taskCode = jsonObject.getString(JsonFields.CONTENT);
+//            parseLanguage = jsonObject.getString(JsonFields.PARSE_LANGUAGE);
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
+//        connectedPanel.setExerciseText(taskCode, parseLanguage);
+//    }
 
     private void eventSettings(Object... args) {
         //TODO Make it happen

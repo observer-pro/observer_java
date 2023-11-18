@@ -5,10 +5,12 @@ import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
 import pro.sky.observer_java.constants.*;
 import pro.sky.observer_java.mapper.JsonMapper;
 import pro.sky.observer_java.model.Message;
 import pro.sky.observer_java.model.Step;
+import pro.sky.observer_java.resources.EditorEvents;
 import pro.sky.observer_java.resources.ResourceManager;
 
 import javax.swing.*;
@@ -16,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +43,8 @@ public class ConnectedPanel {
     private JPanel taskTab;
     private JComboBox comboBoxTasks;
     private JScrollPane chatScroll;
+    private JButton AIHELPButton;
+    private JTextPane aiHelpField;
     private final ResourceManager resourceManager;
 
     private final Logger logger = Logger.getLogger(ConnectedPanel.class.getName());
@@ -120,6 +125,28 @@ public class ConnectedPanel {
                     }
                     taskCodeField.setText(taskText);
                 }
+            }
+        });
+        AIHELPButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                EditorEvents editorEvents = new EditorEvents(resourceManager.getToolWindow().getProject());
+                String aiRequestCode;
+                String aiRequestContent;
+                JSONObject sendJson = new JSONObject();
+                try {
+                    aiRequestContent = Jsoup.parse(taskCodeField.getText()).text();
+                    aiRequestCode = editorEvents.getOpenEditorText();
+
+                    sendJson.put(JsonFields.CONTENT,aiRequestContent);
+                    sendJson.put(JsonFields.CODE, aiRequestCode);
+
+                } catch (IOException|JSONException ex) {
+                    logger.warning("AI HELP PROJECT WARNING");
+                    throw new RuntimeException(ex);
+                }
+                setAiHelpFieldText(MessageTemplates.AI_WAITING_FOR_SERVER);
+                resourceManager.getmSocket().emit(CustomSocketEvents.SOLUTION_AI, sendJson);
             }
         });
     }
@@ -244,5 +271,9 @@ public class ConnectedPanel {
             String stepString = step.toFormattedString();
             comboBoxTasks.addItem(stepString);
         }
+    }
+
+    public void setAiHelpFieldText(String text){
+        this.aiHelpField.setText(text);
     }
 }

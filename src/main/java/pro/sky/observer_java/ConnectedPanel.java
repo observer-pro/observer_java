@@ -39,6 +39,7 @@ public class ConnectedPanel {
     private JPanel chatTab;
     private JPanel taskTab;
     private JComboBox comboBoxTasks;
+    private JScrollPane chatScroll;
     private final ResourceManager resourceManager;
 
     private final Logger logger = Logger.getLogger(ConnectedPanel.class.getName());
@@ -174,6 +175,7 @@ public class ConnectedPanel {
         Message message = new Message(senderName, LocalDateTime.now(), messageText);
         resourceManager.getMessageList().add(message);
         messageField.setText("");
+        scrollChatToBottom();
     }
 
     public JPanel getConnectedJPanel() {
@@ -206,6 +208,11 @@ public class ConnectedPanel {
                 this.setHtmlTask(taskCode);
             }
         }
+    }
+
+    public void scrollChatToBottom(){
+        JScrollBar vertical  = this.chatScroll.getVerticalScrollBar();
+        vertical.setValue(vertical.getMaximum());
     }
 
     private void setHtmlTask(String html) {

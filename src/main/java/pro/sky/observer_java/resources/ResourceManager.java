@@ -4,7 +4,6 @@ import com.intellij.openapi.wm.ToolWindow;
 import io.socket.client.Socket;
 import pro.sky.observer_java.ConnectedPanel;
 import pro.sky.observer_java.InactivePanel;
-import pro.sky.observer_java.constants.StudentSignal;
 import pro.sky.observer_java.model.Message;
 import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.model.Step;
@@ -125,8 +124,8 @@ public class ResourceManager {
         return messageList;
     }
 
-    public void setMessageList(List<Message> messageList) {
-        this.messageList = messageList;
+    public void resetMessageList() {
+        this.messageList.clear();
     }
 
     public boolean isWatching() {

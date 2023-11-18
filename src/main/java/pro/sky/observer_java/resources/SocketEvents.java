@@ -71,7 +71,7 @@ public class SocketEvents {
 
         if (resourceManager.getmSocket() != null) {
             resourceManager.getmSocket().disconnect();
-            resourceManager.setMessageList(new ArrayList<>());
+            resourceManager.resetMessageList();
         }
         try {
             resourceManager.setmSocket(IO.socket(new URI(url), options));
@@ -200,6 +200,7 @@ public class SocketEvents {
                     jsonMessage.getString(JsonFields.CONTENT)
             );
             addMessageToChatAndToList(message);
+            connectedPanel.scrollChatToBottom();
         } catch (JSONException e) {
             logger.warning("Connected panel message/to_client json - " + e.getMessage());
         }

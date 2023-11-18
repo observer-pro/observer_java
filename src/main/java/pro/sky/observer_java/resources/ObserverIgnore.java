@@ -3,7 +3,6 @@ package pro.sky.observer_java.resources;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -279,7 +278,6 @@ public class ObserverIgnore {
             }
         }
 
-        String string = Paths.get(file.getPath()).toString();
         return false;
     }
 

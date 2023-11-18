@@ -38,18 +38,15 @@ public class BubbleNotifications {
     public void error(Project openProject){
         balloonNotificationError.notify(openProject);
     }
-
     public void connected(Project openProject) {
         balloonNotificationConnected.notify(openProject);
     }
     public void disconnected(Project openProject) {
         balloonNotificationDisconnected.notify(openProject);
     }
-
     public void wrongName(Project openProject) {
         balloonNotificationWrongName.notify(openProject);
     }
-
     public void wrongRoom(Project openProject) {
         balloonNotificationWrongRoom.notify(openProject);
     }

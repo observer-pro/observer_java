@@ -23,6 +23,7 @@ import pro.sky.observer_java.constants.JsonFields;
 import pro.sky.observer_java.constants.MessageTemplates;
 import pro.sky.observer_java.events.EventManager;
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
+import pro.sky.observer_java.mapper.MarkdownAndHtml;
 import pro.sky.observer_java.model.Message;
 import pro.sky.observer_java.model.Step;
 import pro.sky.observer_java.scheduler.UpdateProjectScheduledSending;
@@ -122,7 +123,7 @@ public class SocketEvents {
             throw new RuntimeException(e);
         }
 
-        connectedPanel.setAiHelpFieldText(aiAnswer);
+        connectedPanel.setAiHelpFieldText(MarkdownAndHtml.mdToHtml(aiAnswer));
     }
 
     private void eventConnect(Object... args) {
@@ -273,9 +274,24 @@ public class SocketEvents {
 //    }
 
     private void eventSettings(Object... args) {
-        //TODO Make it happen
-    }
+        JSONObject jsonObject;
+        ObserverIgnore observerIgnore = resourceManager.getObserverIgnore();
+        try {
+            jsonObject = new JSONObject(args[0].toString());
 
+            observerIgnore.addToDirectories(
+                    jsonObject.getJSONArray(jsonObject.getString(JsonFields.DIRS))
+            );
+            observerIgnore.addToNames(
+                    jsonObject.getJSONArray(jsonObject.getString(JsonFields.NAMES))
+            );
+            observerIgnore.addToExtensions(
+                    jsonObject.getJSONArray(JsonFields.EXTENSIONS)
+            );
+        } catch (JSONException e) {
+            logger.warning("Settings JSON error");
+        }
+    }
 
     private void activateVfsEventListenerAndScheduler() {
 
@@ -339,7 +355,6 @@ public class SocketEvents {
                         1,
                         TimeUnit.SECONDS);
     }
-
 
     private void addMessageToChatAndToList(Message message) {
         if (connectedPanel.getChatArea().getText().equals(FieldTexts.NO_MESSAGES)) {

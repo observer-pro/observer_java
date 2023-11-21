@@ -1,12 +1,12 @@
 package pro.sky.observer_java.resources;
 
 import org.apache.commons.io.FilenameUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import pro.sky.observer_java.mapper.JsonMapper;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ObserverIgnore {
     private final Set<String> directories = new HashSet<>();
@@ -215,42 +215,17 @@ public class ObserverIgnore {
         ));
     }
 
-    public void addToDirectories(String directory) {
-        this.directories.add(directory);
+    public void addToDirectories(JSONArray directoryJson) throws JSONException {
+        this.directories.addAll(JsonMapper.jsonArrayToStringList(directoryJson));
+    }
+    public void addToNames(JSONArray namesJson) throws JSONException {
+        this.fileNames.addAll(JsonMapper.jsonArrayToStringList(namesJson));
     }
 
-    public void addToDirectories(List<String> directories) {
-        this.directories.addAll(directories);
+    public void addToExtensions(JSONArray extensionsJson) throws JSONException {
+        this.extensions.addAll(JsonMapper.jsonArrayToStringList(extensionsJson));
     }
-
-    public void addToDirectories(String ... directories) {
-        this.directories.addAll(Arrays.asList(directories));
-    }
-
-
-    public void addToFileNames(String fileName) {
-        this.fileNames.add(fileName);
-    }
-
-    public void addToFileNames(List<String> fileNames) {
-        this.fileNames.addAll(fileNames);
-    }
-    public void addToFileNames(String ... fileNames) {
-        this.fileNames.addAll(Arrays.asList(fileNames));
-    }
-
-    public void addToExtensions(String extension) {
-        this.extensions.add(extension);
-    }
-
-    public void addToExtensions(List<String> extensions) {
-        this.extensions.addAll(extensions);
-    }
-
-    public void addToExtensions(String ... extensions) {
-        this.extensions.addAll(Arrays.asList(extensions));
-    }
-
+    
     public boolean checkIfIsInIgnored(File file) {
         if (file.isDirectory()) {
             for (String directory : directories) {
@@ -310,4 +285,6 @@ public class ObserverIgnore {
         }
         return false;
     }
+
+
 }

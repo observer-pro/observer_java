@@ -2,7 +2,7 @@ package pro.sky.observer_java.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import pro.sky.observer_java.constants.StringFormats;
-import pro.sky.observer_java.constants.StudentSignal;
+import pro.sky.observer_java.constants.StepStatus;
 
 public class Step {
     private String name;
@@ -11,10 +11,10 @@ public class Step {
     private String type;
 
     @JsonIgnore
-    private StudentSignal status;
+    private StepStatus status;
 
     public Step() {
-        this.status = StudentSignal.NONE;
+        this.status = StepStatus.NONE;
     }
 
     public String getName() {
@@ -54,11 +54,11 @@ public class Step {
         return String.format(StringFormats.TASK_FORMAT, this.name);
     }
 
-    public StudentSignal getStatus() {
+    public StepStatus getStatus() {
         return status;
     }
 
-    public void setStatus(StudentSignal status) {
+    public void setStatus(StepStatus status) {
         this.status = status;
     }
 }

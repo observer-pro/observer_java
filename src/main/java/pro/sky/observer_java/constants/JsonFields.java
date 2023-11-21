@@ -9,4 +9,9 @@ public final class JsonFields {
     public final static String PARSE_LANGUAGE = "language";
     public final static String FILES = "files";
     public static final String CODE = "code";
+
+    public static final String DIRS = "dirs";
+    public static final String NAMES = "names";
+    public static final String EXTENSIONS = "extensions";
+
 }

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class ProjectFileMapper {
-    private static final long MAX_FILE_SIZE_TO_TRANSFER = 20000;
+    private final long MAX_FILE_SIZE_TO_TRANSFER = 20000;
 
     private final Logger logger = Logger.getLogger(ProjectFileMapper.class.getName());
     ResourceManager resourceManager;

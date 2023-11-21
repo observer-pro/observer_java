@@ -30,7 +30,6 @@ public class SkyPanelToolWindowFactory implements ToolWindowFactory, DumbAware {
         toolWindow.getContentManager().addContent(content);
     }
 
-
     public class SkyPanelToolWindowContent {
         private final JPanel contentPanel = new JPanel();
 

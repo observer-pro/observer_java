@@ -1,6 +1,5 @@
 package pro.sky.observer_java;
 
-import com.github.rjeschke.txtmark.Processor;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import org.json.JSONException;
@@ -8,6 +7,7 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import pro.sky.observer_java.constants.*;
 import pro.sky.observer_java.mapper.JsonMapper;
+import pro.sky.observer_java.mapper.MarkdownAndHtml;
 import pro.sky.observer_java.model.Message;
 import pro.sky.observer_java.model.Step;
 import pro.sky.observer_java.resources.EditorEvents;
@@ -74,14 +74,14 @@ public class ConnectedPanel {
                 Step currentSelectedStep = resourceManager.getStepsMap()
                         .get(Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString());
 
-                if (currentSelectedStep.getStatus() == StudentSignal.HELP) {
+                if (currentSelectedStep.getStatus() == StepStatus.HELP) {
                     setAllButtonVisualsToNone();
-                    setStepStatusAndSend(currentSelectedStep, StudentSignal.NONE);
+                    setStepStatusAndSend(currentSelectedStep, StepStatus.NONE);
                     return;
                 }
 
                 setAllButtonVisualsToHelp();
-                setStepStatusAndSend(currentSelectedStep, StudentSignal.HELP);
+                setStepStatusAndSend(currentSelectedStep, StepStatus.HELP);
             }
         });
         doneButton.addActionListener(new ActionListener() {
@@ -89,15 +89,15 @@ public class ConnectedPanel {
             public void actionPerformed(ActionEvent e) {
                 Step currentSelectedStep = resourceManager.getStepsMap()
                         .get(Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString());
-                if (currentSelectedStep.getStatus() == StudentSignal.DONE) {
+                if (currentSelectedStep.getStatus() == StepStatus.DONE) {
                     setAllButtonVisualsToNone();
-                    setStepStatusAndSend(currentSelectedStep, StudentSignal.NONE);
+                    setStepStatusAndSend(currentSelectedStep, StepStatus.NONE);
                     return;
                 }
 
                 setAllButtonVisualsToDone();
 
-                setStepStatusAndSend(currentSelectedStep, StudentSignal.DONE);
+                setStepStatusAndSend(currentSelectedStep, StepStatus.DONE);
             }
         });
         comboBoxTasks.addItemListener(new ItemListener() {
@@ -111,16 +111,10 @@ public class ConnectedPanel {
                     if (steps.containsKey(selectedStep)) {
                         Step currentSelectedStep = steps.get(selectedStep);
                         taskText = currentSelectedStep.getContent();
-                        switch (currentSelectedStep.getStatus()){
-                            case DONE:
-                                setAllButtonVisualsToDone();
-                                break;
-                            case HELP:
-                                setAllButtonVisualsToHelp();
-                                break;
-                            case NONE:
-                            default:
-                                setAllButtonVisualsToNone();
+                        switch (currentSelectedStep.getStatus()) {
+                            case DONE -> setAllButtonVisualsToDone();
+                            case HELP -> setAllButtonVisualsToHelp();
+                            default -> setAllButtonVisualsToNone();
                         }
                     }
                     taskCodeField.setText(taskText);
@@ -151,8 +145,8 @@ public class ConnectedPanel {
         });
     }
 
-    private void setStepStatusAndSend(Step step, StudentSignal signal) {
-        step.setStatus(signal);
+    private void setStepStatusAndSend(Step step, StepStatus status) {
+        step.setStatus(status);
         sendStatuses();
     }
 
@@ -172,9 +166,9 @@ public class ConnectedPanel {
     }
 
     private void sendStatuses() {
-        JsonMapper jsonMapper = new JsonMapper();
+
         resourceManager.getmSocket()
-                .emit(CustomSocketEvents.STEPS_STATUS, jsonMapper.stepStatusToJson(resourceManager.getStepsMap()));
+                .emit(CustomSocketEvents.STEPS_STATUS, JsonMapper.stepStatusToJson(resourceManager.getStepsMap()));
     }
 
     private void sendMessage() {
@@ -225,30 +219,21 @@ public class ConnectedPanel {
 
     }
 
-    public void setExerciseText(String taskCode, String parseLanguage) {
-        switch (parseLanguage) {
-            case ParseTags.MD: {
-                this.setMdTask(taskCode);
-                break;
-            }
-            case ParseTags.HTML: {
-                this.setHtmlTask(taskCode);
-            }
-        }
-    }
+//    public void setExerciseText(String taskCode, String parseLanguage) {
+//        switch (parseLanguage) {
+//            case ParseTags.MD: {
+//                this.setMdTask(taskCode);
+//                break;
+//            }
+//            case ParseTags.HTML: {
+//                this.setHtmlTask(taskCode);
+//            }
+//        }
+//    }
 
     public void scrollChatToBottom(){
         JScrollBar vertical  = this.chatScroll.getVerticalScrollBar();
         vertical.setValue(vertical.getMaximum());
-    }
-
-    private void setHtmlTask(String html) {
-        taskCodeField.setText(html);
-    }
-
-    private void setMdTask(String md) {
-        String html = Processor.process(md);
-        taskCodeField.setText(html.replace("`", ""));
     }
 
     public void appendChat(String string) {
@@ -269,6 +254,9 @@ public class ConnectedPanel {
         comboBoxTasks.removeAllItems();
         for (Step step : steps) {
             String stepString = step.toFormattedString();
+            if(step.getLanguage().equals(ParseTags.MD)){
+                step.setContent(MarkdownAndHtml.mdToHtml(step.getContent()));
+            }
             comboBoxTasks.addItem(stepString);
         }
     }

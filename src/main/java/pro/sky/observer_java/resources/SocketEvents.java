@@ -11,7 +11,7 @@ import com.intellij.openapi.vfs.newvfs.events.*;
 import com.intellij.util.messages.MessageBusConnection;
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -108,8 +108,13 @@ public class SocketEvents {
                 .on(CustomSocketEvents.SHARING_START, this::codeSharingAndEventCatcher)
                 .on(CustomSocketEvents.STEPS_ALL, this::stepsEvent)
                 .on(CustomSocketEvents.SOLUTION_AI, this::solutionAiEvent)
+                .on(CustomSocketEvents.PING, this::pingEvent)
                 //.on(CustomSocketEvents.EXERCISE, this::exerciseEvent)
                 .on(CustomSocketEvents.SETTINGS, this::eventSettings);
+    }
+
+    private void pingEvent(Object... objects) {
+        resourceManager.getmSocket().emit(CustomSocketEvents.PING, new JSONObject());
     }
 
     private void solutionAiEvent(Object... args) {

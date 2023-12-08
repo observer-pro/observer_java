@@ -16,6 +16,7 @@ public final class CustomSocketEvents {
     public final static String STEPS_STATUS = "steps/status";
     public final static String SETTINGS = "settings";
     public final static String SOLUTION_AI = "solution/ai";
+    public final static String PING = "ping";
 
 
 }

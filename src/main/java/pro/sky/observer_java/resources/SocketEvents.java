@@ -17,10 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import pro.sky.observer_java.ConnectedPanel;
 import pro.sky.observer_java.InactivePanel;
-import pro.sky.observer_java.constants.CustomSocketEvents;
-import pro.sky.observer_java.constants.FieldTexts;
-import pro.sky.observer_java.constants.JsonFields;
-import pro.sky.observer_java.constants.MessageTemplates;
+import pro.sky.observer_java.constants.*;
 import pro.sky.observer_java.events.EventManager;
 import pro.sky.observer_java.fileProcessor.FileStructureStringer;
 import pro.sky.observer_java.mapper.MarkdownAndHtml;
@@ -110,7 +107,23 @@ public class SocketEvents {
                 .on(CustomSocketEvents.SOLUTION_AI, this::solutionAiEvent)
                 .on(CustomSocketEvents.PING, this::pingEvent)
                 //.on(CustomSocketEvents.EXERCISE, this::exerciseEvent)
-                .on(CustomSocketEvents.SETTINGS, this::eventSettings);
+                .on(CustomSocketEvents.SETTINGS, this::eventSettings)
+                .on(CustomSocketEvents.ALERT, this::alertEvent);
+    }
+
+    private void alertEvent(Object... args) {
+        JSONObject jsonObject;
+        String message;
+        Alert alert;
+        try {
+            jsonObject = new JSONObject(args[0].toString());
+            message = jsonObject.getString(JsonFields.MESSAGE);
+            alert = Alert.valueOf(jsonObject.getString(JsonFields.TYPE));
+        } catch (JSONException e) {
+            logger.warning("Alert WARNING");
+            throw new RuntimeException(e);
+        }
+        bubbleNotifications.createNotificationAndEmmit(alert,message, openProject);
     }
 
     private void pingEvent(Object... objects) {
@@ -141,6 +154,7 @@ public class SocketEvents {
         try {
             data.put(JsonFields.ROOM_ID, resourceManager.getRoomId());
             data.put(JsonFields.NAME, resourceManager.getUserName());
+            data.put(JsonFields.VERSION, Properties.VERSION);
 
         } catch (JSONException e) {
             logger.warning("Connected panel connect json - " + e.getMessage());
@@ -160,6 +174,7 @@ public class SocketEvents {
         resourceManager.getSes().shutdownNow();
 
         resourceManager.refreshObserverIgnore();
+        resourceManager.clearSteps();
 
         if (connection != null) {
             connection.disconnect();
@@ -220,6 +235,7 @@ public class SocketEvents {
                     LocalDateTime.now(),
                     jsonMessage.getString(JsonFields.CONTENT)
             );
+            resourceManager.getConnectedPanel().addCounterNonActive();
             addMessageToChatAndToList(message);
             connectedPanel.scrollChatToBottom();
         } catch (JSONException e) {

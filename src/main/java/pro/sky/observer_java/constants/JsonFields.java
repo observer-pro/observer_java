@@ -13,5 +13,10 @@ public final class JsonFields {
     public static final String DIRS = "dirs";
     public static final String NAMES = "names";
     public static final String EXTENSIONS = "extensions";
+    public static final String VERSION = "version";
+
+    public static final String MESSAGE = "message";
+
+    public static final String TYPE = "type";
 
 }

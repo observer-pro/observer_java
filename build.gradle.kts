@@ -9,10 +9,25 @@ plugins {
 group = properties("pluginGroup").get()
 version = properties("pluginVersion").get()
 
+tasks.register("createJavaClass", JavaCompile::class) {
+
+    val file = File("src/main/java/pro/sky/observer_java/constants/Properties.java")
+    file.writeText(String.format("""
+        package pro.sky.observer_java.constants;
+
+        public class Properties {
+          public static String VERSION = "%s";
+        }
+    """.trimIndent(),properties("pluginVersion").get()))
+}
+
+
 // Configure project's dependencies
 repositories {
     mavenCentral()
 }
+
+
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
@@ -42,9 +57,10 @@ tasks {
         targetCompatibility = "17"
     }
 
-
     patchPluginXml {
         sinceBuild.set("222")
         untilBuild.set("233.*")
     }
+
+
 }

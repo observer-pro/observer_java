@@ -23,12 +23,8 @@ public class ResourceManager {
 
     private volatile ToolWindow toolWindow;
 
-//    private volatile SkyPanelToolWindowFactory skyPanelToolWindowFactory;
-//
-//    private volatile SkyPanelToolWindowFactory.SkyPanelToolWindowContent skyPanelToolWindowContent;
-//
-//    private volatile JPanel contentPanel;
-//
+    private int chatCounter = 0;
+
     private Socket mSocket;
 
     private volatile Integer userId;
@@ -150,5 +146,17 @@ public class ResourceManager {
 
     public Map<String, Step> getStepsMap() {
         return stepMap;
+    }
+
+    public int getChatCounter() {
+        return chatCounter;
+    }
+
+    public void setChatCounter(int chatCounter) {
+        this.chatCounter = chatCounter;
+    }
+
+    public void clearSteps() {
+        this.stepMap.clear();
     }
 }

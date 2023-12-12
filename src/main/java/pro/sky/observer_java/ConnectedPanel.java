@@ -14,10 +14,9 @@ import pro.sky.observer_java.resources.EditorEvents;
 import pro.sky.observer_java.resources.ResourceManager;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.event.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -143,6 +142,15 @@ public class ConnectedPanel {
                 resourceManager.getmSocket().emit(CustomSocketEvents.SOLUTION_AI, sendJson);
             }
         });
+        tabPanel.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if(tabPanel.getSelectedIndex() == 1){
+                    tabPanel.setTitleAt(1, StringFormats.CHAT_TAB_READ);
+                    resourceManager.setChatCounter(0);
+                }
+            }
+        });
     }
 
     private void setStepStatusAndSend(Step step, StepStatus status) {
@@ -263,5 +271,13 @@ public class ConnectedPanel {
 
     public void setAiHelpFieldText(String text){
         this.aiHelpField.setText(text);
+    }
+
+    public void addCounterNonActive() {
+        if(tabPanel.getSelectedIndex() == 1){
+            return;
+        }
+        resourceManager.setChatCounter(resourceManager.getChatCounter()+1);
+        tabPanel.setTitleAt(1, String.format(StringFormats.CHAT_TAB_UNREAD, resourceManager.getChatCounter()));
     }
 }

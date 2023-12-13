@@ -44,6 +44,7 @@ public class ConnectedPanel {
     private JScrollPane chatScroll;
     private JButton AIHELPButton;
     private JTextPane aiHelpField;
+    private JPanel aiHelpTab;
     private final ResourceManager resourceManager;
 
     private final Logger logger = Logger.getLogger(ConnectedPanel.class.getName());
@@ -145,9 +146,16 @@ public class ConnectedPanel {
         tabPanel.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if(tabPanel.getSelectedIndex() == 1){
-                    tabPanel.setTitleAt(1, StringFormats.CHAT_TAB_READ);
-                    resourceManager.setChatCounter(0);
+                switch (tabPanel.getSelectedIndex()){
+                    case 1:{
+                        tabPanel.setTitleAt(1, StringFormats.CHAT_TAB_READ);
+                        resourceManager.setChatCounter(0);
+                        break;
+                    }
+                    case 2:{
+                        tabPanel.setTitleAt(2, StringFormats.AI_HELP_READ);
+                        break;
+                    }
                 }
             }
         });
@@ -176,7 +184,7 @@ public class ConnectedPanel {
     private void sendStatuses() {
 
         resourceManager.getmSocket()
-                .emit(CustomSocketEvents.STEPS_STATUS, JsonMapper.stepStatusToJson(resourceManager.getStepsMap()));
+                .emit(CustomSocketEvents.STEPS_STATUS_TO_MENTOR, JsonMapper.stepStatusToJson(resourceManager.getStepsMap()));
     }
 
     private void sendMessage() {
@@ -279,5 +287,12 @@ public class ConnectedPanel {
         }
         resourceManager.setChatCounter(resourceManager.getChatCounter()+1);
         tabPanel.setTitleAt(1, String.format(StringFormats.CHAT_TAB_UNREAD, resourceManager.getChatCounter()));
+    }
+
+    public void changeAiHelpTabName(){
+        if(tabPanel.getSelectedIndex() == 2){
+            return;
+        }
+        tabPanel.setTitleAt(2, StringFormats.AI_HELP_UNREAD);
     }
 }

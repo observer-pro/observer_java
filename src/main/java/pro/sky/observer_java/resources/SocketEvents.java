@@ -141,6 +141,7 @@ public class SocketEvents {
             throw new RuntimeException(e);
         }
 
+        connectedPanel.changeAiHelpTabName();
         connectedPanel.setAiHelpFieldText(MarkdownAndHtml.mdToHtml(aiAnswer));
     }
 

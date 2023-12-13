@@ -9,4 +9,6 @@ public class StringFormats {
 
     public static final String CHAT_TAB_UNREAD = "Chat (+%d)";
 
+    public static final String AI_HELP_UNREAD = "AI Help (DONE)";
+    public static final String AI_HELP_READ = "AI Help";
 }

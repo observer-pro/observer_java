@@ -21,6 +21,21 @@ tasks.register("createJavaClass", JavaCompile::class) {
     """.trimIndent(),properties("pluginVersion").get()))
 }
 
+tasks.register("createReadMe", JavaCompile::class) {
+
+    val file = File("README.md")
+    file.writeText(String.format("""
+# IDEA IDE Plugin. 
+
+To install the plugin: 
+1. Download observer_java-%s.zip from build\distributions folder.
+2. Press Ctrl+Alt+S to open the IDE settings and select Plugins.
+3. On the Plugins page, click The Settings button (looks like a gear) and then click Install Plugin from Disk….
+4. Select the plugin archive file and click OK.
+5. Click OK to apply the changes and restart the IDE if prompted.
+    """.trimIndent(),properties("pluginVersion").get()))
+}
+
 
 // Configure project's dependencies
 repositories {

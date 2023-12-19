@@ -45,6 +45,7 @@ public class ConnectedPanel {
     private JButton AIHELPButton;
     private JTextPane aiHelpField;
     private JPanel aiHelpTab;
+    private JTextPane textPane1;
     private final ResourceManager resourceManager;
 
     private final Logger logger = Logger.getLogger(ConnectedPanel.class.getName());
@@ -210,7 +211,7 @@ public class ConnectedPanel {
         resourceManager.getmSocket().emit(CustomSocketEvents.MESSAGE_TO_MENTOR, sendMessage);
 
         Message message = new Message(senderName, LocalDateTime.now(), messageText);
-        resourceManager.getMessageList().add(message);
+        resourceManager.getAllMessageList().add(message);
         messageField.setText("");
         scrollChatToBottom();
     }

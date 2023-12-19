@@ -30,6 +30,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -108,7 +109,28 @@ public class SocketEvents {
                 .on(CustomSocketEvents.PING, this::pingEvent)
                 //.on(CustomSocketEvents.EXERCISE, this::exerciseEvent)
                 .on(CustomSocketEvents.SETTINGS, this::eventSettings)
-                .on(CustomSocketEvents.ALERT, this::alertEvent);
+                .on(CustomSocketEvents.ALERT, this::alertEvent)
+                .on(CustomSocketEvents.STEPS_STATUS_TO_CLIENT, this::stepStatusToClient);
+    }
+
+    private void stepStatusToClient(Object... args) {
+        String jsonObjectString;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String,Step> steps;
+        try {
+            jsonObjectString = args[0].toString();
+            steps = objectMapper
+                    .readValue(jsonObjectString,
+                            new TypeReference<>() {
+                            });
+        } catch (JsonProcessingException e) {
+            System.out.println("STEP STATUS ERROR");
+            logger.warning("STEP STATUS ERROR");
+            throw new RuntimeException(e);
+        }
+
+        resourceManager.updateStepStatus(steps);
     }
 
     private void alertEvent(Object... args) {
@@ -385,6 +407,6 @@ public class SocketEvents {
         connectedPanel.appendChat(
                 String.format(MessageTemplates.MESSAGE_STRING_FORMAT, "HOST", message.getMessageText())
         );
-        resourceManager.getMessageList().add(message);
+        resourceManager.getAllMessageList().add(message);
     }
 }

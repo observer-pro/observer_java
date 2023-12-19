@@ -63,7 +63,7 @@ public class ResourceManager {
         this.userId = userId;
     }
 
-    private List<Message> messageList = new ArrayList<>();
+    private List<Message> allMessageList = new ArrayList<>();
 
     private volatile boolean watching = false;
 
@@ -116,12 +116,12 @@ public class ResourceManager {
         this.mSocket = mSocket;
     }
 
-    public List<Message> getMessageList() {
-        return messageList;
+    public List<Message> getAllMessageList() {
+        return allMessageList;
     }
 
     public void resetMessageList() {
-        this.messageList.clear();
+        this.allMessageList.clear();
     }
 
     public boolean isWatching() {
@@ -158,5 +158,10 @@ public class ResourceManager {
 
     public void clearSteps() {
         this.stepMap.clear();
+    }
+
+    public void updateStepStatus(Map<String, Step> steps) {
+        stepMap.putAll(steps);
+        // TODO UPDATE STEP STATUS VISUALS
     }
 }

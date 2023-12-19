@@ -107,7 +107,6 @@ public class SocketEvents {
                 .on(CustomSocketEvents.STEPS_ALL, this::stepsEvent)
                 .on(CustomSocketEvents.SOLUTION_AI, this::solutionAiEvent)
                 .on(CustomSocketEvents.PING, this::pingEvent)
-                //.on(CustomSocketEvents.EXERCISE, this::exerciseEvent)
                 .on(CustomSocketEvents.SETTINGS, this::eventSettings)
                 .on(CustomSocketEvents.ALERT, this::alertEvent)
                 .on(CustomSocketEvents.STEPS_STATUS_TO_CLIENT, this::stepStatusToClient);
@@ -148,7 +147,7 @@ public class SocketEvents {
         bubbleNotifications.createNotificationAndEmmit(alert,message, openProject);
     }
 
-    private void pingEvent(Object... objects) {
+    private void pingEvent(Object... args) {
         resourceManager.getmSocket().emit(CustomSocketEvents.PING, new JSONObject());
     }
 
@@ -238,11 +237,11 @@ public class SocketEvents {
             connection.disconnect();
         }
         Message message = new Message(
-                "HOST",
+                SenderNames.WATCH_STATUS,
                 LocalDateTime.now(),
                 MessageTemplates.SHARING_END
         );
-        addMessageToChatAndToList(message);
+        resourceManager.addMessageToChatAndToList(message);
     }
 
     private void socketMessageEvents(Object... args) {
@@ -254,12 +253,12 @@ public class SocketEvents {
             jsonMessage = new JSONObject(args[0].toString());
 
             message = new Message(
-                    "HOST",
+                    SenderNames.HOST,
                     LocalDateTime.now(),
                     jsonMessage.getString(JsonFields.CONTENT)
             );
             resourceManager.getConnectedPanel().addCounterNonActive();
-            addMessageToChatAndToList(message);
+            resourceManager.addMessageToChatAndToList(message);
             connectedPanel.scrollChatToBottom();
         } catch (JSONException e) {
             logger.warning("Connected panel message/to_client json - " + e.getMessage());
@@ -279,11 +278,11 @@ public class SocketEvents {
 
         activateVfsEventListenerAndScheduler();
         Message message = new Message(
-                "HOST",
+                SenderNames.WATCH_STATUS,
                 LocalDateTime.now(),
                 MessageTemplates.SHARING_START
         );
-        addMessageToChatAndToList(message);
+        resourceManager.addMessageToChatAndToList(message);
     }
 
     private void stepsEvent(Object... args) {
@@ -302,20 +301,6 @@ public class SocketEvents {
 
         connectedPanel.setAllSteps(steps);
     }
-
-//    private void exerciseEvent(Object... args) {
-//        JSONObject jsonObject;
-//        String taskCode;
-//        String parseLanguage;
-//        try {
-//            jsonObject = new JSONObject(args[0].toString());
-//            taskCode = jsonObject.getString(JsonFields.CONTENT);
-//            parseLanguage = jsonObject.getString(JsonFields.PARSE_LANGUAGE);
-//        } catch (JSONException e) {
-//            throw new RuntimeException(e);
-//        }
-//        connectedPanel.setExerciseText(taskCode, parseLanguage);
-//    }
 
     private void eventSettings(Object... args) {
         JSONObject jsonObject;
@@ -398,15 +383,5 @@ public class SocketEvents {
                         5,
                         1,
                         TimeUnit.SECONDS);
-    }
-
-    private void addMessageToChatAndToList(Message message) {
-        if (connectedPanel.getChatArea().getText().equals(FieldTexts.NO_MESSAGES)) {
-            connectedPanel.getChatArea().setText("");
-        }
-        connectedPanel.appendChat(
-                String.format(MessageTemplates.MESSAGE_STRING_FORMAT, "HOST", message.getMessageText())
-        );
-        resourceManager.getAllMessageList().add(message);
     }
 }

@@ -16,7 +16,10 @@ import pro.sky.observer_java.resources.ResourceManager;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -46,6 +49,7 @@ public class ConnectedPanel {
     private JTextPane aiHelpField;
     private JPanel aiHelpTab;
     private JTextPane textPane1;
+    private JComboBox chatTypeComboBox;
     private final ResourceManager resourceManager;
 
     private final Logger logger = Logger.getLogger(ConnectedPanel.class.getName());
@@ -54,6 +58,11 @@ public class ConnectedPanel {
 
         this.resourceManager = resourceManager;
         sendButton.addActionListener(e -> sendMessage());
+
+        chatTypeComboBox.addItem(ChatTypes.SHOW_ALL);
+        chatTypeComboBox.addItem(ChatTypes.MESSAGES);
+        chatTypeComboBox.addItem(ChatTypes.STATUSES);
+        chatTypeComboBox.addItem(ChatTypes.MENTOR_STATUS);
 
         disconnectButton.addActionListener(e -> {
             resourceManager.getmSocket().disconnect();
@@ -80,14 +89,19 @@ public class ConnectedPanel {
                     setStepStatusAndSend(currentSelectedStep, StepStatus.NONE);
                     return;
                 }
+                buttonPressChatMessage(StringFormats.HELP_MESSAGE_FORMAT);
 
                 setAllButtonVisualsToHelp();
                 setStepStatusAndSend(currentSelectedStep, StepStatus.HELP);
             }
         });
+
         doneButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if(comboBoxTasks.getSelectedItem() == null){
+                    return;
+                }
                 Step currentSelectedStep = resourceManager.getStepsMap()
                         .get(Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString());
                 if (currentSelectedStep.getStatus() == StepStatus.DONE) {
@@ -95,6 +109,8 @@ public class ConnectedPanel {
                     setStepStatusAndSend(currentSelectedStep, StepStatus.NONE);
                     return;
                 }
+
+                buttonPressChatMessage(StringFormats.DONE_MESSAGE_FORMAT);
 
                 setAllButtonVisualsToDone();
 
@@ -133,10 +149,10 @@ public class ConnectedPanel {
                     aiRequestContent = Jsoup.parse(taskCodeField.getText()).text();
                     aiRequestCode = editorEvents.getOpenEditorText();
 
-                    sendJson.put(JsonFields.CONTENT,aiRequestContent);
+                    sendJson.put(JsonFields.CONTENT, aiRequestContent);
                     sendJson.put(JsonFields.CODE, aiRequestCode);
 
-                } catch (IOException|JSONException ex) {
+                } catch (IOException | JSONException ex) {
                     logger.warning("AI HELP PROJECT WARNING");
                     throw new RuntimeException(ex);
                 }
@@ -147,19 +163,80 @@ public class ConnectedPanel {
         tabPanel.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                switch (tabPanel.getSelectedIndex()){
-                    case 1:{
+                switch (tabPanel.getSelectedIndex()) {
+                    case 1: {
                         tabPanel.setTitleAt(1, StringFormats.CHAT_TAB_READ);
                         resourceManager.setChatCounter(0);
                         break;
                     }
-                    case 2:{
+                    case 2: {
                         tabPanel.setTitleAt(2, StringFormats.AI_HELP_READ);
                         break;
                     }
                 }
             }
         });
+        chatTypeComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    updateChatField(e.getItem().toString());
+                }
+            }
+        });
+    }
+
+    private void buttonPressChatMessage(String format) {
+        resourceManager.addMessageToChatAndToList(
+                new Message(
+                        SenderNames.TASK_STATUS_CHANGES,
+                        LocalDateTime.now(),
+                        String.format(format, comboBoxTasks.getSelectedItem().toString())
+                )
+        );
+    }
+
+    private void updateChatField(String chatFilter) {
+        switch (chatFilter) {
+            case ChatTypes.SHOW_ALL -> chatArea.setText(createChatUpdateString(resourceManager.getAllMessageList()));
+            case ChatTypes.MENTOR_STATUS ->
+                chatArea.setText(
+                        createChatUpdateString(
+                                resourceManager
+                                        .getAllMessageList()
+                                        .stream()
+                                        .filter(m -> m.getSender().equals(SenderNames.WATCH_STATUS))
+                                        .toList()
+                        )
+                );
+            case ChatTypes.STATUSES -> chatArea.setText(
+                    createChatUpdateString(
+                            resourceManager
+                                    .getAllMessageList()
+                                    .stream()
+                                    .filter(m -> m.getSender().equals(SenderNames.TASK_STATUS_CHANGES))
+                                    .toList()
+                    )
+            );
+            default -> chatArea.setText(
+                    createChatUpdateString(
+                            resourceManager
+                                    .getAllMessageList()
+                                    .stream()
+                                    .filter(m -> !(m.getSender().equals(SenderNames.TASK_STATUS_CHANGES)||
+                                            m.getSender().equals(SenderNames.WATCH_STATUS)))
+                                    .toList()
+                    )
+            );
+        }
+    }
+
+    private String createChatUpdateString(List<Message> messageList) {
+        StringBuilder sb = new StringBuilder();
+        for (Message message : messageList) {
+            sb.append(String.format(StringFormats.CHAT_FORMAT, message.getSender(), message.getMessageText()));
+        }
+        return sb.toString();
     }
 
     private void setStepStatusAndSend(Step step, StepStatus status) {
@@ -236,25 +313,48 @@ public class ConnectedPanel {
 
     }
 
-//    public void setExerciseText(String taskCode, String parseLanguage) {
-//        switch (parseLanguage) {
-//            case ParseTags.MD: {
-//                this.setMdTask(taskCode);
-//                break;
-//            }
-//            case ParseTags.HTML: {
-//                this.setHtmlTask(taskCode);
-//            }
-//        }
-//    }
-
-    public void scrollChatToBottom(){
-        JScrollBar vertical  = this.chatScroll.getVerticalScrollBar();
+    public void scrollChatToBottom() {
+        JScrollBar vertical = this.chatScroll.getVerticalScrollBar();
         vertical.setValue(vertical.getMaximum());
     }
 
-    public void appendChat(String string) {
-        chatArea.append(string);
+    public void appendChat(Message message) {
+        String currentChatType = Objects.requireNonNull(chatTypeComboBox.getSelectedItem()).toString();
+        if (currentChatType.equals(ChatTypes.SHOW_ALL)) {
+            appendChatField(message);
+            return;
+        }
+
+        String messageType = getTypeOfMessage(message);
+
+        if (messageType.equals(currentChatType)) {
+            appendChatField(message);
+        }
+
+    }
+
+    private String getTypeOfMessage(Message message) {
+        switch (message.getSender()) {
+            case SenderNames.TASK_STATUS_CHANGES -> {
+                return ChatTypes.STATUSES;
+            }
+            case SenderNames.WATCH_STATUS -> {
+                return ChatTypes.MENTOR_STATUS;
+            }
+            default -> {
+                return ChatTypes.MESSAGES;
+            }
+        }
+    }
+
+    private void appendChatField(Message message) {
+        chatArea.append(
+                String.format(
+                        MessageTemplates.MESSAGE_STRING_FORMAT,
+                        message.getSender(),
+                        message.getMessageText()
+                )
+        );
     }
 
     public JTextArea getChatArea() {
@@ -271,27 +371,27 @@ public class ConnectedPanel {
         comboBoxTasks.removeAllItems();
         for (Step step : steps) {
             String stepString = step.toFormattedString();
-            if(step.getLanguage().equals(ParseTags.MD)){
+            if (step.getLanguage().equals(ParseTags.MD)) {
                 step.setContent(MarkdownAndHtml.mdToHtml(step.getContent()));
             }
             comboBoxTasks.addItem(stepString);
         }
     }
 
-    public void setAiHelpFieldText(String text){
+    public void setAiHelpFieldText(String text) {
         this.aiHelpField.setText(text);
     }
 
     public void addCounterNonActive() {
-        if(tabPanel.getSelectedIndex() == 1){
+        if (tabPanel.getSelectedIndex() == 1) {
             return;
         }
-        resourceManager.setChatCounter(resourceManager.getChatCounter()+1);
+        resourceManager.setChatCounter(resourceManager.getChatCounter() + 1);
         tabPanel.setTitleAt(1, String.format(StringFormats.CHAT_TAB_UNREAD, resourceManager.getChatCounter()));
     }
 
-    public void changeAiHelpTabName(){
-        if(tabPanel.getSelectedIndex() == 2){
+    public void changeAiHelpTabName() {
+        if (tabPanel.getSelectedIndex() == 2) {
             return;
         }
         tabPanel.setTitleAt(2, StringFormats.AI_HELP_UNREAD);

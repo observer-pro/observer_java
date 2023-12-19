@@ -4,10 +4,12 @@ import com.intellij.openapi.wm.ToolWindow;
 import io.socket.client.Socket;
 import pro.sky.observer_java.ConnectedPanel;
 import pro.sky.observer_java.InactivePanel;
+import pro.sky.observer_java.constants.*;
 import pro.sky.observer_java.model.Message;
 import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.model.Step;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -162,6 +164,25 @@ public class ResourceManager {
 
     public void updateStepStatus(Map<String, Step> steps) {
         stepMap.putAll(steps);
-        // TODO UPDATE STEP STATUS VISUALS
+        for (Map.Entry<String, Step> entry : steps.entrySet()) {
+            if(entry.getValue().getStatus().equals(StepStatus.ACCEPTED)){
+                // TODO UPDATE STEP STATUS VISUALS
+                connectedPanel.appendChat(
+                        new Message(
+                                SenderNames.TASK_STATUS_CHANGES,
+                                LocalDateTime.now(),
+                                String.format(StringFormats.TASK_ACCEPTED,entry.getKey())
+                        )
+                );
+            }
+        }
+    }
+
+    public void addMessageToChatAndToList(Message message) {
+        if (connectedPanel.getChatArea().getText().equals(FieldTexts.NO_MESSAGES)) {
+            connectedPanel.getChatArea().setText("");
+        }
+        connectedPanel.appendChat(message);
+        allMessageList.add(message);
     }
 }

@@ -43,7 +43,7 @@ public class ResourceManager {
         return observerIgnore;
     }
 
-    public void refreshObserverIgnore(){
+    public void refreshObserverIgnore() {
         this.observerIgnore = new ObserverIgnore();
     }
 
@@ -58,9 +58,11 @@ public class ResourceManager {
     public void setEditorUpdateEvents(List<ProjectFile> editorUpdateEvents) {
         this.editorUpdateEvents = editorUpdateEvents;
     }
-    public void clearEditorUpdateEvents(){
+
+    public void clearEditorUpdateEvents() {
         this.editorUpdateEvents.clear();
     }
+
     public void setUserId(Integer userId) {
         this.userId = userId;
     }
@@ -162,18 +164,32 @@ public class ResourceManager {
         this.stepMap.clear();
     }
 
-    public void updateStepStatus(Map<String, Step> steps) {
-        stepMap.putAll(steps);
-        for (Map.Entry<String, Step> entry : steps.entrySet()) {
-            if(entry.getValue().getStatus().equals(StepStatus.ACCEPTED)){
+    public void updateStepStatus(Map<String, StepStatus> steps) {
+        for (Map.Entry<String, StepStatus> entry : steps.entrySet()) {
+            stepMap.get(String.format(StringFormats.TASK_FORMAT, entry.getKey())).setStatus(entry.getValue());
+            switch (entry.getValue()) {
+                case ACCEPTED -> {
+                    connectedPanel.appendChat(
+                            new Message(
+                                    SenderNames.TASK_STATUS_CHANGES,
+                                    LocalDateTime.now(),
+                                    String.format(
+                                            StringFormats.TASK_ACCEPTED,
+                                            String.format(
+                                                    StringFormats.TASK_FORMAT,entry.getKey()
+                                            )
+                                    )
+                            )
+                    );
+                    connectedPanel.addCounterNonActive();
+                    connectedPanel.setVisualToNone(entry.getKey());
+                }
+                case NONE -> connectedPanel.setVisualToNone(entry.getKey());
+
+            }
+            if (entry.getValue().equals(StepStatus.ACCEPTED)) {
                 // TODO UPDATE STEP STATUS VISUALS
-                connectedPanel.appendChat(
-                        new Message(
-                                SenderNames.TASK_STATUS_CHANGES,
-                                LocalDateTime.now(),
-                                String.format(StringFormats.TASK_ACCEPTED,entry.getKey())
-                        )
-                );
+
             }
         }
     }

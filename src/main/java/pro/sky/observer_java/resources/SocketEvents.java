@@ -116,7 +116,7 @@ public class SocketEvents {
         String jsonObjectString;
 
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String,Step> steps;
+        Map<String,StepStatus> steps;
         try {
             jsonObjectString = args[0].toString();
             steps = objectMapper

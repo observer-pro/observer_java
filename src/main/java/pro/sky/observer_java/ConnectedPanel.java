@@ -186,6 +186,16 @@ public class ConnectedPanel {
         });
     }
 
+
+    public void setVisualToNone(String key) {
+        if(comboBoxTasks.getSelectedItem() == null){
+            return;
+        }
+        String selectedStep = Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString();
+        if(selectedStep.equals(String.format(StringFormats.TASK_FORMAT, key))){
+            setAllButtonVisualsToNone();
+        }
+    }
     private void buttonPressChatMessage(String format) {
         resourceManager.addMessageToChatAndToList(
                 new Message(
@@ -396,4 +406,6 @@ public class ConnectedPanel {
         }
         tabPanel.setTitleAt(2, StringFormats.AI_HELP_UNREAD);
     }
+
+
 }

@@ -76,6 +76,4 @@ tasks {
         sinceBuild.set("222")
         untilBuild.set("233.*")
     }
-
-
 }

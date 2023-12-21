@@ -27,6 +27,6 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Observer" anchor="right" secondary="true" factoryClass="pro.sky.observer_java.SkyPanelToolWindowFactory"/>
+        <toolWindow icon="/icons/myToolWindow.svg" id="Observer" anchor="right" secondary="true" factoryClass="pro.sky.observer_java.SkyPanelToolWindowFactory"/>
     </extensions>
 </idea-plugin>

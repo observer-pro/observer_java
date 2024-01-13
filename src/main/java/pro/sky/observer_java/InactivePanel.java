@@ -23,9 +23,9 @@ public class InactivePanel {
     private JTextPane instructionTextPane;
     private final SocketEvents socketEvents;
 
-    public InactivePanel(ResourceManager resourceManager) {
+    public InactivePanel() {
 
-        this.socketEvents = new SocketEvents(resourceManager, this, resourceManager.getConnectedPanel());
+        this.socketEvents = new SocketEvents( this, ResourceManager.getInstance().getConnectedPanel());
 
         connectButton.addActionListener(e ->
                 socketEvents.createSocketWithListenersAndConnect(urlField.getText())

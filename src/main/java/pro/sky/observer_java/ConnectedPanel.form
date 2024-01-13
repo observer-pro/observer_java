@@ -59,10 +59,12 @@
                     <properties>
                       <contentType value="text/html"/>
                       <editable value="false"/>
-                      <font name="Arial" style="0"/>
+                      <font name="Arial" size="12" style="0"/>
                       <text value="&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    Task Text&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;"/>
                     </properties>
                     <clientProperties>
+                      <JEditorPane.honorDisplayProperties class="java.lang.Boolean" value="true"/>
+                      <JEditorPane.w3cLengthUnits class="java.lang.Boolean" value="false"/>
                       <html.disable class="java.lang.Boolean" value="false"/>
                     </clientProperties>
                   </component>
@@ -104,7 +106,7 @@
                 </constraints>
                 <properties/>
               </component>
-              <component id="d8e0f" class="javax.swing.JTextPane" binding="textPane1" default-binding="true">
+              <component id="d8e0f" class="javax.swing.JTextPane" binding="SqaresTextPlane">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
                     <preferred-size width="10" height="25"/>
@@ -112,9 +114,14 @@
                   </grid>
                 </constraints>
                 <properties>
+                  <contentType value="text/html"/>
                   <editable value="false"/>
                   <focusable value="false"/>
+                  <text value="&lt;html&gt;&#10;  &lt;head&gt;&#10;&#10;  &lt;/head&gt;&#10;  &lt;body style=&quot;background-color: #333&quot;&gt;&#10;    &#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;"/>
                 </properties>
+                <clientProperties>
+                  <JEditorPane.honorDisplayProperties class="java.lang.Boolean" value="false"/>
+                </clientProperties>
               </component>
             </children>
           </grid>
@@ -209,8 +216,12 @@
                     <properties>
                       <contentType value="text/html"/>
                       <editable value="false"/>
+                      <font name="Arial"/>
                       <text value="&lt;html&gt;&#13;  &lt;head&gt;&#13;    &#13;  &lt;/head&gt;&#13;  &lt;body&gt;&#13;    &lt;p style=&quot;margin-top: 0&quot;&gt;&#13;      *&amp;#1042;&amp;#1099; &amp;#1084;&amp;#1086;&amp;#1078;&amp;#1077;&amp;#1090;&amp;#1077; &amp;#1087;&amp;#1086;&amp;#1083;&amp;#1091;&amp;#1095;&amp;#1080;&amp;#1090;&amp;#1100; &amp;#1087;&amp;#1086;&amp;#1076;&amp;#1089;&amp;#1082;&amp;#1072;&amp;#1079;&amp;#1082;&amp;#1091; &amp;#1086;&amp;#1090; GPT 4. &amp;#1055;&amp;#1077;&amp;#1088;&amp;#1077;&amp;#1076; &amp;#1090;&amp;#1077;&amp;#1084; &amp;#1082;&amp;#1072;&amp;#1082; &amp;#1085;&amp;#1072;&amp;#1078;&amp;#1072;&amp;#1090;&amp;#1100; &amp;#1085;&amp;#1072; &amp;#1082;&amp;#1085;&amp;#1086;&amp;#1087;&amp;#1082;&amp;#1091;, &#13;      &amp;#1091;&amp;#1073;&amp;#1077;&amp;#1076;&amp;#1080;&amp;#1090;&amp;#1077;&amp;#1089;&amp;#1100;, &amp;#1095;&amp;#1090;&amp;#1086; &amp;#1091; &amp;#1074;&amp;#1072;&amp;#1089; &amp;#1086;&amp;#1090;&amp;#1082;&amp;#1088;&amp;#1099;&amp;#1090; &amp;#1080;&amp;#1084;&amp;#1077;&amp;#1085;&amp;#1085;&amp;#1086; &amp;#1090;&amp;#1086;&amp;#1090; &amp;#1092;&amp;#1072;&amp;#1081;&amp;#1083;, &amp;#1074; &amp;#1082;&amp;#1086;&amp;#1090;&amp;#1086;&amp;#1088;&amp;#1086;&amp;#1084; &amp;#1088;&amp;#1077;&amp;#1096;&amp;#1077;&amp;#1085;&amp;#1086; &amp;#1079;&amp;#1072;&amp;#1076;&amp;#1072;&amp;#1085;&amp;#1080;&amp;#1077;, &#13;      &amp;#1057;&amp;#1077;&amp;#1081;&amp;#1095;&amp;#1072;&amp;#1089; &amp;#1087;&amp;#1086;&amp;#1084;&amp;#1086;&amp;#1097;&amp;#1100; &amp;#1088;&amp;#1072;&amp;#1073;&amp;#1086;&amp;#1090;&amp;#1072;&amp;#1077;&amp;#1090; &amp;#1090;&amp;#1086;&amp;#1083;&amp;#1100;&amp;#1082;&amp;#1086; &amp;#1076;&amp;#1083;&amp;#1103; &amp;#1088;&amp;#1077;&amp;#1096;&amp;#1077;&amp;#1085;&amp;#1080;&amp;#1081; &amp;#1080;&amp;#1079; 1 &amp;#1092;&amp;#1072;&amp;#1081;&amp;#1083;&amp;#1072;. &amp;#1054;&amp;#1090;&amp;#1074;&amp;#1077;&amp;#1090; &amp;#1084;&amp;#1086;&amp;#1078;&amp;#1077;&amp;#1090; &amp;#1079;&amp;#1072;&amp;#1085;&amp;#1103;&amp;#1090;&amp;#1100; &#13;      &amp;#1076;&amp;#1086; 30 &amp;#1089;&amp;#1077;&amp;#1082;&amp;#1091;&amp;#1085;&amp;#1076;.&#13;    &lt;/p&gt;&#13;  &lt;/body&gt;&#13;&lt;/html&gt;&#13;"/>
                     </properties>
+                    <clientProperties>
+                      <JEditorPane.honorDisplayProperties class="java.lang.Boolean" value="true"/>
+                    </clientProperties>
                   </component>
                 </children>
               </scrollpane>

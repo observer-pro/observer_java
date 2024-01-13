@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class ConnectedPanel {
+
     private JTextField messageField;
     private JButton sendButton;
     private JButton disconnectButton;
@@ -48,15 +49,14 @@ public class ConnectedPanel {
     private JButton AIHELPButton;
     private JTextPane aiHelpField;
     private JPanel aiHelpTab;
-    private JTextPane textPane1;
+    private JTextPane SqaresTextPlane;
     private JComboBox chatTypeComboBox;
-    private final ResourceManager resourceManager;
 
     private final Logger logger = Logger.getLogger(ConnectedPanel.class.getName());
 
-    public ConnectedPanel(ResourceManager resourceManager) {
+    public ConnectedPanel() {
 
-        this.resourceManager = resourceManager;
+
         sendButton.addActionListener(e -> sendMessage());
 
         chatTypeComboBox.addItem(ChatTypes.SHOW_ALL);
@@ -65,23 +65,23 @@ public class ConnectedPanel {
         chatTypeComboBox.addItem(ChatTypes.MENTOR_STATUS);
 
         disconnectButton.addActionListener(e -> {
-            resourceManager.getmSocket().disconnect();
+            ResourceManager.getInstance().getmSocket().disconnect();
 
             JSONObject sendMessage = new JSONObject();
             try {
-                sendMessage.put(JsonFields.ROOM_ID, resourceManager.getRoomId());
+                sendMessage.put(JsonFields.ROOM_ID, ResourceManager.getInstance().getRoomId());
             } catch (JSONException exception) {
                 logger.warning("Connected panel JSON - " + exception.getMessage());
             }
-            resourceManager.getSes().shutdown();
-            resourceManager.getmSocket().emit(CustomSocketEvents.ROOM_LEAVE, sendMessage);
+            ResourceManager.getInstance().getSes().shutdown();
+            ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.ROOM_LEAVE, sendMessage);
         });
 
 
         helpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Step currentSelectedStep = resourceManager.getStepsMap()
+                Step currentSelectedStep = ResourceManager.getInstance().getStepsMap()
                         .get(Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString());
 
                 if (currentSelectedStep.getStatus() == StepStatus.HELP) {
@@ -102,7 +102,7 @@ public class ConnectedPanel {
                 if(comboBoxTasks.getSelectedItem() == null){
                     return;
                 }
-                Step currentSelectedStep = resourceManager.getStepsMap()
+                Step currentSelectedStep = ResourceManager.getInstance().getStepsMap()
                         .get(Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString());
                 if (currentSelectedStep.getStatus() == StepStatus.DONE) {
                     setAllButtonVisualsToNone();
@@ -122,7 +122,7 @@ public class ConnectedPanel {
             public void itemStateChanged(ItemEvent e) {
 
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    Map<String, Step> steps = resourceManager.getStepsMap();
+                    Map<String, Step> steps = ResourceManager.getInstance().getStepsMap();
                     String selectedStep = e.getItem().toString();
                     String taskText = "No task";
                     if (steps.containsKey(selectedStep)) {
@@ -141,7 +141,7 @@ public class ConnectedPanel {
         AIHELPButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                EditorEvents editorEvents = new EditorEvents(resourceManager.getToolWindow().getProject());
+                EditorEvents editorEvents = new EditorEvents(ResourceManager.getInstance().getToolWindow().getProject());
                 String aiRequestCode;
                 String aiRequestContent;
                 JSONObject sendJson = new JSONObject();
@@ -157,7 +157,7 @@ public class ConnectedPanel {
                     throw new RuntimeException(ex);
                 }
                 setAiHelpFieldText(MessageTemplates.AI_WAITING_FOR_SERVER);
-                resourceManager.getmSocket().emit(CustomSocketEvents.SOLUTION_AI, sendJson);
+                ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.SOLUTION_AI, sendJson);
             }
         });
         tabPanel.addChangeListener(new ChangeListener() {
@@ -166,7 +166,7 @@ public class ConnectedPanel {
                 switch (tabPanel.getSelectedIndex()) {
                     case 1: {
                         tabPanel.setTitleAt(1, StringFormats.CHAT_TAB_READ);
-                        resourceManager.setChatCounter(0);
+                        ResourceManager.getInstance().setChatCounter(0);
                         break;
                     }
                     case 2: {
@@ -197,7 +197,7 @@ public class ConnectedPanel {
         }
     }
     private void buttonPressChatMessage(String format) {
-        resourceManager.addMessageToChatAndToList(
+        ResourceManager.getInstance().addMessageToChatAndToList(
                 new Message(
                         SenderNames.TASK_STATUS_CHANGES,
                         LocalDateTime.now(),
@@ -208,11 +208,11 @@ public class ConnectedPanel {
 
     private void updateChatField(String chatFilter) {
         switch (chatFilter) {
-            case ChatTypes.SHOW_ALL -> chatArea.setText(createChatUpdateString(resourceManager.getAllMessageList()));
+            case ChatTypes.SHOW_ALL -> chatArea.setText(createChatUpdateString(ResourceManager.getInstance().getAllMessageList()));
             case ChatTypes.MENTOR_STATUS ->
                 chatArea.setText(
                         createChatUpdateString(
-                                resourceManager
+                                ResourceManager.getInstance()
                                         .getAllMessageList()
                                         .stream()
                                         .filter(m -> m.getSender().equals(SenderNames.WATCH_STATUS))
@@ -221,7 +221,7 @@ public class ConnectedPanel {
                 );
             case ChatTypes.STATUSES -> chatArea.setText(
                     createChatUpdateString(
-                            resourceManager
+                            ResourceManager.getInstance()
                                     .getAllMessageList()
                                     .stream()
                                     .filter(m -> m.getSender().equals(SenderNames.TASK_STATUS_CHANGES))
@@ -230,7 +230,7 @@ public class ConnectedPanel {
             );
             default -> chatArea.setText(
                     createChatUpdateString(
-                            resourceManager
+                            ResourceManager.getInstance()
                                     .getAllMessageList()
                                     .stream()
                                     .filter(m -> !(m.getSender().equals(SenderNames.TASK_STATUS_CHANGES)||
@@ -271,8 +271,8 @@ public class ConnectedPanel {
 
     private void sendStatuses() {
 
-        resourceManager.getmSocket()
-                .emit(CustomSocketEvents.STEPS_STATUS_TO_MENTOR, JsonMapper.stepStatusToJson(resourceManager.getStepsMap()));
+        ResourceManager.getInstance().getmSocket()
+                .emit(CustomSocketEvents.STEPS_STATUS_TO_MENTOR, JsonMapper.stepStatusToJson(ResourceManager.getInstance().getStepsMap()));
     }
 
     private void sendMessage() {
@@ -282,23 +282,23 @@ public class ConnectedPanel {
         if (chatArea.getText().equals(FieldTexts.NO_MESSAGES)) {
             chatArea.setText("");
         }
-        String senderName = resourceManager.getUserName();
+        String senderName = ResourceManager.getInstance().getUserName();
         String messageText = messageField.getText();
 
         chatArea.append(String.format(MessageTemplates.MESSAGE_STRING_FORMAT, senderName, messageText));
 
         JSONObject sendMessage = new JSONObject();
         try {
-            sendMessage.put(JsonFields.ROOM_ID, resourceManager.getRoomId());
+            sendMessage.put(JsonFields.ROOM_ID, ResourceManager.getInstance().getRoomId());
             sendMessage.put(JsonFields.CONTENT, messageText);
         } catch (JSONException exception) {
             logger.warning("Connected panel JSON - " + exception.getMessage());
         }
 
-        resourceManager.getmSocket().emit(CustomSocketEvents.MESSAGE_TO_MENTOR, sendMessage);
+        ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.MESSAGE_TO_MENTOR, sendMessage);
 
         Message message = new Message(senderName, LocalDateTime.now(), messageText);
-        resourceManager.getAllMessageList().add(message);
+        ResourceManager.getInstance().getAllMessageList().add(message);
         messageField.setText("");
         scrollChatToBottom();
     }
@@ -312,7 +312,7 @@ public class ConnectedPanel {
     }
 
     public void toggleMentorStatusLabelText() {
-        if (resourceManager.isWatching()) {
+        if (ResourceManager.getInstance().isWatching()) {
             mentorStatusLabel.setText(FieldTexts.MENTOR_IS_WATCHING);
             mentorStatusLabel.setForeground(JBColor.GREEN);
             return;
@@ -374,7 +374,7 @@ public class ConnectedPanel {
     public void setAllSteps(List<Step> steps) {
         Map<String, Step> stepMap = steps.stream()
                 .collect(Collectors.toMap(Step::toFormattedString, Function.identity()));
-        resourceManager.setSteps(stepMap);
+        ResourceManager.getInstance().setSteps(stepMap);
 
         String title = String.format(StringFormats.TASK_HEADER_FORMAT, steps.size());
         tabPanel.setTitleAt(0, title);
@@ -396,8 +396,8 @@ public class ConnectedPanel {
         if (tabPanel.getSelectedIndex() == 1) {
             return;
         }
-        resourceManager.setChatCounter(resourceManager.getChatCounter() + 1);
-        tabPanel.setTitleAt(1, String.format(StringFormats.CHAT_TAB_UNREAD, resourceManager.getChatCounter()));
+        ResourceManager.getInstance().setChatCounter(ResourceManager.getInstance().getChatCounter() + 1);
+        tabPanel.setTitleAt(1, String.format(StringFormats.CHAT_TAB_UNREAD, ResourceManager.getInstance().getChatCounter()));
     }
 
     public void changeAiHelpTabName() {

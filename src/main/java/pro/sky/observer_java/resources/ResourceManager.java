@@ -15,8 +15,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class ResourceManager {
+    private static ResourceManager instance;
     private volatile ConnectedPanel connectedPanel;
-
     private volatile InactivePanel inactivePanel;
 
     private volatile Integer roomId;
@@ -38,6 +38,13 @@ public class ResourceManager {
     private Map<String, Step> stepMap = new HashMap<>();
 
     private ObserverIgnore observerIgnore = new ObserverIgnore();
+
+    public static synchronized ResourceManager getInstance() {
+        if (instance == null) {
+            instance = new ResourceManager();
+        }
+        return instance;
+    }
 
     public ObserverIgnore getObserverIgnore() {
         return observerIgnore;
@@ -166,7 +173,9 @@ public class ResourceManager {
 
     public void updateStepStatus(Map<String, StepStatus> steps) {
         for (Map.Entry<String, StepStatus> entry : steps.entrySet()) {
-            stepMap.get(String.format(StringFormats.TASK_FORMAT, entry.getKey())).setStatus(entry.getValue());
+            if(stepMap.containsKey(entry.getKey())) {
+                stepMap.get(String.format(StringFormats.TASK_FORMAT, entry.getKey())).setStatus(entry.getValue());
+            }
             switch (entry.getValue()) {
                 case ACCEPTED -> {
                     connectedPanel.appendChat(

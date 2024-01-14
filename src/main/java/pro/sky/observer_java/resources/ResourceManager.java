@@ -152,7 +152,7 @@ public class ResourceManager {
     }
 
     public Collection<Step> getStepsList() {
-        return stepMap.values();
+        return stepMap.values().stream().sorted(Comparator.comparing(Step::getName)).toList();
     }
 
     public Map<String, Step> getStepsMap() {
@@ -173,7 +173,7 @@ public class ResourceManager {
 
     public void updateStepStatus(Map<String, StepStatus> steps) {
         for (Map.Entry<String, StepStatus> entry : steps.entrySet()) {
-            if(stepMap.containsKey(entry.getKey())) {
+            if(stepMap.containsKey(String.format(StringFormats.TASK_FORMAT,entry.getKey()))) {
                 stepMap.get(String.format(StringFormats.TASK_FORMAT, entry.getKey())).setStatus(entry.getValue());
             }
             switch (entry.getValue()) {
@@ -193,7 +193,9 @@ public class ResourceManager {
                     connectedPanel.addCounterNonActive();
                     connectedPanel.setVisualToNone(entry.getKey());
                 }
-                case NONE -> connectedPanel.setVisualToNone(entry.getKey());
+                case NONE -> {
+                    connectedPanel.setVisualToNone(entry.getKey());
+                }
 
             }
             if (entry.getValue().equals(StepStatus.ACCEPTED)) {
@@ -201,6 +203,7 @@ public class ResourceManager {
 
             }
         }
+        ResourceManager.getInstance().getConnectedPanel().redrawSquares();
     }
 
     public void addMessageToChatAndToList(Message message) {

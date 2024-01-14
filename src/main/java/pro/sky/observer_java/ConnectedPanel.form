@@ -117,7 +117,7 @@
                   <contentType value="text/html"/>
                   <editable value="false"/>
                   <focusable value="false"/>
-                  <text value="&lt;html&gt;&#10;  &lt;head&gt;&#10;&#10;  &lt;/head&gt;&#10;  &lt;body style=&quot;background-color: #333&quot;&gt;&#10;    &#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;"/>
+                  <text value="&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;"/>
                 </properties>
                 <clientProperties>
                   <JEditorPane.honorDisplayProperties class="java.lang.Boolean" value="false"/>

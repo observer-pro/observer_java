@@ -107,7 +107,8 @@ public class SocketEvents {
                 .on(CustomSocketEvents.PING, this::pingEvent)
                 .on(CustomSocketEvents.SETTINGS, this::eventSettings)
                 .on(CustomSocketEvents.ALERT, this::alertEvent)
-                .on(CustomSocketEvents.STEPS_STATUS_TO_CLIENT, this::stepStatusToClient);
+                .on(CustomSocketEvents.STEPS_STATUS_TO_CLIENT, this::stepStatusToClient)
+                .on(CustomSocketEvents.ROOM_CLOSED, this::eventDisconnect);
     }
 
     private void stepStatusToClient(Object... args) {
@@ -186,6 +187,16 @@ public class SocketEvents {
     private void eventDisconnect(Object... args) {
         bubbleNotifications.disconnected(openProject);
 
+        roomLeaveRoutine();
+    }
+
+    private void eventClosed(Object... args) {
+        bubbleNotifications.disconnected(openProject);
+
+        roomLeaveRoutine();
+    }
+
+    private void roomLeaveRoutine() {
         connectedPanel.setVisible(false);
         inactivePanel.setVisible(true);
         ResourceManager.getInstance().setWatching(false);
@@ -247,7 +258,6 @@ public class SocketEvents {
         Message message;
 
         try {
-            //TODO test
             jsonMessage = new JSONObject(args[0].toString());
 
             message = new Message(

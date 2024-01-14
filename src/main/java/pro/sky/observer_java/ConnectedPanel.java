@@ -22,6 +22,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -115,6 +116,8 @@ public class ConnectedPanel {
                 setAllButtonVisualsToDone();
 
                 setStepStatusAndSend(currentSelectedStep, StepStatus.DONE);
+
+
             }
         });
         comboBoxTasks.addItemListener(new ItemListener() {
@@ -134,7 +137,7 @@ public class ConnectedPanel {
                             default -> setAllButtonVisualsToNone();
                         }
                     }
-                    taskCodeField.setText(taskText);
+                    taskCodeField.setText(String.format(StringFormats.TASK_FIELD_HTML_FORMAT,taskText));
                 }
             }
         });
@@ -252,6 +255,27 @@ public class ConnectedPanel {
     private void setStepStatusAndSend(Step step, StepStatus status) {
         step.setStatus(status);
         sendStatuses();
+        redrawSquares();
+    }
+
+    public void redrawSquares() {
+        StringBuilder stepSquaresHTML = new StringBuilder();
+        Collection<Step> stepCollection = ResourceManager.getInstance().getStepsList();
+        for (Step step : stepCollection) {
+            getSquaresStringBuilder(stepSquaresHTML, step);
+        }
+        SqaresTextPlane.setText(String.format(StringFormats.TASK_SQUARES_FORMAT,stepSquaresHTML));
+    }
+
+    private void getSquaresStringBuilder(StringBuilder stepSquaresHTML, Step step) {
+        String color;
+        switch (step.getStatus()){
+            case DONE, HELP -> color = SquareColors.HELP;
+            case ACCEPTED -> color = SquareColors.ACCEPTED;
+            default -> color = SquareColors.NONE;
+        }
+
+        stepSquaresHTML.append(String.format(StringFormats.SPAN_STYLE_FORMAT,color,step.getName()));
     }
 
     public void setAllButtonVisualsToDone() {
@@ -372,6 +396,11 @@ public class ConnectedPanel {
     }
 
     public void setAllSteps(List<Step> steps) {
+        for (Step step : steps) {
+            if(step.getName().equals("theory")){
+                step.setName("T");
+            }
+        }
         Map<String, Step> stepMap = steps.stream()
                 .collect(Collectors.toMap(Step::toFormattedString, Function.identity()));
         ResourceManager.getInstance().setSteps(stepMap);
@@ -379,13 +408,17 @@ public class ConnectedPanel {
         String title = String.format(StringFormats.TASK_HEADER_FORMAT, steps.size());
         tabPanel.setTitleAt(0, title);
         comboBoxTasks.removeAllItems();
+        StringBuilder stepSquaresHTML = new StringBuilder();
         for (Step step : steps) {
             String stepString = step.toFormattedString();
             if (step.getLanguage().equals(ParseTags.MD)) {
                 step.setContent(MarkdownAndHtml.mdToHtml(step.getContent()));
             }
             comboBoxTasks.addItem(stepString);
+
+            getSquaresStringBuilder(stepSquaresHTML, step);
         }
+        SqaresTextPlane.setText(String.format(StringFormats.TASK_SQUARES_FORMAT,stepSquaresHTML));
     }
 
     public void setAiHelpFieldText(String text) {

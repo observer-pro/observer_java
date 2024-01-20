@@ -14,10 +14,8 @@ import java.util.stream.StreamSupport;
 
 public class ProjectFileMapper {
     private final long MAX_FILE_SIZE_TO_TRANSFER = 20000;
-
     private final Logger logger = Logger.getLogger(ProjectFileMapper.class.getName());
     public ProjectFileMapper(){}
-
     public ProjectFile filetoProjectFile(String filePath, String relative, ProjectFileStatus status) throws IOException {
 
         ProjectFile projectFile = new ProjectFile();

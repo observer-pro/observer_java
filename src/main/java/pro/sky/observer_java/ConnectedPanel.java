@@ -16,10 +16,7 @@ import pro.sky.observer_java.resources.ResourceManager;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -50,7 +47,7 @@ public class ConnectedPanel {
     private JButton AIHELPButton;
     private JTextPane aiHelpField;
     private JPanel aiHelpTab;
-    private JTextPane SqaresTextPlane;
+    private JTextPane sqaresTextPlane;
     private JComboBox chatTypeComboBox;
 
     private final Logger logger = Logger.getLogger(ConnectedPanel.class.getName());
@@ -138,6 +135,7 @@ public class ConnectedPanel {
                         }
                     }
                     taskCodeField.setText(String.format(StringFormats.TASK_FIELD_HTML_FORMAT,taskText));
+                    ResourceManager.getInstance().setCurrentSelectedTask(selectedStep);
                 }
             }
         });
@@ -187,8 +185,28 @@ public class ConnectedPanel {
                 }
             }
         });
+        sqaresTextPlane.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println(e.getPoint());
+                double clickPoint = e.getPoint().getX();
+                int taskIndex = (int)(clickPoint-4)/20;
+                comboBoxTasks.setSelectedItem(
+                        String.format(
+                                StringFormats.TASK_FORMAT,
+                                ResourceManager.getInstance().getStepsList().get(taskIndex).getName()
+                        )
+                );
+            }
+        });
     }
 
+    public void setSelectedStepToPreviouslySelected(String previouslySelected){
+        if(!ResourceManager.getInstance().getStepsMap().containsKey(previouslySelected)){
+            return;
+        }
+        comboBoxTasks.setSelectedItem(previouslySelected);
+    }
 
     public void setVisualToNone(String key) {
         if(comboBoxTasks.getSelectedItem() == null){
@@ -264,7 +282,7 @@ public class ConnectedPanel {
         for (Step step : stepCollection) {
             getSquaresStringBuilder(stepSquaresHTML, step);
         }
-        SqaresTextPlane.setText(String.format(StringFormats.TASK_SQUARES_FORMAT,stepSquaresHTML));
+        sqaresTextPlane.setText(String.format(StringFormats.TASK_SQUARES_FORMAT,stepSquaresHTML));
     }
 
     private void getSquaresStringBuilder(StringBuilder stepSquaresHTML, Step step) {
@@ -409,7 +427,7 @@ public class ConnectedPanel {
         tabPanel.setTitleAt(0, title);
         comboBoxTasks.removeAllItems();
         StringBuilder stepSquaresHTML = new StringBuilder();
-        for (Step step : steps) {
+        for (Step step : ResourceManager.getInstance().getStepsList()) {
             String stepString = step.toFormattedString();
             if (step.getLanguage().equals(ParseTags.MD)) {
                 step.setContent(MarkdownAndHtml.mdToHtml(step.getContent()));
@@ -418,7 +436,8 @@ public class ConnectedPanel {
 
             getSquaresStringBuilder(stepSquaresHTML, step);
         }
-        SqaresTextPlane.setText(String.format(StringFormats.TASK_SQUARES_FORMAT,stepSquaresHTML));
+        sqaresTextPlane.setText(String.format(StringFormats.TASK_SQUARES_FORMAT,stepSquaresHTML));
+
     }
 
     public void setAiHelpFieldText(String text) {

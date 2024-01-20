@@ -25,6 +25,8 @@ public class ResourceManager {
 
     private volatile ToolWindow toolWindow;
 
+    private String currentSelectedTask = "No Task";
+
     private int chatCounter = 0;
 
     private Socket mSocket;
@@ -64,6 +66,14 @@ public class ResourceManager {
 
     public void setEditorUpdateEvents(List<ProjectFile> editorUpdateEvents) {
         this.editorUpdateEvents = editorUpdateEvents;
+    }
+
+    public String getCurrentSelectedTask() {
+        return currentSelectedTask;
+    }
+
+    public void setCurrentSelectedTask(String currentSelectedTask) {
+        this.currentSelectedTask = currentSelectedTask;
     }
 
     public void clearEditorUpdateEvents() {
@@ -148,10 +158,23 @@ public class ResourceManager {
     }
 
     public void setSteps(Map<String, Step> stepMap) {
-        this.stepMap = stepMap;
+        for (Map.Entry<String, Step> stringStepEntry : this.stepMap.entrySet()) {
+            String stepEntryKey = stringStepEntry.getKey();
+            if(!stepMap.containsKey(stepEntryKey)){
+                this.stepMap.remove(stepEntryKey);
+            }
+        }
+        for (Map.Entry<String, Step> stepEntry : stepMap.entrySet()) {
+            String stepEntryKey = stepEntry.getKey();
+            if (this.stepMap.containsKey(stepEntryKey)) {
+                this.stepMap.get(stepEntryKey).setContent(stepEntry.getValue().getContent());
+            }else{
+                this.stepMap.put(stepEntry.getKey(),stepEntry.getValue());
+            }
+        }
     }
 
-    public Collection<Step> getStepsList() {
+    public List<Step> getStepsList() {
         return stepMap.values().stream().sorted(Comparator.comparing(Step::getName)).toList();
     }
 
@@ -173,7 +196,7 @@ public class ResourceManager {
 
     public void updateStepStatus(Map<String, StepStatus> steps) {
         for (Map.Entry<String, StepStatus> entry : steps.entrySet()) {
-            if(stepMap.containsKey(String.format(StringFormats.TASK_FORMAT,entry.getKey()))) {
+            if (stepMap.containsKey(String.format(StringFormats.TASK_FORMAT, entry.getKey()))) {
                 stepMap.get(String.format(StringFormats.TASK_FORMAT, entry.getKey())).setStatus(entry.getValue());
             }
             switch (entry.getValue()) {
@@ -185,7 +208,7 @@ public class ResourceManager {
                                     String.format(
                                             StringFormats.TASK_ACCEPTED,
                                             String.format(
-                                                    StringFormats.TASK_FORMAT,entry.getKey()
+                                                    StringFormats.TASK_FORMAT, entry.getKey()
                                             )
                                     )
                             )
@@ -196,10 +219,6 @@ public class ResourceManager {
                 case NONE -> {
                     connectedPanel.setVisualToNone(entry.getKey());
                 }
-
-            }
-            if (entry.getValue().equals(StepStatus.ACCEPTED)) {
-                // TODO UPDATE STEP STATUS VISUALS
 
             }
         }

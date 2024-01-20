@@ -18,6 +18,5 @@ public final class CustomSocketEvents {
     public final static String SETTINGS = "settings";
     public final static String SOLUTION_AI = "solution/ai";
     public final static String PING = "ping";
-
     public static final String ALERT = "alert";
 }

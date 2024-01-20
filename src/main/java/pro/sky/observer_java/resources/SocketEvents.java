@@ -307,7 +307,9 @@ public class SocketEvents {
             throw new RuntimeException(e);
         }
 
+        String previouslySelected = ResourceManager.getInstance().getCurrentSelectedTask();
         connectedPanel.setAllSteps(steps);
+        connectedPanel.setSelectedStepToPreviouslySelected(previouslySelected);
     }
 
     private void eventSettings(Object... args) {

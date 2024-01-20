@@ -437,7 +437,6 @@ public class ConnectedPanel {
             getSquaresStringBuilder(stepSquaresHTML, step);
         }
         sqaresTextPlane.setText(String.format(StringFormats.TASK_SQUARES_FORMAT,stepSquaresHTML));
-
     }
 
     public void setAiHelpFieldText(String text) {

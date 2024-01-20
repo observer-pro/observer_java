@@ -175,7 +175,20 @@ public class ResourceManager {
     }
 
     public List<Step> getStepsList() {
-        return stepMap.values().stream().sorted(Comparator.comparing(Step::getName)).toList();
+        Comparator<Step> comparator = new Comparator<Step>() {
+            public int compare(Step s1, Step s2) {
+                return extractInt(s1.getName()) - extractInt(s2.getName());
+            }
+
+            int extractInt(String s) {
+                if(s.equals("T")){
+                    return Integer.MAX_VALUE;
+                }
+                String num = s.replaceAll("\\D", "");
+                return num.isEmpty() ? 0 : Integer.parseInt(num);
+            }
+        };
+        return stepMap.values().stream().sorted(comparator).toList();
     }
 
     public Map<String, Step> getStepsMap() {

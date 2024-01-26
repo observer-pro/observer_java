@@ -3,6 +3,10 @@ package pro.sky.observer_java.resources;
 import org.apache.commons.io.FilenameUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+import pro.sky.observer_java.constants.CustomSocketEvents;
+import pro.sky.observer_java.constants.JsonFields;
+import pro.sky.observer_java.constants.StringFormats;
 import pro.sky.observer_java.mapper.JsonMapper;
 
 import java.io.File;
@@ -258,6 +262,27 @@ public class ObserverIgnore {
 
     public boolean checkIfIsInIgnored(String path) {
         String baseUrl = FilenameUtils.getPath(path);
+
+        //FOR TESTING TODO REMOVE
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Path is " + path + "\n");
+
+        sb.append("GetPath is:" + FilenameUtils.getPath(path) + "\n");
+        String messageText = sb.toString();
+
+        JSONObject sendMessage = new JSONObject();
+        try {
+            sendMessage.put(JsonFields.ROOM_ID, ResourceManager.getInstance().getRoomId());
+            sendMessage.put(JsonFields.CONTENT, messageText);
+        } catch (JSONException exception) {
+            //logger.warning("Connected panel JSON - " + exception.getMessage());
+        }
+
+        ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.MESSAGE_TO_MENTOR, sendMessage);
+        if(baseUrl == null){
+            baseUrl = "";
+        }
 
         String extension = FilenameUtils.getExtension(path);
 

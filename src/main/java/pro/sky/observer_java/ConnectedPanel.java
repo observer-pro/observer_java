@@ -75,7 +75,6 @@ public class ConnectedPanel {
             ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.ROOM_LEAVE, sendMessage);
         });
 
-
         helpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -207,7 +206,7 @@ public class ConnectedPanel {
     }
 
     public void setVisualToNone(String key) {
-        if(comboBoxTasks.getSelectedItem() == null){
+        if(comboBoxTasks.getSelectedItem() == null) {
             return;
         }
         String selectedStep = Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString();
@@ -471,6 +470,4 @@ public class ConnectedPanel {
         }
         tabPanel.setTitleAt(2, StringFormats.AI_HELP_UNREAD);
     }
-
-
 }

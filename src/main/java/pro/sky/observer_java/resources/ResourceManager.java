@@ -18,27 +18,16 @@ public class ResourceManager {
     private static ResourceManager instance;
     private volatile ConnectedPanel connectedPanel;
     private volatile InactivePanel inactivePanel;
-
     private volatile Integer roomId;
-
     private volatile String userName;
-
     private volatile ToolWindow toolWindow;
-
     private String currentSelectedTask = "No Task";
-
     private int chatCounter = 0;
-
     private Socket mSocket;
-
     private volatile Integer userId;
-
     private List<ProjectFile> editorUpdateEvents;
-
     private ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
-
     private Map<String, Step> stepMap = new HashMap<>();
-
     private ObserverIgnore observerIgnore = new ObserverIgnore();
 
     public static synchronized ResourceManager getInstance() {
@@ -175,6 +164,9 @@ public class ResourceManager {
     }
 
     public List<Step> getStepsList() {
+        if(stepMap.isEmpty()){
+            return Collections.emptyList();
+        }
         Comparator<Step> comparator = new Comparator<Step>() {
             public int compare(Step s1, Step s2) {
                 return extractInt(s1.getName()) - extractInt(s2.getName());

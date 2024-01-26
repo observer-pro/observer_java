@@ -113,8 +113,6 @@ public class ConnectedPanel {
                 setAllButtonVisualsToDone();
 
                 setStepStatusAndSend(currentSelectedStep, StepStatus.DONE);
-
-
             }
         });
         comboBoxTasks.addItemListener(new ItemListener() {
@@ -279,11 +277,27 @@ public class ConnectedPanel {
     public void redrawSquares() {
         StringBuilder stepSquaresHTML = new StringBuilder();
         Collection<Step> stepCollection = ResourceManager.getInstance().getStepsList();
+        if(stepCollection.isEmpty()){
+            clearStepsUI();
+            return;
+        }
         for (Step step : stepCollection) {
             getSquaresStringBuilder(stepSquaresHTML, step);
         }
         sqaresTextPlane.setText(String.format(StringFormats.TASK_SQUARES_FORMAT,stepSquaresHTML));
     }
+
+    private void clearStepsUI() {
+        sqaresTextPlane.setText("");
+        removeTasksFromComboboxAndField();
+        tabPanel.setTitleAt(0, String.format(StringFormats.TASK_HEADER_FORMAT,0));
+    }
+
+    private void removeTasksFromComboboxAndField() {
+        comboBoxTasks.removeAllItems();
+        taskCodeField.setText("");
+    }
+
 
     private void getSquaresStringBuilder(StringBuilder stepSquaresHTML, Step step) {
         String color;

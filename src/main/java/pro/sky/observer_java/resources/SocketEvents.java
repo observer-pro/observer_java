@@ -206,6 +206,7 @@ public class SocketEvents {
 
         ResourceManager.getInstance().refreshObserverIgnore();
         ResourceManager.getInstance().clearSteps();
+        ResourceManager.getInstance().getConnectedPanel().redrawSquares();
 
         if (connection != null) {
             connection.disconnect();

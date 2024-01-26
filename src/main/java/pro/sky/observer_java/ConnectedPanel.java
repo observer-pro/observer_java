@@ -145,6 +145,9 @@ public class ConnectedPanel {
                 JSONObject sendJson = new JSONObject();
                 try {
                     aiRequestContent = Jsoup.parse(taskCodeField.getText()).text();
+                    if(aiRequestContent.equals(FieldTexts.TASK_TEXT)){
+                        return;
+                    }
                     aiRequestCode = editorEvents.getOpenEditorText();
 
                     sendJson.put(JsonFields.CONTENT, aiRequestContent);

@@ -6,11 +6,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import pro.sky.observer_java.constants.CustomSocketEvents;
 import pro.sky.observer_java.constants.JsonFields;
-import pro.sky.observer_java.constants.StringFormats;
 import pro.sky.observer_java.mapper.JsonMapper;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ObserverIgnore {
     private final Set<String> directories = new HashSet<>();
@@ -269,6 +270,8 @@ public class ObserverIgnore {
         sb.append("Path is " + path + "\n");
 
         sb.append("GetPath is:" + FilenameUtils.getPath(path) + "\n");
+        sb.append("Project path is" + ResourceManager.getInstance().getToolWindow().getProject() + "\n");
+
         String messageText = sb.toString();
 
         JSONObject sendMessage = new JSONObject();

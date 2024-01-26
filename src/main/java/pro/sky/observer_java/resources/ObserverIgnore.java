@@ -268,9 +268,8 @@ public class ObserverIgnore {
 
         StringBuilder sb = new StringBuilder();
         sb.append("Path is " + path + "\n");
-
         sb.append("GetPath is:" + FilenameUtils.getPath(path) + "\n");
-        sb.append("Project path is" + ResourceManager.getInstance().getToolWindow().getProject() + "\n");
+        sb.append("Project path is" + ResourceManager.getInstance().getToolWindow().getProject().getBasePath() + "\n");
 
         String messageText = sb.toString();
 

@@ -78,6 +78,9 @@ public class ConnectedPanel {
         helpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if(comboBoxTasks.getSelectedItem() == null){
+                    return;
+                }
                 Step currentSelectedStep = ResourceManager.getInstance().getStepsMap()
                         .get(Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString());
 

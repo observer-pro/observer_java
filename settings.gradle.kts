@@ -5,4 +5,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "test_task_Plugin"
+rootProject.name = "observer_app"

@@ -10,21 +10,20 @@ import pro.sky.observer_java.fileProcessor.FileStructureStringer;
 import pro.sky.observer_java.model.ProjectFile;
 import pro.sky.observer_java.resources.ResourceManager;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class UpdateProjectScheduledSending implements Runnable {
-    private final ResourceManager resourceManager;
+
     private final Project project;
-    public UpdateProjectScheduledSending(ResourceManager resourceManager, Project project) {
-        this.resourceManager = resourceManager;
+    public UpdateProjectScheduledSending(Project project) {
+
         this.project = project;
     }
 
     @Override
     public void run() {
-        List<ProjectFile> updatedFiles = resourceManager.getEditorUpdateEvents();
+        List<ProjectFile> updatedFiles = ResourceManager.getInstance().getEditorUpdateEvents();
         VirtualFile apiDir = project.getBaseDir();
         VfsUtil.markDirtyAndRefresh(true, true, true, apiDir);
         updatedFiles.removeAll(Collections.singleton(null));
@@ -32,26 +31,16 @@ public class UpdateProjectScheduledSending implements Runnable {
         if (updatedFiles.isEmpty()) {
 
             apiDir.refresh(false,true);
-            ApplicationManager.getApplication().invokeLater(() -> {
+            ApplicationManager.getApplication().invokeAndWait(() -> {
                 FileDocumentManager.getInstance().saveAllDocuments();
             });
-
-//            VfsUtil.markDirtyAndRefresh(
-//                    false,
-//                    true,
-//                    true,
-//                    fileArray
-//            );
-
-
             return;
         }
 
-        FileStructureStringer stringer = new FileStructureStringer(resourceManager);
+        FileStructureStringer stringer = new FileStructureStringer();
         String json = stringer.getJsonStringFromProjectFileList(updatedFiles);
 
-        resourceManager.getmSocket().emit(CustomSocketEvents.CODE_UPDATE, stringer.getJsonObjectFromString(json));
-        resourceManager.setEditorUpdateEvents(new ArrayList<>());
-
+        ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.CODE_UPDATE, stringer.getCodeSendJsonObjectFromString(json));
+        ResourceManager.getInstance().clearEditorUpdateEvents();
     }
 }

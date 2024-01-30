@@ -10,11 +10,11 @@ import java.util.logging.Logger;
 
 public class EventManager {
     private final Logger logger = Logger.getLogger(EventManager.class.getName());
-    private final ResourceManager resourceManager;
-    ProjectFileMapper mapper = new ProjectFileMapper();
 
-    public EventManager(ResourceManager resourceManager) {
-        this.resourceManager = resourceManager;
+    ProjectFileMapper mapper;
+
+    public EventManager() {
+        this.mapper = new ProjectFileMapper();
     }
 
     public void addContentChangeEventToEditorEventList(VFileContentChangeEvent event) {
@@ -36,9 +36,12 @@ public class EventManager {
         mapAndAddEvents(event.getOldPath(), ProjectFileStatus.REMOVED);
     }
     private void mapAndAddEvents(String path, ProjectFileStatus status){
+        if(ResourceManager.getInstance().getObserverIgnore().checkIfIsInIgnored(path)){
+            return;
+        }
         try {
-            resourceManager.getEditorUpdateEvents().add(mapper.filetoProjectFile(path,
-                    resourceManager.getToolWindow().getProject().getBasePath(),
+            ResourceManager.getInstance().getEditorUpdateEvents().add(mapper.filetoProjectFile(path,
+                    ResourceManager.getInstance().getToolWindow().getProject().getBasePath(),
                     status));
         }catch (IOException e){
             logger.warning("event method exception" + e.getMessage());

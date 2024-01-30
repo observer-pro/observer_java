@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class SocketEvents {
-    private final ResourceManager resourceManager;
     private final InactivePanel inactivePanel;
     private final ConnectedPanel connectedPanel;
     private Project openProject;
@@ -53,8 +52,7 @@ public class SocketEvents {
 
     private final Logger logger = Logger.getLogger(SocketEvents.class.getName());
 
-    public SocketEvents(ResourceManager resourceManager, InactivePanel inactivePanel, ConnectedPanel connectedPanel) {
-        this.resourceManager = resourceManager;
+    public SocketEvents(InactivePanel inactivePanel, ConnectedPanel connectedPanel) {
         this.inactivePanel = inactivePanel;
         this.connectedPanel = connectedPanel;
         this.bubbleNotifications = new BubbleNotifications();
@@ -62,18 +60,18 @@ public class SocketEvents {
 
     private void connect() {
         socketConnectionEvents();
-        resourceManager.getmSocket().connect();
+        ResourceManager.getInstance().getmSocket().connect();
     }
 
     public void createSocketWithListenersAndConnect(String url) {
         url = StringUtils.remove(url, " ");
 
-        if (resourceManager.getmSocket() != null) {
-            resourceManager.getmSocket().disconnect();
-            resourceManager.resetMessageList();
+        if (ResourceManager.getInstance().getmSocket() != null) {
+            ResourceManager.getInstance().getmSocket().disconnect();
+            ResourceManager.getInstance().resetMessageList();
         }
         try {
-            resourceManager.setmSocket(IO.socket(new URI(url), options));
+            ResourceManager.getInstance().setmSocket(IO.socket(new URI(url), options));
         } catch (URISyntaxException e) {
             logger.warning(e.getMessage());
             inactivePanel.getUrlField().setText("Wrong url syntax");
@@ -94,9 +92,9 @@ public class SocketEvents {
     }
 
     private void socketConnectionEvents() {
-        openProject = resourceManager.getToolWindow().getProject();
+        openProject = ResourceManager.getInstance().getToolWindow().getProject();
 
-        resourceManager.getmSocket()
+        ResourceManager.getInstance().getmSocket()
                 .on(Socket.EVENT_CONNECT, this::eventConnect)
                 .on(Socket.EVENT_DISCONNECT, this::eventDisconnect)
                 .on(Socket.EVENT_CONNECT_ERROR, this::eventError)
@@ -109,7 +107,8 @@ public class SocketEvents {
                 .on(CustomSocketEvents.PING, this::pingEvent)
                 .on(CustomSocketEvents.SETTINGS, this::eventSettings)
                 .on(CustomSocketEvents.ALERT, this::alertEvent)
-                .on(CustomSocketEvents.STEPS_STATUS_TO_CLIENT, this::stepStatusToClient);
+                .on(CustomSocketEvents.STEPS_STATUS_TO_CLIENT, this::stepStatusToClient)
+                .on(CustomSocketEvents.ROOM_CLOSED, this::eventDisconnect);
     }
 
     private void stepStatusToClient(Object... args) {
@@ -129,7 +128,7 @@ public class SocketEvents {
             throw new RuntimeException(e);
         }
 
-        resourceManager.updateStepStatus(steps);
+        ResourceManager.getInstance().updateStepStatus(steps);
     }
 
     private void alertEvent(Object... args) {
@@ -148,7 +147,7 @@ public class SocketEvents {
     }
 
     private void pingEvent(Object... args) {
-        resourceManager.getmSocket().emit(CustomSocketEvents.PING, new JSONObject());
+        ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.PING, new JSONObject());
     }
 
     private void solutionAiEvent(Object... args) {
@@ -168,35 +167,46 @@ public class SocketEvents {
 
     private void eventConnect(Object... args) {
 
-        resourceManager.setRoomId(Integer.valueOf(inactivePanel.getRoomIdField().getText()));
+        ResourceManager.getInstance().setRoomId(Integer.valueOf(inactivePanel.getRoomIdField().getText()));
 
-        resourceManager.setUserName(inactivePanel.getNameField().getText());
+        ResourceManager.getInstance().setUserName(inactivePanel.getNameField().getText());
 
         JSONObject data = new JSONObject();
         try {
-            data.put(JsonFields.ROOM_ID, resourceManager.getRoomId());
-            data.put(JsonFields.NAME, resourceManager.getUserName());
+            data.put(JsonFields.ROOM_ID, ResourceManager.getInstance().getRoomId());
+            data.put(JsonFields.NAME, ResourceManager.getInstance().getUserName());
             data.put(JsonFields.VERSION, Properties.VERSION);
 
         } catch (JSONException e) {
             logger.warning("Connected panel connect json - " + e.getMessage());
         }
-        resourceManager.getmSocket().emit(CustomSocketEvents.ROOM_JOIN, data);
+        ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.ROOM_JOIN, data);
     }
 
 
     private void eventDisconnect(Object... args) {
         bubbleNotifications.disconnected(openProject);
 
+        roomLeaveRoutine();
+    }
+
+    private void eventClosed(Object... args) {
+        bubbleNotifications.disconnected(openProject);
+
+        roomLeaveRoutine();
+    }
+
+    private void roomLeaveRoutine() {
         connectedPanel.setVisible(false);
         inactivePanel.setVisible(true);
-        resourceManager.setWatching(false);
+        ResourceManager.getInstance().setWatching(false);
         connectedPanel.toggleMentorStatusLabelText();
 
-        resourceManager.getSes().shutdownNow();
+        ResourceManager.getInstance().getSes().shutdownNow();
 
-        resourceManager.refreshObserverIgnore();
-        resourceManager.clearSteps();
+        ResourceManager.getInstance().refreshObserverIgnore();
+        ResourceManager.getInstance().clearSteps();
+        ResourceManager.getInstance().getConnectedPanel().redrawSquares();
 
         if (connection != null) {
             connection.disconnect();
@@ -208,7 +218,7 @@ public class SocketEvents {
         } catch (JSONException e) {
             logger.warning("Connected panel disconnect json - " + e.getMessage());
         }
-        resourceManager.getmSocket().emit(CustomSocketEvents.ROOM_LEAVE, data);
+        ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.ROOM_LEAVE, data);
     }
 
     private void eventError(Object... args) {
@@ -219,7 +229,7 @@ public class SocketEvents {
         JSONObject message;
         try {
             message = new JSONObject(args[0].toString());
-            resourceManager.setUserId(message.getInt(JsonFields.USER_ID));
+            ResourceManager.getInstance().setUserId(message.getInt(JsonFields.USER_ID));
         } catch (JSONException e) {
             logger.warning("Connected panel room/join json - " + e.getMessage());
         }
@@ -229,10 +239,10 @@ public class SocketEvents {
     }
 
     private void eventSharingEnd(Object... args) {
-        resourceManager.setWatching(false);
+        ResourceManager.getInstance().setWatching(false);
         connectedPanel.toggleMentorStatusLabelText();
 
-        resourceManager.getSes().shutdownNow();
+        ResourceManager.getInstance().getSes().shutdownNow();
         if (connection != null) {
             connection.disconnect();
         }
@@ -241,7 +251,7 @@ public class SocketEvents {
                 LocalDateTime.now(),
                 MessageTemplates.SHARING_END
         );
-        resourceManager.addMessageToChatAndToList(message);
+        ResourceManager.getInstance().addMessageToChatAndToList(message);
     }
 
     private void socketMessageEvents(Object... args) {
@@ -249,7 +259,6 @@ public class SocketEvents {
         Message message;
 
         try {
-            //TODO test
             jsonMessage = new JSONObject(args[0].toString());
 
             message = new Message(
@@ -257,8 +266,8 @@ public class SocketEvents {
                     LocalDateTime.now(),
                     jsonMessage.getString(JsonFields.CONTENT)
             );
-            resourceManager.getConnectedPanel().addCounterNonActive();
-            resourceManager.addMessageToChatAndToList(message);
+            ResourceManager.getInstance().getConnectedPanel().addCounterNonActive();
+            ResourceManager.getInstance().addMessageToChatAndToList(message);
             connectedPanel.scrollChatToBottom();
         } catch (JSONException e) {
             logger.warning("Connected panel message/to_client json - " + e.getMessage());
@@ -267,11 +276,11 @@ public class SocketEvents {
     }
 
     private void codeSharingAndEventCatcher(Object... args) {
-        resourceManager.setWatching(true);
+        ResourceManager.getInstance().setWatching(true);
         connectedPanel.toggleMentorStatusLabelText();
-        FileStructureStringer fileStructureStringer = new FileStructureStringer(resourceManager);
+        FileStructureStringer fileStructureStringer = new FileStructureStringer();
 
-        resourceManager.getmSocket()
+        ResourceManager.getInstance().getmSocket()
                 .emit(CustomSocketEvents.CODE_SEND,
                         fileStructureStringer
                                 .getCodeSendJsonObjectFromString(fileStructureStringer.getProjectFilesJson(openProject)));
@@ -282,7 +291,7 @@ public class SocketEvents {
                 LocalDateTime.now(),
                 MessageTemplates.SHARING_START
         );
-        resourceManager.addMessageToChatAndToList(message);
+        ResourceManager.getInstance().addMessageToChatAndToList(message);
     }
 
     private void stepsEvent(Object... args) {
@@ -299,12 +308,14 @@ public class SocketEvents {
             throw new RuntimeException(e);
         }
 
+        String previouslySelected = ResourceManager.getInstance().getCurrentSelectedTask();
         connectedPanel.setAllSteps(steps);
+        connectedPanel.setSelectedStepToPreviouslySelected(previouslySelected);
     }
 
     private void eventSettings(Object... args) {
         JSONObject jsonObject;
-        ObserverIgnore observerIgnore = resourceManager.getObserverIgnore();
+        ObserverIgnore observerIgnore = ResourceManager.getInstance().getObserverIgnore();
         try {
             jsonObject = new JSONObject(args[0].toString());
 
@@ -327,11 +338,11 @@ public class SocketEvents {
         connection = openProject.getMessageBus().connect();
         connection.deliverImmediately();
 
-        resourceManager.setEditorUpdateEvents(new ArrayList<>());
-        resourceManager.setSes(Executors.newSingleThreadScheduledExecutor());
+        ResourceManager.getInstance().setEditorUpdateEvents(new ArrayList<>());
+        ResourceManager.getInstance().setSes(Executors.newSingleThreadScheduledExecutor());
 
         connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
-            final EventManager eventManager = new EventManager(resourceManager);
+            final EventManager eventManager = new EventManager();
 
             @Override
             public void before(@NotNull List<? extends VFileEvent> events) {
@@ -377,9 +388,9 @@ public class SocketEvents {
         });
 
 
-        resourceManager.getSes()
+        ResourceManager.getInstance().getSes()
                 .scheduleAtFixedRate(
-                        new UpdateProjectScheduledSending(resourceManager, openProject),
+                        new UpdateProjectScheduledSending(openProject),
                         5,
                         1,
                         TimeUnit.SECONDS);

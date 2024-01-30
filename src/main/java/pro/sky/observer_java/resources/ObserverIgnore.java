@@ -6,7 +6,9 @@ import org.json.JSONException;
 import pro.sky.observer_java.mapper.JsonMapper;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ObserverIgnore {
     private final Set<String> directories = new HashSet<>();
@@ -258,6 +260,10 @@ public class ObserverIgnore {
 
     public boolean checkIfIsInIgnored(String path) {
         String baseUrl = FilenameUtils.getPath(path);
+
+        if(baseUrl == null){
+            baseUrl = path;
+        }
 
         String extension = FilenameUtils.getExtension(path);
 

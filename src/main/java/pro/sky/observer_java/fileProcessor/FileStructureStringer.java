@@ -22,11 +22,10 @@ public class FileStructureStringer {
 
     private final List<File> files = new ArrayList<>();
     private final List<ProjectFile> projectFiles = new ArrayList<>();
-    private final ResourceManager resourceManager;
+
     private final Logger logger = Logger.getLogger(FileStructureStringer.class.getName());
 
-    public FileStructureStringer(ResourceManager resourceManager) {
-        this.resourceManager = resourceManager;
+    public FileStructureStringer() {
     }
 
     public void listFiles(String directoryName, List<File> files) {
@@ -35,7 +34,7 @@ public class FileStructureStringer {
         File[] fList = directory.listFiles();
         if (fList != null) {
             for (File file : fList) {
-                if (resourceManager.getObserverIgnore().checkIfIsInIgnored(file)) {
+                if (ResourceManager.getInstance().getObserverIgnore().checkIfIsInIgnored(file)) {
                     continue;
                 }
                 if (file.isFile()) {
@@ -53,10 +52,10 @@ public class FileStructureStringer {
         listFiles(project.getBasePath(), files);
 
 
-        ProjectFileMapper projectFileMapper = new ProjectFileMapper(resourceManager);
+        ProjectFileMapper projectFileMapper = new ProjectFileMapper();
         for (File file : files) {
             ProjectFile projectFile;
-            if(resourceManager.getObserverIgnore().checkIfIsInIgnored(file)){
+            if(ResourceManager.getInstance().getObserverIgnore().checkIfIsInIgnored(file)){
                 continue;
             }
             try {
@@ -88,7 +87,7 @@ public class FileStructureStringer {
         JSONArray data;
         try {
             data = new JSONArray(json);
-            sendMessage.put(JsonFields.ROOM_ID, resourceManager.getRoomId());
+            sendMessage.put(JsonFields.ROOM_ID, ResourceManager.getInstance().getRoomId());
             sendMessage.put(JsonFields.FILES, data);
         } catch (JSONException e) {
             throw new RuntimeException(e);

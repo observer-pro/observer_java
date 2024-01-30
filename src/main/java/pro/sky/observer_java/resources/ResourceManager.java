@@ -15,29 +15,27 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class ResourceManager {
+    private static ResourceManager instance;
     private volatile ConnectedPanel connectedPanel;
-
     private volatile InactivePanel inactivePanel;
-
     private volatile Integer roomId;
-
     private volatile String userName;
-
     private volatile ToolWindow toolWindow;
-
+    private String currentSelectedTask = "No Task";
     private int chatCounter = 0;
-
     private Socket mSocket;
-
     private volatile Integer userId;
-
     private List<ProjectFile> editorUpdateEvents;
-
     private ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
-
     private Map<String, Step> stepMap = new HashMap<>();
-
     private ObserverIgnore observerIgnore = new ObserverIgnore();
+
+    public static synchronized ResourceManager getInstance() {
+        if (instance == null) {
+            instance = new ResourceManager();
+        }
+        return instance;
+    }
 
     public ObserverIgnore getObserverIgnore() {
         return observerIgnore;
@@ -57,6 +55,14 @@ public class ResourceManager {
 
     public void setEditorUpdateEvents(List<ProjectFile> editorUpdateEvents) {
         this.editorUpdateEvents = editorUpdateEvents;
+    }
+
+    public String getCurrentSelectedTask() {
+        return currentSelectedTask;
+    }
+
+    public void setCurrentSelectedTask(String currentSelectedTask) {
+        this.currentSelectedTask = currentSelectedTask;
     }
 
     public void clearEditorUpdateEvents() {
@@ -141,11 +147,40 @@ public class ResourceManager {
     }
 
     public void setSteps(Map<String, Step> stepMap) {
-        this.stepMap = stepMap;
+        for (Map.Entry<String, Step> stringStepEntry : this.stepMap.entrySet()) {
+            String stepEntryKey = stringStepEntry.getKey();
+            if(!stepMap.containsKey(stepEntryKey)){
+                this.stepMap.remove(stepEntryKey);
+            }
+        }
+        for (Map.Entry<String, Step> stepEntry : stepMap.entrySet()) {
+            String stepEntryKey = stepEntry.getKey();
+            if (this.stepMap.containsKey(stepEntryKey)) {
+                this.stepMap.get(stepEntryKey).setContent(stepEntry.getValue().getContent());
+            }else{
+                this.stepMap.put(stepEntry.getKey(),stepEntry.getValue());
+            }
+        }
     }
 
-    public Collection<Step> getStepsList() {
-        return stepMap.values();
+    public List<Step> getStepsList() {
+        if(stepMap.isEmpty()){
+            return Collections.emptyList();
+        }
+        Comparator<Step> comparator = new Comparator<Step>() {
+            public int compare(Step s1, Step s2) {
+                return extractInt(s1.getName()) - extractInt(s2.getName());
+            }
+
+            int extractInt(String s) {
+                if(s.equals("T")){
+                    return Integer.MAX_VALUE;
+                }
+                String num = s.replaceAll("\\D", "");
+                return num.isEmpty() ? 0 : Integer.parseInt(num);
+            }
+        };
+        return stepMap.values().stream().sorted(comparator).toList();
     }
 
     public Map<String, Step> getStepsMap() {
@@ -166,7 +201,9 @@ public class ResourceManager {
 
     public void updateStepStatus(Map<String, StepStatus> steps) {
         for (Map.Entry<String, StepStatus> entry : steps.entrySet()) {
-            stepMap.get(String.format(StringFormats.TASK_FORMAT, entry.getKey())).setStatus(entry.getValue());
+            if (stepMap.containsKey(String.format(StringFormats.TASK_FORMAT, entry.getKey()))) {
+                stepMap.get(String.format(StringFormats.TASK_FORMAT, entry.getKey())).setStatus(entry.getValue());
+            }
             switch (entry.getValue()) {
                 case ACCEPTED -> {
                     connectedPanel.appendChat(
@@ -176,7 +213,7 @@ public class ResourceManager {
                                     String.format(
                                             StringFormats.TASK_ACCEPTED,
                                             String.format(
-                                                    StringFormats.TASK_FORMAT,entry.getKey()
+                                                    StringFormats.TASK_FORMAT, entry.getKey()
                                             )
                                     )
                             )
@@ -184,14 +221,13 @@ public class ResourceManager {
                     connectedPanel.addCounterNonActive();
                     connectedPanel.setVisualToNone(entry.getKey());
                 }
-                case NONE -> connectedPanel.setVisualToNone(entry.getKey());
-
-            }
-            if (entry.getValue().equals(StepStatus.ACCEPTED)) {
-                // TODO UPDATE STEP STATUS VISUALS
+                case NONE -> {
+                    connectedPanel.setVisualToNone(entry.getKey());
+                }
 
             }
         }
+        ResourceManager.getInstance().getConnectedPanel().redrawSquares();
     }
 
     public void addMessageToChatAndToList(Message message) {

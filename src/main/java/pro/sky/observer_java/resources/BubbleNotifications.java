@@ -11,6 +11,8 @@ public class BubbleNotifications {
     private final Notification balloonNotificationError;
     private final Notification balloonNotificationWrongName;
     private final Notification balloonNotificationWrongRoom;
+
+    private final Notification getBalloonNotificationRoomClosed;
     private final String groupId = "pro.sky";
 
     public BubbleNotifications(){
@@ -34,6 +36,9 @@ public class BubbleNotifications {
         balloonNotificationWrongRoom =
                 new Notification(groupId, "Room not filled!", NotificationType.ERROR);
         balloonNotificationError.setTitle("Error connecting!");
+
+        getBalloonNotificationRoomClosed =   new Notification(groupId, "Room closed!", NotificationType.WARNING);
+        balloonNotificationDisconnected.setTitle("Room closed!");
     }
 
     public void error(Project openProject){

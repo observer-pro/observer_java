@@ -14,15 +14,13 @@ import javax.swing.*;
 public class SkyPanelToolWindowFactory implements ToolWindowFactory, DumbAware {
     private SkyPanelToolWindowContent toolWindowContent;
     private Content content;
-    private ResourceManager resourceManager;
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 
-        this.resourceManager = new ResourceManager();
-        resourceManager.setConnectedPanel(new ConnectedPanel(resourceManager));
-        resourceManager.setInactivePanel(new InactivePanel(resourceManager));
-        resourceManager.setToolWindow(toolWindow);
+        ResourceManager.getInstance().setConnectedPanel(new ConnectedPanel());
+        ResourceManager.getInstance().setInactivePanel(new InactivePanel());
+        ResourceManager.getInstance().setToolWindow(toolWindow);
 
         toolWindowContent = new SkyPanelToolWindowContent();
 
@@ -30,18 +28,17 @@ public class SkyPanelToolWindowFactory implements ToolWindowFactory, DumbAware {
         toolWindow.getContentManager().addContent(content);
     }
 
-
     public class SkyPanelToolWindowContent {
         private final JPanel contentPanel = new JPanel();
 
         public SkyPanelToolWindowContent() {
             contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
-            resourceManager.getInactivePanel().setVisible(true);
-            resourceManager.getConnectedPanel().setVisible(false);
+            ResourceManager.getInstance().getInactivePanel().setVisible(true);
+            ResourceManager.getInstance().getConnectedPanel().setVisible(false);
 
-            contentPanel.add(resourceManager.getConnectedPanel().getConnectedJPanel());
-            contentPanel.add(resourceManager.getInactivePanel().getInactiveJPanel());
+            contentPanel.add(ResourceManager.getInstance().getConnectedPanel().getConnectedJPanel());
+            contentPanel.add(ResourceManager.getInstance().getInactivePanel().getInactiveJPanel());
         }
 
         public JPanel getContentPanel() {

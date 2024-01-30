@@ -6,4 +6,16 @@ public final class JsonFields {
     public final static String CONTENT = "content";
     public final static String NAME = "name";
     public final static String VALUE = "value";
+    public final static String PARSE_LANGUAGE = "language";
+    public final static String FILES = "files";
+    public static final String CODE = "code";
+    public static final String DIRS = "dirs";
+    public static final String NAMES = "names";
+    public static final String EXTENSIONS = "extensions";
+    public static final String VERSION = "version";
+
+    public static final String MESSAGE = "message";
+
+    public static final String TYPE = "type";
+
 }

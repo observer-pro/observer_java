@@ -1,6 +1,5 @@
 package pro.sky.observer_java.mapper;
 
-import org.apache.commons.lang.StringUtils;
 import pro.sky.observer_java.constants.FieldTexts;
 import pro.sky.observer_java.constants.ProjectFileStatus;
 import pro.sky.observer_java.model.ProjectFile;
@@ -8,19 +7,24 @@ import pro.sky.observer_java.model.ProjectFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.nio.file.Paths;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class ProjectFileMapper {
-    private static final long MAX_FILE_SIZE_TO_TRANSFER = 20000;
-
+    private final long MAX_FILE_SIZE_TO_TRANSFER = 20000;
     private final Logger logger = Logger.getLogger(ProjectFileMapper.class.getName());
-
+    public ProjectFileMapper(){}
     public ProjectFile filetoProjectFile(String filePath, String relative, ProjectFileStatus status) throws IOException {
-        ProjectFile projectFile = new ProjectFile();
 
+        ProjectFile projectFile = new ProjectFile();
+        Path path = Paths.get(filePath);
+        Path result = Paths.get(relative).relativize(path);
         projectFile.setFilename(
-                StringUtils.removeStart(StringUtils.replaceChars(filePath, '\\', '/'), relative)
+                StreamSupport.stream(result.spliterator(), false)
+                        .map(Path::toString)
+                        .collect(Collectors.joining("/"))
         );
         projectFile.setStatus(status);
 
@@ -28,22 +32,12 @@ public class ProjectFileMapper {
             return projectFile;
         }
 
-        Path path = Path.of(filePath);
-
         if (Files.size(path) > MAX_FILE_SIZE_TO_TRANSFER) {
             projectFile.setContent(FieldTexts.TOO_LARGE);
         } else {
-            projectFile.setContent(contentsAsString(Files.readAllLines(path)));
+            projectFile.setContent(EditorToString.contentsAsString(Files.readAllLines(path)));
         }
         logger.info("fileToProjectFile Created");
         return projectFile;
-    }
-
-    private String contentsAsString(List<String> strings) {
-        StringBuilder sb = new StringBuilder();
-        for (String string : strings) {
-            sb.append(string).append("\n");
-        }
-        return sb.toString();
     }
 }

@@ -57,24 +57,25 @@ public class BubbleNotifications {
         balloonNotificationWrongRoom.notify(openProject);
     }
 
-    public void createNotificationAndEmmit(Alert alert, String message, Project openProject) {
+    public void createNotificationAndNotify(Alert alert, String message, Project openProject) {
         switch (alert){
             case INFO -> {
                 new Notification(groupId, message, NotificationType.INFORMATION);
-                balloonNotificationError.setTitle("Info!").notify(openProject);
+                balloonNotificationError.setTitle("Info!");
             }
             case SUCCESS -> {
                 new Notification(groupId, message, NotificationType.IDE_UPDATE);
-                balloonNotificationError.setTitle("Success!").notify(openProject);
+                balloonNotificationError.setTitle("Success!");
             }
             case WARNING -> {
                 new Notification(groupId, message, NotificationType.WARNING);
-                balloonNotificationError.setTitle("Warning!").notify(openProject);
+                balloonNotificationError.setTitle("Warning!");
             }
             case ERROR -> {
                 new Notification(groupId, message, NotificationType.ERROR);
-                balloonNotificationError.setTitle("ERROR!").notify(openProject);
+                balloonNotificationError.setTitle("ERROR!");
             }
         }
+        balloonNotificationError.setContent(message).notify(openProject);
     }
 }

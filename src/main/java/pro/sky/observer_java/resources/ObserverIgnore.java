@@ -72,7 +72,9 @@ public class ObserverIgnore {
                 ".mypy_cache",
                 ".pyre",
                 ".pytype",
-                "cython_debug"
+                "cython_debug",
+                ".ruff_cache",
+                ".git"
         ));
         fileNames.addAll(List.of(
                 ".Python",

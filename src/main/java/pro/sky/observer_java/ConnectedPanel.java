@@ -191,9 +191,15 @@ public class ConnectedPanel {
         sqaresTextPlane.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                if(ResourceManager.getInstance().isStepsEmpty()){
+                    return;
+                }
                 System.out.println(e.getPoint());
                 double clickPoint = e.getPoint().getX();
                 int taskIndex = (int)(clickPoint-4)/20;
+                if(taskIndex > ResourceManager.getInstance().getStepsList().size()-1){
+                    return;
+                }
                 comboBoxTasks.setSelectedItem(
                         String.format(
                                 StringFormats.TASK_FORMAT,

@@ -237,4 +237,8 @@ public class ResourceManager {
         connectedPanel.appendChat(message);
         allMessageList.add(message);
     }
+
+    public boolean isStepsEmpty() {
+        return stepMap.isEmpty();
+    }
 }

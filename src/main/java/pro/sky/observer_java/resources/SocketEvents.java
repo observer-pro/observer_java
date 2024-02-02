@@ -72,9 +72,11 @@ public class SocketEvents {
         }
         try {
             ResourceManager.getInstance().setmSocket(IO.socket(new URI(url), options));
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException | RuntimeException e) {
             logger.warning(e.getMessage());
             inactivePanel.getUrlField().setText("Wrong url syntax");
+            bubbleNotifications.createNotificationAndNotify(Alert.ERROR, FieldTexts.WRONG_URL, openProject);
+            return;
         }
 
         if (inactivePanel.getNameField().getText().equals(MessageTemplates.NAME_FIELD_DEFAULT_TEXT)) {
@@ -115,7 +117,7 @@ public class SocketEvents {
         String jsonObjectString;
 
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String,StepStatus> steps;
+        Map<String, StepStatus> steps;
         try {
             jsonObjectString = args[0].toString();
             steps = objectMapper
@@ -143,7 +145,7 @@ public class SocketEvents {
             logger.warning("Alert WARNING");
             throw new RuntimeException(e);
         }
-        bubbleNotifications.createNotificationAndEmmit(alert,message, openProject);
+        bubbleNotifications.createNotificationAndNotify(alert, message, openProject);
     }
 
     private void pingEvent(Object... args) {

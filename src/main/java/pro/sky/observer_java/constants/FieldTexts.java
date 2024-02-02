@@ -7,4 +7,6 @@ public final class FieldTexts {
     public final static String TOO_LARGE = "File too large to transfer";
 
     public final static String  TASK_TEXT ="Task Text";
+
+    public final static String WRONG_URL = "Wrong URL";
 }

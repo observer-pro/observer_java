@@ -102,7 +102,7 @@
         </constraints>
         <properties>
           <focusTraversalPolicyProvider value="false"/>
-          <text value="ws://84.38.181.252"/>
+          <text value="ws://server.observer-app.pro"/>
           <toolTipText value="Enter url to connect to"/>
         </properties>
       </component>

@@ -16,17 +16,19 @@ import java.util.List;
 public class UpdateProjectScheduledSending implements Runnable {
 
     private final Project project;
-    public UpdateProjectScheduledSending(Project project) {
+    public UpdateProjectScheduledSending() {
 
-        this.project = project;
+        this.project = ResourceManager.getInstance().getToolWindow().getProject();
     }
 
     @Override
     public void run() {
         List<ProjectFile> updatedFiles = ResourceManager.getInstance().getEditorUpdateEvents();
+        updatedFiles.removeAll(Collections.singleton(null));
+
         VirtualFile apiDir = project.getBaseDir();
         VfsUtil.markDirtyAndRefresh(true, true, true, apiDir);
-        updatedFiles.removeAll(Collections.singleton(null));
+
 
         if (updatedFiles.isEmpty()) {
 

@@ -23,6 +23,7 @@ import pro.sky.observer_java.fileProcessor.FileStructureStringer;
 import pro.sky.observer_java.mapper.MarkdownAndHtml;
 import pro.sky.observer_java.model.Message;
 import pro.sky.observer_java.model.Step;
+import pro.sky.observer_java.scheduler.InProgressSchedulesAndSending;
 import pro.sky.observer_java.scheduler.UpdateProjectScheduledSending;
 
 import java.net.URI;
@@ -61,6 +62,7 @@ public class SocketEvents {
     private void connect() {
         socketConnectionEvents();
         ResourceManager.getInstance().getmSocket().connect();
+        activateVfsEventListenerAndSchedulerForInProgressChecking();
     }
 
     public void createSocketWithListenersAndConnect(String url) {
@@ -205,6 +207,7 @@ public class SocketEvents {
         connectedPanel.toggleMentorStatusLabelText();
 
         ResourceManager.getInstance().getSes().shutdownNow();
+        ResourceManager.getInstance().getInProgressSes().shutdown();
 
         ResourceManager.getInstance().refreshObserverIgnore();
         ResourceManager.getInstance().clearSteps();
@@ -335,6 +338,33 @@ public class SocketEvents {
         }
     }
 
+    private void activateVfsEventListenerAndSchedulerForInProgressChecking() {
+        connection = openProject.getMessageBus().connect();
+        connection.deliverImmediately();
+
+        ResourceManager.getInstance().setInProgressSes(Executors.newSingleThreadScheduledExecutor());
+
+        connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+            @Override
+            public void after(@NotNull List<? extends VFileEvent> events) {
+                events.forEach(event -> {
+                    if (!ProjectFileIndex.getInstance(openProject).isInContent(Objects.requireNonNull(event.getFile()))
+                    || ResourceManager.getInstance().getInProgress()) {
+                        return;
+                    }
+                    ResourceManager.getInstance().setInProgressFlag(true);
+                });
+            }
+        });
+
+        ResourceManager.getInstance().getInProgressSes()
+                .scheduleAtFixedRate(
+                        new InProgressSchedulesAndSending(),
+                        5,
+                        30,
+                        TimeUnit.SECONDS);
+    }
+
     private void activateVfsEventListenerAndScheduler() {
 
         connection = openProject.getMessageBus().connect();
@@ -392,7 +422,7 @@ public class SocketEvents {
 
         ResourceManager.getInstance().getSes()
                 .scheduleAtFixedRate(
-                        new UpdateProjectScheduledSending(openProject),
+                        new UpdateProjectScheduledSending(),
                         5,
                         1,
                         TimeUnit.SECONDS);

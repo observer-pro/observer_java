@@ -27,8 +27,11 @@ public class ResourceManager {
     private volatile Integer userId;
     private List<ProjectFile> editorUpdateEvents;
     private ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService inProgressSes = Executors.newSingleThreadScheduledExecutor();
     private Map<String, Step> stepMap = new HashMap<>();
     private ObserverIgnore observerIgnore = new ObserverIgnore();
+
+    private boolean inProgressFlag = false;
 
     public static synchronized ResourceManager getInstance() {
         if (instance == null) {
@@ -240,5 +243,22 @@ public class ResourceManager {
 
     public boolean isStepsEmpty() {
         return stepMap.isEmpty();
+    }
+
+    public boolean getInProgress() {
+        return inProgressFlag;
+    }
+
+
+    public void setInProgressFlag(boolean inProgressFlag) {
+        this.inProgressFlag = inProgressFlag;
+    }
+
+    public void setInProgressSes(ScheduledExecutorService scheduledExecutorService) {
+        this.inProgressSes = scheduledExecutorService;
+    }
+
+    public ScheduledExecutorService getInProgressSes() {
+        return this.inProgressSes;
     }
 }

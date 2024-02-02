@@ -197,7 +197,8 @@ public class ConnectedPanel {
                 System.out.println(e.getPoint());
                 double clickPoint = e.getPoint().getX();
                 int taskIndex = (int)(clickPoint-4)/20;
-                if(taskIndex > ResourceManager.getInstance().getStepsList().size()-1){
+                if(taskIndex > ResourceManager.getInstance().getStepsList().size()){
+                    //TODO CHECK FOR SIZE-1
                     return;
                 }
                 comboBoxTasks.setSelectedItem(
@@ -481,5 +482,10 @@ public class ConnectedPanel {
             return;
         }
         tabPanel.setTitleAt(2, StringFormats.AI_HELP_UNREAD);
+    }
+
+    public Step getCurrentlySelectedStep(){
+        return ResourceManager.getInstance().getStepsMap()
+                .get(Objects.requireNonNull(comboBoxTasks.getSelectedItem()).toString());
     }
 }

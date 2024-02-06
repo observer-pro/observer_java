@@ -62,7 +62,6 @@ public class SocketEvents {
     private void connect() {
         socketConnectionEvents();
         ResourceManager.getInstance().getmSocket().connect();
-        activateVfsEventListenerAndSchedulerForInProgressChecking();
     }
 
     public void createSocketWithListenersAndConnect(String url) {
@@ -110,7 +109,7 @@ public class SocketEvents {
                 .on(CustomSocketEvents.SOLUTION_AI, this::solutionAiEvent)
                 .on(CustomSocketEvents.PING, this::pingEvent)
                 .on(CustomSocketEvents.SETTINGS, this::eventSettings)
-                .on(CustomSocketEvents.ALERT, this::alertEvent)
+                .on(CustomSocketEvents.ALERTS, this::alertEvent)
                 .on(CustomSocketEvents.STEPS_STATUS_TO_CLIENT, this::stepStatusToClient)
                 .on(CustomSocketEvents.ROOM_CLOSED, this::eventDisconnect);
     }
@@ -217,6 +216,8 @@ public class SocketEvents {
             connection.disconnect();
         }
 
+        ResourceManager.getInstance().getConnectedPanel().getChatArea().setText(FieldTexts.NO_MESSAGES);
+
         JSONObject data = new JSONObject();
         try {
             data.put(JsonFields.ROOM_ID, Long.parseLong(inactivePanel.getRoomIdField().getText()));
@@ -316,6 +317,7 @@ public class SocketEvents {
         String previouslySelected = ResourceManager.getInstance().getCurrentSelectedTask();
         connectedPanel.setAllSteps(steps);
         connectedPanel.setSelectedStepToPreviouslySelected(previouslySelected);
+        activateVfsEventListenerAndSchedulerForInProgressChecking();
     }
 
     private void eventSettings(Object... args) {
@@ -395,7 +397,7 @@ public class SocketEvents {
                     }
 
                     logger.info("Event Caught - " + event);
-                    System.out.println("AFTER Event Caught - " + event);
+                    //System.out.println("AFTER Event Caught - " + event);
                     if (event instanceof VFileContentChangeEvent) {
                         System.out.println("ContentChangeEvent" + event);
                         logger.info("ContentChangeEvent - " + event);

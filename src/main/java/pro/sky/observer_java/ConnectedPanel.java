@@ -282,6 +282,7 @@ public class ConnectedPanel {
 
     private void setStepStatusAndSend(Step step, StepStatus status) {
         step.setStatus(status);
+       // ResourceManager.getInstance().getStepsMap();
         sendStatuses();
         redrawSquares();
     }
@@ -318,7 +319,6 @@ public class ConnectedPanel {
             case ACCEPTED -> color = SquareColors.ACCEPTED;
             default -> color = SquareColors.NONE;
         }
-
         stepSquaresHTML.append(String.format(StringFormats.SPAN_STYLE_FORMAT,color,step.getName()));
     }
 
@@ -338,7 +338,6 @@ public class ConnectedPanel {
     }
 
     private void sendStatuses() {
-
         ResourceManager.getInstance().getmSocket()
                 .emit(CustomSocketEvents.STEPS_STATUS_TO_MENTOR, JsonMapper.stepStatusToJson(ResourceManager.getInstance().getStepsMap()));
     }

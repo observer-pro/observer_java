@@ -12,7 +12,9 @@ public class BubbleNotifications {
     private final Notification balloonNotificationWrongName;
     private final Notification balloonNotificationWrongRoom;
 
-    private final Notification getBalloonNotificationRoomClosed;
+    private Notification  balloonNotificationAlert;
+
+    private final Notification balloonNotificationRoomClosed;
     private final String groupId = "pro.sky";
 
     public BubbleNotifications(){
@@ -37,7 +39,7 @@ public class BubbleNotifications {
                 new Notification(groupId, "Room not filled!", NotificationType.ERROR);
         balloonNotificationError.setTitle("Error connecting!");
 
-        getBalloonNotificationRoomClosed =   new Notification(groupId, "Room closed!", NotificationType.WARNING);
+        balloonNotificationRoomClosed =   new Notification(groupId, "Room closed!", NotificationType.WARNING);
         balloonNotificationDisconnected.setTitle("Room closed!");
     }
 
@@ -60,22 +62,22 @@ public class BubbleNotifications {
     public void createNotificationAndNotify(Alert alert, String message, Project openProject) {
         switch (alert){
             case INFO -> {
-                new Notification(groupId, message, NotificationType.INFORMATION);
-                balloonNotificationError.setTitle("Info!");
+                balloonNotificationAlert = new Notification(groupId, message, NotificationType.INFORMATION);
+                balloonNotificationAlert.setTitle("Info!");
             }
             case SUCCESS -> {
-                new Notification(groupId, message, NotificationType.IDE_UPDATE);
-                balloonNotificationError.setTitle("Success!");
+                balloonNotificationAlert = new Notification(groupId, message, NotificationType.IDE_UPDATE);
+                balloonNotificationAlert.setTitle("Success!");
             }
             case WARNING -> {
-                new Notification(groupId, message, NotificationType.WARNING);
-                balloonNotificationError.setTitle("Warning!");
+                balloonNotificationAlert = new Notification(groupId, message, NotificationType.WARNING);
+                balloonNotificationAlert.setTitle("Warning!");
             }
             case ERROR -> {
-                new Notification(groupId, message, NotificationType.ERROR);
-                balloonNotificationError.setTitle("ERROR!");
+                balloonNotificationAlert = new Notification(groupId, message, NotificationType.ERROR);
+                balloonNotificationAlert.setTitle("ERROR!");
             }
         }
-        balloonNotificationError.setContent(message).notify(openProject);
+        balloonNotificationAlert.setContent(message).notify(openProject);
     }
 }

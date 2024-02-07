@@ -51,7 +51,6 @@ public class FileStructureStringer {
         String basePath = project.getBasePath();
         listFiles(project.getBasePath(), files);
 
-
         ProjectFileMapper projectFileMapper = new ProjectFileMapper();
         for (File file : files) {
             ProjectFile projectFile;

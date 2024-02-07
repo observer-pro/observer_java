@@ -1,9 +1,11 @@
 package pro.sky.observer_java.mapper;
 
+import org.apache.commons.lang3.StringUtils;
 import pro.sky.observer_java.constants.FieldTexts;
 import pro.sky.observer_java.constants.ProjectFileStatus;
 import pro.sky.observer_java.model.ProjectFile;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,11 +23,18 @@ public class ProjectFileMapper {
         ProjectFile projectFile = new ProjectFile();
         Path path = Paths.get(filePath);
         Path result = Paths.get(relative).relativize(path);
+
+        if(result.startsWith("..")){
+            logger.warning("File relativize ERROR -  result");
+            result = Paths.get(useOldRelativize(filePath,relative));
+        }
+
         projectFile.setFilename(
                 StreamSupport.stream(result.spliterator(), false)
                         .map(Path::toString)
                         .collect(Collectors.joining("/"))
         );
+
         projectFile.setStatus(status);
 
         if (status.equals(ProjectFileStatus.REMOVED)) {
@@ -39,5 +48,9 @@ public class ProjectFileMapper {
         }
         logger.info("fileToProjectFile Created");
         return projectFile;
+    }
+
+    private String useOldRelativize(String path, String relative) {
+        return StringUtils.removeStart(path, relative);
     }
 }

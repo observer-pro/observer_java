@@ -63,7 +63,6 @@ public class ConnectedPanel {
         chatTypeComboBox.addItem(ChatTypes.MENTOR_STATUS);
 
         disconnectButton.addActionListener(e -> {
-            ResourceManager.getInstance().getmSocket().disconnect();
 
             JSONObject sendMessage = new JSONObject();
             try {
@@ -73,6 +72,7 @@ public class ConnectedPanel {
             }
             ResourceManager.getInstance().getSes().shutdown();
             ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.ROOM_LEAVE, sendMessage);
+            ResourceManager.getInstance().getmSocket().disconnect();
         });
 
         helpButton.addActionListener(new ActionListener() {

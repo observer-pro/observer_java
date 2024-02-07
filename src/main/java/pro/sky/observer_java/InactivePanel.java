@@ -83,8 +83,7 @@ public class InactivePanel {
         nameField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (!Character.isAlphabetic(c)) {
+                if (!Character.isAlphabetic(e.getKeyChar())) {
                     e.consume();
                 }
                 if (e.isActionKey()) {

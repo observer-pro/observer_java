@@ -1,5 +1,6 @@
 package pro.sky.observer_java;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import org.json.JSONException;
@@ -297,7 +298,10 @@ public class ConnectedPanel {
         for (Step step : stepCollection) {
             getSquaresStringBuilder(stepSquaresHTML, step);
         }
-        sqaresTextPlane.setText(String.format(StringFormats.TASK_SQUARES_FORMAT,stepSquaresHTML));
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+            sqaresTextPlane.setText(String.format(StringFormats.TASK_SQUARES_FORMAT,stepSquaresHTML));
+        });
+
     }
 
     private void clearStepsUI() {

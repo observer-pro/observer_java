@@ -275,9 +275,11 @@ public class SocketEvents {
             ResourceManager.getInstance().getConnectedPanel().addCounterNonActive();
             ResourceManager.getInstance().addMessageToChatAndToList(message);
             connectedPanel.scrollChatToBottom();
+            bubbleNotifications.createChatNotificationAndNotify(jsonMessage.getString(JsonFields.CONTENT), openProject);
         } catch (JSONException e) {
             logger.warning("Connected panel message/to_client json - " + e.getMessage());
         }
+
 
     }
 

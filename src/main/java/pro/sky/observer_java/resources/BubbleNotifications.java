@@ -80,4 +80,8 @@ public class BubbleNotifications {
         }
         balloonNotificationAlert.setContent(message).notify(openProject);
     }
+    public void createChatNotificationAndNotify(String message, Project openProject) {
+        new Notification(groupId, message, NotificationType.INFORMATION).setTitle("Host").notify(openProject);
+    }
+
 }

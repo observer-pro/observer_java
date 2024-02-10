@@ -3,7 +3,10 @@ package pro.sky.observer_java.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
@@ -210,7 +213,9 @@ public class SocketEvents {
 
         ResourceManager.getInstance().refreshObserverIgnore();
         ResourceManager.getInstance().clearSteps();
+
         ResourceManager.getInstance().getConnectedPanel().redrawSquares();
+        ResourceManager.getInstance().getConnectedPanel().setAllButtonVisualsToNone();
 
         if (connection != null) {
             connection.disconnect();
@@ -225,6 +230,7 @@ public class SocketEvents {
             logger.warning("Connected panel disconnect json - " + e.getMessage());
         }
         ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.ROOM_LEAVE, data);
+        ResourceManager.getInstance().getmSocket().disconnect();
     }
 
     private void eventError(Object... args) {
@@ -242,9 +248,27 @@ public class SocketEvents {
         bubbleNotifications.connected(openProject);
         inactivePanel.setVisible(false);
         connectedPanel.setVisible(true);
+        final MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
+        connect.subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
+            @Override
+            public void projectClosing(@NotNull Project project) {
+                if(!project.equals(openProject)){
+                    return;
+                }
+                ProjectManagerListener.super.projectClosing(project);
+                roomLeaveRoutine();
+                connect.disconnect();
+            }
+        });
+
     }
 
     private void eventSharingEnd(Object... args) {
+
+        if(!ResourceManager.getInstance().isWatching()){
+            return;
+        }
+
         ResourceManager.getInstance().setWatching(false);
         connectedPanel.toggleMentorStatusLabelText();
 
@@ -379,6 +403,8 @@ public class SocketEvents {
 
         connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
             final EventManager eventManager = new EventManager();
+
+
 
             @Override
             public void before(@NotNull List<? extends VFileEvent> events) {

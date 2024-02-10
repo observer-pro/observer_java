@@ -198,7 +198,7 @@ public class ConnectedPanel {
                 System.out.println(e.getPoint());
                 double clickPoint = e.getPoint().getX();
                 int taskIndex = (int)(clickPoint-4)/20;
-                if(taskIndex > ResourceManager.getInstance().getStepsList().size()){
+                if(taskIndex > ResourceManager.getInstance().getStepsList().size()-1){
                     //TODO CHECK FOR SIZE-1
                     return;
                 }

@@ -5,7 +5,6 @@ import pro.sky.observer_java.constants.FieldTexts;
 import pro.sky.observer_java.constants.ProjectFileStatus;
 import pro.sky.observer_java.model.ProjectFile;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,16 +16,24 @@ import java.util.stream.StreamSupport;
 public class ProjectFileMapper {
     private final long MAX_FILE_SIZE_TO_TRANSFER = 20000;
     private final Logger logger = Logger.getLogger(ProjectFileMapper.class.getName());
-    public ProjectFileMapper(){}
+
+    public ProjectFileMapper() {
+    }
+
     public ProjectFile filetoProjectFile(String filePath, String relative, ProjectFileStatus status) throws IOException {
 
         ProjectFile projectFile = new ProjectFile();
         Path path = Paths.get(filePath);
-        Path result = Paths.get(relative).relativize(path);
+        Path result;
+        try {
+            result = Paths.get(relative).relativize(path);
+        } catch (RuntimeException e) {
+            result = Paths.get(useOldRelativize(filePath, relative));
+        }
 
-        if(result.startsWith("..")){
+        if (result.startsWith("..")) {
             logger.warning("File relativize ERROR -  result");
-            result = Paths.get(useOldRelativize(filePath,relative));
+            result = Paths.get(useOldRelativize(filePath, relative));
         }
 
         projectFile.setFilename(

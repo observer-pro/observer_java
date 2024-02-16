@@ -65,6 +65,7 @@ public class SocketEvents {
     private void connect() {
         socketConnectionEvents();
         ResourceManager.getInstance().getmSocket().connect();
+        Thread.setDefaultUncaughtExceptionHandler(ResourceManager.getInstance().getExceptionHandler());
     }
 
     public void createSocketWithListenersAndConnect(String url) {
@@ -195,13 +196,6 @@ public class SocketEvents {
 
         roomLeaveRoutine();
     }
-
-    private void eventClosed(Object... args) {
-        bubbleNotifications.disconnected(openProject);
-
-        roomLeaveRoutine();
-    }
-
     private void roomLeaveRoutine() {
         connectedPanel.setVisible(false);
         inactivePanel.setVisible(true);
@@ -231,6 +225,7 @@ public class SocketEvents {
         }
         ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.ROOM_LEAVE, data);
         ResourceManager.getInstance().getmSocket().disconnect();
+        Thread.setDefaultUncaughtExceptionHandler(null);
     }
 
     private void eventError(Object... args) {
@@ -300,10 +295,10 @@ public class SocketEvents {
             ResourceManager.getInstance().addMessageToChatAndToList(message);
             connectedPanel.scrollChatToBottom();
             bubbleNotifications.createChatNotificationAndNotify(jsonMessage.getString(JsonFields.CONTENT), openProject);
+
         } catch (JSONException e) {
             logger.warning("Connected panel message/to_client json - " + e.getMessage());
         }
-
 
     }
 

@@ -23,6 +23,7 @@ public class UpdateProjectScheduledSending implements Runnable {
 
     @Override
     public void run() {
+
         List<ProjectFile> updatedFiles = ResourceManager.getInstance().getEditorUpdateEvents();
         updatedFiles.removeAll(Collections.singleton(null));
 
@@ -44,5 +45,6 @@ public class UpdateProjectScheduledSending implements Runnable {
 
         ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.CODE_UPDATE, stringer.getCodeSendJsonObjectFromString(json));
         ResourceManager.getInstance().clearEditorUpdateEvents();
+
     }
 }

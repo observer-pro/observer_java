@@ -35,7 +35,8 @@ public class InProgressSchedulesAndSending implements Runnable {
 
             ResourceManager.getInstance().getmSocket().emit(CustomSocketEvents.STEPS_STATUS_TO_MENTOR,
                     JsonMapper.stepStatusToJson(ResourceManager.getInstance().getStepsMap()));
-            return;
+
+           return;
         }
 
 

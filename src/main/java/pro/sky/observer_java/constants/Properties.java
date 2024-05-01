@@ -1,5 +1,5 @@
 package pro.sky.observer_java.constants;
 
 public class Properties {
-  public static String VERSION = "1.2.15";
+  public static String VERSION = "1.2.16";
 }

@@ -163,12 +163,27 @@ public class ResourceManager {
     }
 
     public void setSteps(Map<String, Step> stepMap) {
-        for (Map.Entry<String, Step> stringStepEntry : this.stepMap.entrySet()) {
-            String stepEntryKey = stringStepEntry.getKey();
+
+        Iterator<Map.Entry<String,Step>> iter = this.stepMap.entrySet().iterator();
+        while (iter.hasNext()) {
+            String stepEntryKey = iter.next().getKey();
             if(!stepMap.containsKey(stepEntryKey)){
                 this.stepMap.remove(stepEntryKey);
             }
         }
+//        List<String> removalList = new ArrayList<>();
+//        for (Map.Entry<String, Step> stringStepEntry : this.stepMap.entrySet()) {
+//            String stepEntryKey = stringStepEntry.getKey();
+//            if(!stepMap.containsKey(stepEntryKey)){
+//                removalList.add(stepEntryKey);
+//               // this.stepMap.remove(stepEntryKey);
+//            }
+//        }
+//        if(!removalList.isEmpty()){
+//            for (String key : removalList) {
+//                this.stepMap.remove(key);
+//            }
+//        }
         for (Map.Entry<String, Step> stepEntry : stepMap.entrySet()) {
             String stepEntryKey = stepEntry.getKey();
             if (this.stepMap.containsKey(stepEntryKey)) {

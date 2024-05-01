@@ -28,5 +28,8 @@ public class StringFormats {
             "</body> " +
             "</html> ";
 
-    public static final String SPAN_STYLE_FORMAT = "<span style=\"padding: 6px; border-top-left-radius: 4px; background-color: %s; font-family: Arial, sans-serif; border-collapse: separate; \">&nbsp;%s&nbsp;</span>&nbsp";
+    public static final String SPAN_STYLE_FORMAT = "<span style=\"padding: 6px; border-top-left-radius: 4px; " +
+            "background-color: %s; font-family: Arial, sans-serif;" +
+            " border-collapse: separate; \">&nbsp;%s&nbsp;" +
+            "</span>&nbsp";
 }
